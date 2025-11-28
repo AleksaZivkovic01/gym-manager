@@ -1,0 +1,20 @@
+<h2>{{ memberId ? 'Edit Member' : 'Add Member' }}</h2>
+
+<form [formGroup]="memberForm" (ngSubmit)="save()">
+  <label>
+    Name:
+    <input type="text" formControlName="name" />
+  </label>
+  <br />
+  <label>
+    Membership Type:
+    <input type="text" formControlName="membershipType" />
+  </label>
+  <br />
+  <label>
+    Active:
+    <input type="checkbox" formControlName="isActive" />
+  </label>
+  <br />
+  <button type="submit">{{ memberId ? 'Update' : 'Add' }}</button>
+</form>
