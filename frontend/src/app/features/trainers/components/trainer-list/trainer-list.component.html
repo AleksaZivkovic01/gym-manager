@@ -1,1 +1,10 @@
-<p>trainer-list works!</p>
+<h2>Trainers</h2>
+<button (click)="addTrainer()">Add Trainer</button>
+
+<ul>
+  <li *ngFor="let t of trainers">
+    {{ t.id }} - {{ t.name }} ({{ t.specialty }})
+    <button (click)="editTrainer(t.id)">Edit</button>
+    <button (click)="deleteTrainer(t.id)">Delete</button>
+  </li>
+</ul>

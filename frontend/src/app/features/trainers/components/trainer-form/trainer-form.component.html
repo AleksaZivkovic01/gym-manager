@@ -1,1 +1,11 @@
-<p>trainer-form works!</p>
+<h2>{{ isEdit ? 'Edit Trainer' : 'Add Trainer' }}</h2>
+
+<form (ngSubmit)="saveTrainer()">
+  <label>Name:</label>
+  <input type="text" [(ngModel)]="trainer.name" name="name" required>
+
+  <label>Specialty:</label>
+  <input type="text" [(ngModel)]="trainer.specialty" name="specialty" required>
+
+  <button type="submit">{{ isEdit ? 'Update' : 'Create' }}</button>
+</form>

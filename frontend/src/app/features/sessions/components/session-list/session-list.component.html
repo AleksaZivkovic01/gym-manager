@@ -1,0 +1,19 @@
+<h2>Training Sessions</h2>
+
+<button (click)="addSession()">Add Session</button>
+
+<ul>
+  <li *ngFor="let s of sessions">
+    <strong>{{ s.type }}</strong> - {{ s.date }} at {{ s.time }}  
+    <br>
+    Member: {{ s.member.name }} ({{ s.member.membershipType }}) 
+    <br>
+    Trainer: {{ s.trainer.name }} ({{ s.trainer.specialty }})
+    <br>
+
+    <button (click)="editSession(s.id)">Edit</button>
+    <button (click)="deleteSession(s.id)">Delete</button>
+
+    <hr>
+  </li>
+</ul>

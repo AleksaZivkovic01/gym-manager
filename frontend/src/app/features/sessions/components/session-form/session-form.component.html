@@ -1,0 +1,26 @@
+<h2>{{ isEdit ? 'Edit Session' : 'Add Session' }}</h2>
+
+<form (ngSubmit)="saveSession()">
+  <label>Date:</label>
+  <input type="date" [(ngModel)]="session.date" name="date" required>
+
+  <label>Time:</label>
+  <input type="text" [(ngModel)]="session.time" name="time" required>
+
+  <label>Type:</label>
+  <input type="text" [(ngModel)]="session.type" name="type" required>
+
+  <label>Member:</label>
+  <select [(ngModel)]="selectedMemberId" name="memberId" required>
+    <option *ngFor="let m of members" [value]="m.id">{{ m.name }} ({{ m.membershipType }})</option>
+  </select>
+
+  <label>Trainer:</label>
+  <select [(ngModel)]="selectedTrainerId" name="trainerId" required>
+    <option *ngFor="let t of trainers" [value]="t.id">{{ t.name }} ({{ t.specialty }})</option>
+  </select>
+
+  <button type="submit">
+    {{ isEdit ? 'Update' : 'Create' }}
+  </button>
+</form>
