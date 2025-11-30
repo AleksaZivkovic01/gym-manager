@@ -17,10 +17,6 @@ import { Trainer } from '../../../../shared/models/trainer.model';
   styleUrls: ['./session-form.component.scss']
 })
 export class SessionFormComponent implements OnInit {
-
-  isEdit = false;
-  sessionId: number | null = null;
-
   session: TrainingSession = {
     id: 0,
     date: '',
@@ -29,6 +25,9 @@ export class SessionFormComponent implements OnInit {
     member: { id: 0, name: '', membershipType: '', isActive: true },
     trainer: { id: 0, name: '', specialty: '' }
   };
+  
+  sessionId: number | null = null;
+  isEdit = false;
 
   members: Member[] = [];
   trainers: Trainer[] = [];
@@ -37,26 +36,26 @@ export class SessionFormComponent implements OnInit {
   selectedTrainerId: number = 0;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private sessionService: SessionService,
     private memberService: MemberService,
-    private trainerService: TrainerService
+    private trainerService: TrainerService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
-    // učitaj članove i trenere iz servisa
-    this.memberService.getMembers().subscribe(data => {
+    // Učitaj sve članove i trenere
+    this.memberService.members$.subscribe(data => {
       this.members = data;
       if (!this.isEdit) this.selectedMemberId = this.members[0]?.id || 0;
     });
 
-    this.trainerService.getTrainers().subscribe(data => {
+    this.trainerService.trainers$.subscribe(data => {
       this.trainers = data;
       if (!this.isEdit) this.selectedTrainerId = this.trainers[0]?.id || 0;
     });
 
-    // proveri da li je edit
+    // Proveri da li je edit
     this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
     this.isEdit = !!this.sessionId;
 

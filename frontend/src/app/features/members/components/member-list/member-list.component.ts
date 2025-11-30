@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MemberService } from '../../services/member.service';
 import { CommonModule } from '@angular/common';
 import { Member } from '../../../../shared/models/member.model';
 import { Router } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-member-list',
@@ -12,20 +14,23 @@ import { Router } from '@angular/router';
   styleUrl: './member-list.component.scss'
 })
 
-export class MemberListComponent implements OnInit {
+export class MemberListComponent implements OnInit,OnDestroy {
   members: Member[] = [];
+  private destroy$ = new Subject<void>();
 
   constructor(private memberService: MemberService, private router: Router) {}
 
   ngOnInit() {
-    this.loadMembers();
+    this.memberService.members$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.members = data;
+      });
   }
 
-  loadMembers() {
-    this.memberService.getMembers().subscribe(data => {
-      this.members = data;
-      console.log('Loaded members:', data);
-    });
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   addMember() {
@@ -38,9 +43,12 @@ export class MemberListComponent implements OnInit {
 
   deleteMember(id: number) {
     if (confirm('Are you sure you want to delete this member?')) {
-      this.memberService.deleteMember(id).subscribe(() => {
-        this.loadMembers(); 
-      });
+      this.memberService.deleteMember(id).subscribe();
     }
+  }
+
+  //za bolje performanse pri *ngFor
+  trackById(index: number, member: Member) {
+    return member.id;
   }
 }

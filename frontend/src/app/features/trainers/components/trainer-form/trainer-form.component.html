@@ -1,11 +1,13 @@
 <h2>{{ isEdit ? 'Edit Trainer' : 'Add Trainer' }}</h2>
 
-<form (ngSubmit)="saveTrainer()">
+<form [formGroup]="trainerForm" (ngSubmit)="saveTrainer()">
   <label>Name:</label>
-  <input type="text" [(ngModel)]="trainer.name" name="name" required>
+  <input type="text" formControlName="name" required>
 
   <label>Specialty:</label>
-  <input type="text" [(ngModel)]="trainer.specialty" name="specialty" required>
+  <input type="text" formControlName="specialty" required>
 
-  <button type="submit">{{ isEdit ? 'Update' : 'Create' }}</button>
+  <button type="submit" [disabled]="trainerForm.invalid">
+    {{ isEdit ? 'Update' : 'Create' }}
+  </button>
 </form>

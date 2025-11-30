@@ -2,7 +2,7 @@
 <button (click)="addMember()">Add Member</button>
 
 <ul>
-  <li *ngFor="let m of members">
+  <li *ngFor="let m of members; trackBy: trackById">
     {{ m.name }} ({{ m.membershipType }})
     <span *ngIf="!m.isActive" style="color:red">INACTIVE</span>
     <button (click)="editMember(m.id)">Edit</button>

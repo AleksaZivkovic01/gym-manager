@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TrainingSession } from '../../../shared/models/training-session.model';
 
 @Injectable({
@@ -9,10 +10,17 @@ import { TrainingSession } from '../../../shared/models/training-session.model';
 export class SessionService {
   private apiUrl = 'http://localhost:3000/sessions';
 
-  constructor(private http: HttpClient) {}
+  private sessionsSubject = new BehaviorSubject<TrainingSession[]>([]);
+  sessions$ = this.sessionsSubject.asObservable();
 
-  getSessions(): Observable<TrainingSession[]> {
-    return this.http.get<TrainingSession[]>(this.apiUrl);
+  constructor(private http: HttpClient) {
+    this.loadSessions();
+  }
+
+  loadSessions() {
+    this.http.get<TrainingSession[]>(this.apiUrl).subscribe(data => {
+      this.sessionsSubject.next(data);
+    });
   }
 
   getSession(id: number): Observable<TrainingSession> {
@@ -20,14 +28,34 @@ export class SessionService {
   }
 
   addSession(session: TrainingSession): Observable<TrainingSession> {
-    return this.http.post<TrainingSession>(this.apiUrl, session);
+    const payload = {
+      date: session.date,
+      time: session.time,
+      type: session.type,
+      memberId: session.member.id,
+      trainerId: session.trainer.id
+    };
+
+    return this.http.post<TrainingSession>(this.apiUrl, payload)
+      .pipe(tap(() => this.loadSessions()));
   }
 
   updateSession(id: number, session: TrainingSession): Observable<TrainingSession> {
-    return this.http.put<TrainingSession>(`${this.apiUrl}/${id}`, session);
+    const payload = {
+      date: session.date,
+      time: session.time,
+      type: session.type,
+      memberId: session.member.id,
+      trainerId: session.trainer.id
+    };
+
+    return this.http.put<TrainingSession>(`${this.apiUrl}/${id}`, payload)
+      .pipe(tap(() => this.loadSessions()));
   }
 
   deleteSession(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loadSessions())
+    );
   }
 }

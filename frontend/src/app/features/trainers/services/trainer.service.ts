@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Trainer } from '../../../shared/models/trainer.model';
-
 
 @Injectable({
   providedIn: 'root'
@@ -10,25 +9,36 @@ import { Trainer } from '../../../shared/models/trainer.model';
 export class TrainerService {
   private apiUrl = 'http://localhost:3000/trainers';
 
-  constructor(private http: HttpClient) {}
+  private trainersSubject = new BehaviorSubject<Trainer[]>([]);
+  trainers$ = this.trainersSubject.asObservable();
 
-  getTrainers(): Observable<Trainer[]> {
-    return this.http.get<Trainer[]>(this.apiUrl);
+  constructor(private http: HttpClient) {
+    this.loadTrainers();
+  }
+
+  loadTrainers() {
+    this.http.get<Trainer[]>(this.apiUrl).subscribe(data => this.trainersSubject.next(data));
   }
 
   getTrainer(id: number): Observable<Trainer> {
     return this.http.get<Trainer>(`${this.apiUrl}/${id}`);
   }
 
-  addTrainer(trainer: Trainer): Observable<Trainer> {
-    return this.http.post<Trainer>(this.apiUrl, trainer);
+  addTrainer(trainer: { name: string; specialty: string }): Observable<Trainer> {
+    return this.http.post<Trainer>(this.apiUrl, trainer).pipe(
+      tap(() => this.loadTrainers())
+    );
   }
 
-  updateTrainer(id: number, trainer: Trainer): Observable<Trainer> {
-    return this.http.put<Trainer>(`${this.apiUrl}/${id}`, trainer);
+  updateTrainer(id: number, trainer: { name: string; specialty: string }): Observable<Trainer> {
+    return this.http.put<Trainer>(`${this.apiUrl}/${id}`, trainer).pipe(
+      tap(() => this.loadTrainers())
+    );
   }
 
   deleteTrainer(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loadTrainers())
+    );
   }
 }

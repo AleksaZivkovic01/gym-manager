@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MemberService } from '../../services/member.service';
@@ -12,9 +12,10 @@ import { Member } from '../../../../shared/models/member.model';
   templateUrl: './member-form.component.html',
   styleUrls: ['./member-form.component.scss'],
 })
-export class MemberFormComponent {
+export class MemberFormComponent implements OnInit {
   memberForm: FormGroup;
   memberId: number | null = null;
+  isEdit = false;
 
   constructor(
     private memberService: MemberService,
@@ -26,24 +27,31 @@ export class MemberFormComponent {
       membershipType: new FormControl('', Validators.required),
       isActive: new FormControl(true),
     });
+  }
 
+  ngOnInit() {
     this.memberId = Number(this.route.snapshot.paramMap.get('id'));
-    if (this.memberId) {
-      this.loadMember(this.memberId);
+    this.isEdit = !!this.memberId;
+
+    if (this.isEdit) {
+      this.loadMember(this.memberId!);
     }
   }
 
   loadMember(id: number) {
-    this.memberService.getMembers().subscribe((members) => {
+    this.memberService.members$.subscribe((members) => {
       const member = members.find((m) => m.id === id);
-      if (member) this.memberForm.patchValue(member);
+      if (member) {
+        this.memberForm.patchValue(member);
+      }
     });
   }
 
   save() {
     const member: Member = this.memberForm.value;
-    if (this.memberId) {
-      this.memberService.updateMember(this.memberId, member).subscribe(() => {
+
+    if (this.isEdit) {
+      this.memberService.updateMember(this.memberId!, member).subscribe(() => {
         this.router.navigate(['/members']);
       });
     } else {
