@@ -2,8 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TrainerService } from '../../services/trainer.service';
+import { Store } from '@ngrx/store';
+
 import { Trainer } from '../../../../shared/models/trainer.model';
+import { loadTrainers, addTrainer, updateTrainer } from '../../../../store/trainer/trainer.actions';
+import { selectTrainerById } from '../../../../store/trainer/trainer.selector';
 
 @Component({
   selector: 'app-trainer-form',
@@ -13,16 +16,16 @@ import { Trainer } from '../../../../shared/models/trainer.model';
   styleUrls: ['./trainer-form.component.scss']
 })
 export class TrainerFormComponent implements OnInit {
+
   trainerForm: FormGroup;
   trainerId: number | null = null;
   isEdit = false;
 
   constructor(
+    private store: Store,
     private route: ActivatedRoute,
-    private router: Router,
-    private trainerService: TrainerService
+    private router: Router
   ) {
-    // FormGroup sa samo poljima koja želimo da šaljemo
     this.trainerForm = new FormGroup({
       name: new FormControl('', Validators.required),
       specialty: new FormControl('', Validators.required),
@@ -34,32 +37,35 @@ export class TrainerFormComponent implements OnInit {
     this.isEdit = !!this.trainerId;
 
     if (this.isEdit) {
-      this.loadTrainer(this.trainerId!);
-    }
-  }
+      this.store.dispatch(loadTrainers());
 
-  loadTrainer(id: number) {
-    // Pravimo mapiranje samo na name i specialty, ne uključujemo sessions
-    this.trainerService.trainers$.subscribe(trainers => {
-      const t = trainers.find(x => x.id === id);
-      if (t) {
-        this.trainerForm.patchValue({
-          name: t.name,
-          specialty: t.specialty
+      this.store.select(selectTrainerById(this.trainerId!))
+        .subscribe(trainer => {
+          if (trainer) {
+            this.trainerForm.patchValue({
+              name: trainer.name,
+              specialty: trainer.specialty
+            });
+          }
         });
-      }
-    });
+    }
   }
 
   saveTrainer(): void {
-    const trainerData = this.trainerForm.value; // samo name i specialty
-
-    if (this.isEdit) {
-      this.trainerService.updateTrainer(this.trainerId!, trainerData)
-        .subscribe(() => this.router.navigate(['/trainers']));
-    } else {
-      this.trainerService.addTrainer(trainerData)
-        .subscribe(() => this.router.navigate(['/trainers']));
+    // Ako je ADD → ne šaljemo id
+    if (!this.isEdit) {
+      const trainerData = this.trainerForm.value;
+      this.store.dispatch(addTrainer({ trainer: trainerData }));
+      this.router.navigate(['/trainers']);
+      return;
     }
+    // Ako je EDIT → šaljemo id
+    const trainer: Trainer = {
+      id: this.trainerId!,
+      ...this.trainerForm.value
+    };
+
+    this.store.dispatch(updateTrainer({ trainer }));
+    this.router.navigate(['/trainers']);
   }
 }

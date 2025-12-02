@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionService } from '../../services/session.service';
 import { TrainingSession } from '../../../../shared/models/training-session.model';
+import { select, Store } from '@ngrx/store';
+import { deleteSession, loadSessions } from '../../../../store/session/session.actions';
+import { selectAllSessions } from '../../../../store/session/session.selector';
 
 @Component({
   selector: 'app-session-list',
@@ -16,12 +19,15 @@ export class SessionListComponent implements OnInit, OnDestroy {
   sessions: TrainingSession[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(private sessionService: SessionService, private router: Router) {}
+  constructor(private store: Store, private router: Router) {}
 
   ngOnInit() {
-    this.sessionService.sessions$
+    this.store.dispatch(loadSessions());
+    this.store.pipe(select(selectAllSessions))
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => this.sessions = data);
+      .subscribe(sessions => {
+        this.sessions = sessions;
+      });
   }
 
   ngOnDestroy() {
@@ -39,7 +45,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   deleteSession(id: number) {
     if (confirm('Are you sure you want to delete this session?')) {
-      this.sessionService.deleteSession(id).subscribe();
+      this.store.dispatch(deleteSession({id}));
     }
   }
 

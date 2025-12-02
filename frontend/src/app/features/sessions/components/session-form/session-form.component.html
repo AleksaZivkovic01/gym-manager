@@ -12,12 +12,16 @@
 
   <label>Member:</label>
   <select [(ngModel)]="selectedMemberId" name="memberId" required>
-    <option *ngFor="let m of members" [value]="m.id">{{ m.name }} ({{ m.membershipType }})</option>
+    <option *ngFor="let m of members" [value]="m.id">
+      {{ m.name }} ({{ m.membershipType }})
+    </option>
   </select>
 
   <label>Trainer:</label>
   <select [(ngModel)]="selectedTrainerId" name="trainerId" required>
-    <option *ngFor="let t of trainers" [value]="t.id">{{ t.name }} ({{ t.specialty }})</option>
+    <option *ngFor="let t of trainers" [value]="t.id">
+      {{ t.name }} ({{ t.specialty }})
+    </option>
   </select>
 
   <button type="submit">

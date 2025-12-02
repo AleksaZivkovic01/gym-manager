@@ -4,6 +4,9 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { MemberService } from '../../services/member.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Member } from '../../../../shared/models/member.model';
+import { addMember, loadMembers, updateMember } from '../../../../store/member/member.actions';
+import { Store } from '@ngrx/store';
+import { selectMemberById } from '../../../../store/member/member.selector';
 
 @Component({
   selector: 'app-member-form',
@@ -18,14 +21,14 @@ export class MemberFormComponent implements OnInit {
   isEdit = false;
 
   constructor(
-    private memberService: MemberService,
+    private store: Store,
     private router: Router,
     private route: ActivatedRoute
   ) {
     this.memberForm = new FormGroup({
       name: new FormControl('', Validators.required),
       membershipType: new FormControl('', Validators.required),
-      isActive: new FormControl(true),
+      isActive: new FormControl(true)
     });
   }
 
@@ -34,30 +37,30 @@ export class MemberFormComponent implements OnInit {
     this.isEdit = !!this.memberId;
 
     if (this.isEdit) {
-      this.loadMember(this.memberId!);
+      this.store.dispatch(loadMembers());
+      this.store.select(selectMemberById(this.memberId!))
+        .subscribe(member => {
+          if (member) {
+            this.memberForm.patchValue(member);
+          }
+        });
     }
-  }
-
-  loadMember(id: number) {
-    this.memberService.members$.subscribe((members) => {
-      const member = members.find((m) => m.id === id);
-      if (member) {
-        this.memberForm.patchValue(member);
-      }
-    });
   }
 
   save() {
-    const member: Member = this.memberForm.value;
+    const member: Member = {
+      id: this.memberId!,
+      ...this.memberForm.value
+    };
 
     if (this.isEdit) {
-      this.memberService.updateMember(this.memberId!, member).subscribe(() => {
-        this.router.navigate(['/members']);
-      });
+      this.store.dispatch(updateMember({ member }));
     } else {
-      this.memberService.addMember(member).subscribe(() => {
-        this.router.navigate(['/members']);
-      });
+      this.store.dispatch(addMember({ member }));
     }
+
+    this.router.navigate(['/members']);
   }
 }
+
+

@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
-import { TrainerService } from '../../services/trainer.service';
 import { Trainer } from '../../../../shared/models/trainer.model';
+import { Store } from '@ngrx/store';
+import { deleteTrainer, loadTrainers } from '../../../../store/trainer/trainer.actions';
+import { selectAllTrainers } from '../../../../store/trainer/trainer.selector';
 
 @Component({
   selector: 'app-trainer-list',
@@ -18,13 +19,14 @@ export class TrainerListComponent implements OnInit, OnDestroy {
   trainers: Trainer[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(private trainerService: TrainerService, private router: Router) {}
+  constructor(private store: Store, private router: Router) {}
 
   ngOnInit() {
-    this.trainerService.trainers$
+    this.store.dispatch(loadTrainers());
+    this.store.select(selectAllTrainers)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.trainers = data;
+      .subscribe(trainers => {
+        this.trainers = trainers;
       });
   }
 
@@ -43,7 +45,7 @@ export class TrainerListComponent implements OnInit, OnDestroy {
 
   deleteTrainer(id: number) {
     if (confirm('Are you sure you want to delete this trainer?')) {
-      this.trainerService.deleteTrainer(id).subscribe();
+      this.store.dispatch(deleteTrainer({ id })); 
     }
   }
 

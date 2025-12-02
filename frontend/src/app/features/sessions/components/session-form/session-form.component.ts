@@ -3,11 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SessionService } from '../../services/session.service';
-import { MemberService } from '../../../members/services/member.service';
-import { TrainerService } from '../../../trainers/services/trainer.service';
 import { TrainingSession } from '../../../../shared/models/training-session.model';
 import { Member } from '../../../../shared/models/member.model';
 import { Trainer } from '../../../../shared/models/trainer.model';
+import { Store } from '@ngrx/store';
+
+import { loadMembers } from '../../../../store/member/member.actions';
+import { selectAllMembers } from '../../../../store/member/member.selector';
+import { loadTrainers } from '../../../../store/trainer/trainer.actions';
+import { selectAllTrainers } from '../../../../store/trainer/trainer.selector';
+import { addSession, loadSessions, updateSession } from '../../../../store/session/session.actions';
+import { selectSessionById } from '../../../../store/session/session.selector';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-session-form',
@@ -25,7 +32,7 @@ export class SessionFormComponent implements OnInit {
     member: { id: 0, name: '', membershipType: '', isActive: true },
     trainer: { id: 0, name: '', specialty: '' }
   };
-  
+
   sessionId: number | null = null;
   isEdit = false;
 
@@ -37,50 +44,75 @@ export class SessionFormComponent implements OnInit {
 
   constructor(
     private sessionService: SessionService,
-    private memberService: MemberService,
-    private trainerService: TrainerService,
+    private store: Store,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
-  ngOnInit() {
-    // Učitaj sve članove i trenere
-    this.memberService.members$.subscribe(data => {
-      this.members = data;
-      if (!this.isEdit) this.selectedMemberId = this.members[0]?.id || 0;
-    });
+ ngOnInit() {
+  this.store.dispatch(loadMembers());
+  this.store.dispatch(loadTrainers());
 
-    this.trainerService.trainers$.subscribe(data => {
-      this.trainers = data;
-      if (!this.isEdit) this.selectedTrainerId = this.trainers[0]?.id || 0;
-    });
+  this.store.select(selectAllMembers)
+  .subscribe(members => {
+    this.members = members;
+    if (!this.isEdit) this.selectedMemberId = members[0]?.id ?? 0;
+  });
 
-    // Proveri da li je edit
-    this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
-    this.isEdit = !!this.sessionId;
+  this.store.select(selectAllTrainers)
+  .subscribe(trainers => {
+    this.trainers = trainers;
+    if (!this.isEdit) this.selectedTrainerId = trainers[0]?.id ?? 0;
+  });
+  
 
-    if (this.isEdit) {
-      this.sessionService.getSession(this.sessionId!).subscribe(data => {
-        this.session = data;
-        this.selectedMemberId = data.member.id;
-        this.selectedTrainerId = data.trainer.id;
-      });
-    }
+  // EDIT MODE
+  this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
+  this.isEdit = !!this.sessionId;
+
+  if (this.isEdit) {
+    this.store.dispatch(loadSessions());
+
+    this.store.select(selectSessionById(this.sessionId!))
+              .subscribe(s => {
+                if (s) {
+                  this.session = {
+                    id: s.id,
+                    date: s.date,
+                    time: s.time,
+                    type: s.type,
+                    member: { ...s.member },
+                    trainer: { ...s.trainer }
+                  };
+
+                  this.selectedMemberId = s.member.id;
+                  this.selectedTrainerId = s.trainer.id;
+                }
+              });
   }
+}
+
 
   saveSession() {
-    // mapiranje selektovanih ID-eva na objekat
-    this.session.member = this.members.find(m => m.id === +this.selectedMemberId)!;
-    this.session.trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
+  const member = this.members.find(m => m.id === +this.selectedMemberId)!;
+  const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
 
-    if (this.isEdit) {
-      this.sessionService.updateSession(this.sessionId!, this.session).subscribe(() => {
-        this.router.navigate(['/sessions']);
-      });
-    } else {
-      this.sessionService.addSession(this.session).subscribe(() => {
-        this.router.navigate(['/sessions']);
-      });
-    }
+  const sessionToSend: TrainingSession = {
+    ...this.session,
+    member,
+    trainer
+  };
+
+  if (this.isEdit) {
+    this.store.dispatch(updateSession({ session: sessionToSend }));
+  } else {
+    this.store.dispatch(addSession({ session: sessionToSend }));
   }
+
+  this.router.navigate(['/sessions']);
+}
+
+
+  
+
 }
