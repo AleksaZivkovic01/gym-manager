@@ -7,10 +7,10 @@ export class TrainingSession {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  date: string;
+  @Column({ type: 'date' }) 
+  date: Date;
 
-  @Column()
+  @Column({ type: 'time' })
   time: string;
 
   @Column()

@@ -25,17 +25,27 @@ export class TrainerService {
   }
 
   create(dto: CreateTrainerDto): Promise<Trainer> {
-    const trainer = this.trainerRepository.create(dto);
+    const trainer = this.trainerRepository.create({
+      ...dto,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+    });
+
     return this.trainerRepository.save(trainer);
   }
 
   async update(id: number, dto: UpdateTrainerDto): Promise<Trainer> {
-    await this.trainerRepository.update(id, dto);
+    const updateData = {
+      ...dto,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+    };
+
+    await this.trainerRepository.update(id, updateData);
     return this.findOne(id);
   }
 
   async delete(id: number): Promise<void> {
     const result = await this.trainerRepository.delete(id);
-    if (result.affected === 0) throw new NotFoundException(`Trainer ${id} not found`);
+    if (result.affected === 0)
+      throw new NotFoundException(`Trainer ${id} not found`);
   }
 }

@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsDateString } from 'class-validator';
 
 export class CreateTrainerDto {
   @IsString()
@@ -6,6 +6,18 @@ export class CreateTrainerDto {
 
   @IsString()
   specialty: string;
+
+  @IsOptional()
+  @IsInt()
+  experienceYears?: number;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
 }
 
 export class UpdateTrainerDto {
@@ -16,4 +28,16 @@ export class UpdateTrainerDto {
   @IsOptional()
   @IsString()
   specialty?: string;
+
+  @IsOptional()
+  @IsInt()
+  experienceYears?: number;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
 }

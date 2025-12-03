@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TrainerService } from '../../features/trainers/services/trainer.service';
 import * as TrainerActions from './trainer.actions';
-import { mergeMap, map, catchError } from 'rxjs/operators';
+import { mergeMap, map, catchError, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class TrainerEffects {
   loadTrainers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.loadTrainers),
-      mergeMap(() =>
+      switchMap(() =>
         this.trainerService.getTrainers().pipe(
           map(trainers => TrainerActions.loadTrainersSuccess({ trainers })),
           catchError(error =>
@@ -29,7 +29,7 @@ export class TrainerEffects {
   addTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.addTrainer),
-      mergeMap(({ trainer }) =>
+      switchMap(({ trainer }) =>
         this.trainerService.addTrainer(trainer).pipe(
           map(newTrainer =>
             TrainerActions.addTrainerSuccess({ trainer: newTrainer })
@@ -46,7 +46,7 @@ export class TrainerEffects {
   updateTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.updateTrainer),
-      mergeMap(({ trainer }) =>
+      switchMap(({ trainer }) =>
         this.trainerService.updateTrainer(trainer.id, trainer).pipe(
           map(updated =>
             TrainerActions.updateTrainerSuccess({ trainer: updated })
@@ -63,7 +63,7 @@ export class TrainerEffects {
   deleteTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.deleteTrainer),
-      mergeMap(({ id }) =>
+      switchMap(({ id }) =>
         this.trainerService.deleteTrainer(id).pipe(
           map(() => TrainerActions.deleteTrainerSuccess({ id })),
           catchError(error =>

@@ -29,8 +29,8 @@ export class SessionFormComponent implements OnInit {
     date: '',
     time: '',
     type: '',
-    member: { id: 0, name: '', membershipType: '', isActive: true },
-    trainer: { id: 0, name: '', specialty: '' }
+    member: { id: 0, name: '', level: 'beginner', isActive: true },
+    trainer: { id: 0, name: '', specialty: '', experienceYears: undefined, gender: '', dateOfBirth: '' }
   };
 
   sessionId: number | null = null;
@@ -49,70 +49,67 @@ export class SessionFormComponent implements OnInit {
     private router: Router
   ) {}
 
- ngOnInit() {
-  this.store.dispatch(loadMembers());
-  this.store.dispatch(loadTrainers());
+  ngOnInit() {
+    // Učitavanje članova i trenera
+    this.store.dispatch(loadMembers());
+    this.store.dispatch(loadTrainers());
 
-  this.store.select(selectAllMembers)
-  .subscribe(members => {
-    this.members = members;
-    if (!this.isEdit) this.selectedMemberId = members[0]?.id ?? 0;
-  });
+    this.store.select(selectAllMembers)
+      .subscribe(members => {
+        this.members = members;
+        if (!this.isEdit) this.selectedMemberId = members[0]?.id ?? 0;
+      });
 
-  this.store.select(selectAllTrainers)
-  .subscribe(trainers => {
-    this.trainers = trainers;
-    if (!this.isEdit) this.selectedTrainerId = trainers[0]?.id ?? 0;
-  });
-  
+    this.store.select(selectAllTrainers)
+      .subscribe(trainers => {
+        this.trainers = trainers;
+        if (!this.isEdit) this.selectedTrainerId = trainers[0]?.id ?? 0;
+      });
 
-  // EDIT MODE
-  this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
-  this.isEdit = !!this.sessionId;
+    // Edit mod
+    this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
+    this.isEdit = !!this.sessionId;
 
-  if (this.isEdit) {
-    this.store.dispatch(loadSessions());
+    if (this.isEdit) {
+      this.store.dispatch(loadSessions());
 
-    this.store.select(selectSessionById(this.sessionId!))
-              .subscribe(s => {
-                if (s) {
-                  this.session = {
-                    id: s.id,
-                    date: s.date,
-                    time: s.time,
-                    type: s.type,
-                    member: { ...s.member },
-                    trainer: { ...s.trainer }
-                  };
+      this.store.select(selectSessionById(this.sessionId!))
+        .subscribe(s => {
+          if (s) {
+            this.session = {
+              id: s.id,
+              date: s.date,
+              time: s.time,
+              type: s.type,
+              member: { ...s.member },
+              trainer: { ...s.trainer }
+            };
 
-                  this.selectedMemberId = s.member.id;
-                  this.selectedTrainerId = s.trainer.id;
-                }
-              });
+            this.selectedMemberId = s.member.id;
+            this.selectedTrainerId = s.trainer.id;
+          }
+        });
+    }
   }
-}
-
 
   saveSession() {
-  const member = this.members.find(m => m.id === +this.selectedMemberId)!;
-  const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
+    // Izbor member i trainer objekata
+    const member = this.members.find(m => m.id === +this.selectedMemberId)!;
+    const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
 
-  const sessionToSend: TrainingSession = {
-    ...this.session,
-    member,
-    trainer
-  };
+    // Priprema objekta za store i backend
+    const sessionToStore: TrainingSession = {
+      ...this.session,
+      member,
+      trainer
+    };
 
-  if (this.isEdit) {
-    this.store.dispatch(updateSession({ session: sessionToSend }));
-  } else {
-    this.store.dispatch(addSession({ session: sessionToSend }));
+    if (this.isEdit) {
+      this.store.dispatch(updateSession({ session: sessionToStore }));
+    } else {
+      this.store.dispatch(addSession({ session: sessionToStore }));
+    }
+
+    this.router.navigate(['/sessions']);
   }
-
-  this.router.navigate(['/sessions']);
-}
-
-
-  
-
 }

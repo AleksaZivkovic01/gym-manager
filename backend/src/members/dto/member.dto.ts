@@ -1,15 +1,24 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsIn, IsDateString } from 'class-validator';
 
 export class CreateMemberDto {
   @IsString()
   name: string;
 
-  @IsString()
-  membershipType: string;
+  @IsIn(['beginner', 'medium', 'expert'])
+  level: 'beginner' | 'medium' | 'expert';
 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
+  
 }
 
 export class UpdateMemberDto {
@@ -18,10 +27,18 @@ export class UpdateMemberDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  membershipType?: string;
+  @IsIn(['beginner', 'medium', 'expert'])
+  level?: 'beginner' | 'medium' | 'expert';
 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
 }

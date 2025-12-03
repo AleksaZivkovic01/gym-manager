@@ -1,10 +1,10 @@
-import { IsString, IsInt, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDateString, Matches } from 'class-validator';
 
 export class CreateTrainingSessionDto {
-  @IsString()
+  @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
   date: string;
 
-  @IsString()
+  @Matches(/^\d{2}:\d{2}$/, { message: 'Time must be in format HH:MM' })
   time: string;
 
   @IsString()
@@ -19,11 +19,11 @@ export class CreateTrainingSessionDto {
 
 export class UpdateTrainingSessionDto {
   @IsOptional()
-  @IsString()
+  @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
   date?: string;
 
   @IsOptional()
-  @IsString()
+  @Matches(/^\d{2}:\d{2}$/, { message: 'Time must be in format HH:MM' })
   time?: string;
 
   @IsOptional()

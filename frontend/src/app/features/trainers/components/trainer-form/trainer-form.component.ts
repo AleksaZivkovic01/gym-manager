@@ -52,14 +52,14 @@ export class TrainerFormComponent implements OnInit {
   }
 
   saveTrainer(): void {
-    // Ako je ADD → ne šaljemo id
+   
     if (!this.isEdit) {
       const trainerData = this.trainerForm.value;
       this.store.dispatch(addTrainer({ trainer: trainerData }));
       this.router.navigate(['/trainers']);
       return;
     }
-    // Ako je EDIT → šaljemo id
+    
     const trainer: Trainer = {
       id: this.trainerId!,
       ...this.trainerForm.value

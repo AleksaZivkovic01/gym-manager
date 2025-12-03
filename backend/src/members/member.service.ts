@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from './member.entity';
+import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
+
 
 @Injectable()
 export class MemberService {
@@ -21,13 +23,24 @@ export class MemberService {
     });
   }
 
-  create(member: Partial<Member>): Promise<Member> {
-    const newMember = this.memberRepository.create(member);
+  create(dto: CreateMemberDto): Promise<Member> {
+    const newMember = this.memberRepository.create({
+      ...dto,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+    });
+
     return this.memberRepository.save(newMember);
   }
 
-  async update(id: number, updateData: Partial<Member>): Promise<Member> {
+ 
+  async update(id: number, dto: UpdateMemberDto): Promise<Member> {
+    const updateData = {
+      ...dto,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+    };
+
     await this.memberRepository.update(id, updateData);
+
     const updated = await this.findOne(id);
     if (!updated) {
       throw new NotFoundException(`Member with ID ${id} not found`);
@@ -35,7 +48,10 @@ export class MemberService {
     return updated;
   }
 
-  delete(id: number): Promise<void> {
-    return this.memberRepository.delete(id).then(() => undefined);
+  async delete(id: number): Promise<void> {
+    const result = await this.memberRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Member with ID ${id} not found`);
+    }
   }
 }

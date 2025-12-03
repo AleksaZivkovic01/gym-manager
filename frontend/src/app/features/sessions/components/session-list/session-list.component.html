@@ -4,9 +4,9 @@
 
 <ul>
   <li *ngFor="let s of sessions">
-    <strong>{{ s.type }}</strong> - {{ s.date }} at {{ s.time }}  
+    <strong>{{ s.type }}</strong> - {{ s.date | date:'dd.MM.yyyy'}} at {{ s.time }}  
     <br>
-    Member: {{ s.member.name }} ({{ s.member.membershipType }}) 
+    Member: {{ s.member.name }} ({{ s.member.level }}) 
     <br>
     Trainer: {{ s.trainer.name }} ({{ s.trainer.specialty }})
     <br>

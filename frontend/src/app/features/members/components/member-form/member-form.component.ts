@@ -27,7 +27,7 @@ export class MemberFormComponent implements OnInit {
   ) {
     this.memberForm = new FormGroup({
       name: new FormControl('', Validators.required),
-      membershipType: new FormControl('', Validators.required),
+      level: new FormControl('', Validators.required),
       isActive: new FormControl(true)
     });
   }

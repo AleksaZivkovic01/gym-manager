@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as SessionActions from './session.actions';
 import { SessionService } from '../../features/sessions/services/session.service';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class SessionEffects {
   loadSessions$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SessionActions.loadSessions),
-      mergeMap(() =>
+      switchMap(() =>
         this.sessionService.getSessions().pipe(
           map(sessions => SessionActions.loadSessionsSuccess({ sessions })),
           catchError(error =>
@@ -28,7 +28,7 @@ export class SessionEffects {
   addSession$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SessionActions.addSession),
-      mergeMap(({ session }) =>
+      switchMap(({ session }) =>
         this.sessionService.addSession(session).pipe(
           map(newSession => SessionActions.addSessionSuccess({ session: newSession })),
           catchError(error => of(SessionActions.addSessionFailure({ error: error.message })))
@@ -40,7 +40,7 @@ export class SessionEffects {
   updateSession$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SessionActions.updateSession),
-      mergeMap(({ session }) =>
+      switchMap(({ session }) =>
         this.sessionService.updateSession(session.id, session).pipe(
           map(updated => SessionActions.updateSessionSuccess({ session: updated })),
           catchError(error =>
@@ -54,7 +54,7 @@ export class SessionEffects {
   deleteSession$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SessionActions.deleteSession),
-      mergeMap(({ id }) =>
+      switchMap(({ id }) =>
         this.sessionService.deleteSession(id).pipe(
           map(() => SessionActions.deleteSessionSuccess({ id })),
           catchError(error =>

@@ -38,7 +38,7 @@ export class TrainingSessionService {
     if (!trainer) throw new NotFoundException(`Trainer ${dto.trainerId} not found`);
 
     const session = this.sessionRepository.create({
-      date: dto.date,
+      date: new Date(dto.date),
       time: dto.time,
       type: dto.type,
       member,
@@ -63,7 +63,7 @@ export class TrainingSessionService {
       session.trainer = trainer;
     }
 
-    session.date = dto.date ?? session.date;
+    session.date = dto.date ? new Date(dto.date) : session.date;
     session.time = dto.time ?? session.time;
     session.type = dto.type ?? session.type;
 

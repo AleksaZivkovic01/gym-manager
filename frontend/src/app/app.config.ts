@@ -12,8 +12,10 @@ import { TrainerEffects } from './store/trainer/trainer.effects';
 import { sessionReducer } from './store/session/session.reducer';
 import { SessionEffects } from './store/session/session.effects';
 
+
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }),
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
     provideStore({
@@ -26,5 +28,7 @@ export const appConfig: ApplicationConfig = {
       TrainerEffects,
       SessionEffects
     ]), 
-    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })]
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
+  ],
+    
 };
