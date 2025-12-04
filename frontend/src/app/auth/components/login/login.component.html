@@ -1,0 +1,35 @@
+<section class="auth-card">
+  <h2>Prijava</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Email
+      <input type="email" formControlName="email" placeholder="you@example.com" />
+    </label>
+    <div class="error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+      Unesite ispravnu email adresu.
+    </div>
+
+    <label>
+      Lozinka
+      <input type="password" formControlName="password" placeholder="••••••••" />
+    </label>
+    <div class="error" *ngIf="form.controls.password.invalid && form.controls.password.touched">
+      Lozinka je obavezna.
+    </div>
+
+    <div class="error" *ngIf="authError">
+      {{ authError }}
+    </div>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Prijavljivanje...' : 'Prijavi se' }}
+    </button>
+  </form>
+
+  <p class="switch">
+    Nemaš nalog?
+    <a routerLink="/register">Registruj se</a>
+  </p>
+</section>
+

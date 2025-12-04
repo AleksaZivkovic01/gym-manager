@@ -1,14 +1,21 @@
 <header class="navbar">
-  <div class="logo">GymManager</div>
+  <div class="logo" routerLink="/">GymManager</div>
 
   <nav>
-    <a routerLink="/members">Members</a>
-    <a routerLink="/trainers">Trainers</a>
-    <a routerLink="/sessions">Sessions</a>
+    <a routerLink="/members" routerLinkActive="active">Members</a>
+    <a routerLink="/trainers" routerLinkActive="active">Trainers</a>
+    <a routerLink="/sessions" routerLinkActive="active">Sessions</a>
   </nav>
 
   <div class="auth-actions">
-    <button>Login</button>
-    <button>Register</button>
+    <ng-container *ngIf="currentUser$ | async as user; else guestLinks">
+      <span class="user-info">{{ user.email }}</span>
+      <button mat-button color="accent" (click)="logout()">Logout</button>
+    </ng-container>
+
+    <ng-template #guestLinks>
+      <button mat-stroked-button routerLink="/login">Login</button>
+      <button mat-flat-button color="primary" routerLink="/register">Register</button>
+    </ng-template>
   </div>
 </header>

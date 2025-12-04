@@ -21,6 +21,13 @@ export class UserService {
     });
   }
 
+  findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { email },
+      relations: ['member', 'trainer'],
+    });
+  }
+
   create(user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
     return this.userRepository.save(newUser);

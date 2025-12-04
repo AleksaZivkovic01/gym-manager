@@ -1,0 +1,129 @@
+<section class="auth-card">
+  <h2>Registracija</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Email
+      <input type="email" formControlName="email" placeholder="you@example.com" />
+    </label>
+    <div class="error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
+      Unesite ispravnu email adresu.
+    </div>
+
+    <label>
+      Lozinka
+      <input type="password" formControlName="password" placeholder="••••••••" />
+    </label>
+    <div class="error" *ngIf="form.controls.password.invalid && form.controls.password.touched">
+      Lozinka mora imati najmanje 6 karaktera.
+    </div>
+
+    <label>
+      Uloga
+      <select formControlName="role">
+        <option value="member">Član</option>
+        <option value="trainer">Trener</option>
+      </select>
+    </label>
+
+    <!-- Member specific fields -->
+    <div *ngIf="form.controls.role.value === 'member'" class="role-section">
+      <h3>Podaci o članu</h3>
+
+      <label>
+        Ime i prezime
+        <input type="text" formControlName="memberName" placeholder="Unesite ime člana" />
+      </label>
+      <div class="error" *ngIf="form.controls.memberName.invalid && form.controls.memberName.touched">
+        Ovo polje je obavezno.
+      </div>
+
+      <label>
+        Nivo
+        <select formControlName="memberLevel">
+          <option value="beginner">Početnik</option>
+          <option value="medium">Srednji</option>
+          <option value="expert">Ekspert</option>
+        </select>
+      </label>
+      <div class="error" *ngIf="form.controls.memberLevel.invalid && form.controls.memberLevel.touched">
+        Izaberi nivo člana.
+      </div>
+
+      <label>
+        Pol
+        <input type="text" formControlName="memberGender" placeholder="npr. Muški / Ženski" />
+      </label>
+      <div class="error" *ngIf="form.controls.memberGender.invalid && form.controls.memberGender.touched">
+        Ovo polje je obavezno.
+      </div>
+
+      <label>
+        Datum rođenja
+        <input type="date" formControlName="memberDateOfBirth" />
+      </label>
+      <div class="error" *ngIf="form.controls.memberDateOfBirth.invalid && form.controls.memberDateOfBirth.touched">
+        Datum rođenja je obavezan.
+      </div>
+    </div>
+
+    <!-- Trainer specific fields -->
+    <div *ngIf="form.controls.role.value === 'trainer'" class="role-section">
+      <h3>Podaci o treneru</h3>
+
+      <label>
+        Ime i prezime
+        <input type="text" formControlName="trainerName" placeholder="Unesite ime trenera" />
+      </label>
+      <div class="error" *ngIf="form.controls.trainerName.invalid && form.controls.trainerName.touched">
+        Ovo polje je obavezno.
+      </div>
+
+      <label>
+        Specijalnost
+        <input type="text" formControlName="trainerSpecialty" placeholder="npr. Fitness, Crossfit..." />
+      </label>
+      <div class="error" *ngIf="form.controls.trainerSpecialty.invalid && form.controls.trainerSpecialty.touched">
+        Ovo polje je obavezno.
+      </div>
+
+      <label>
+        Iskustvo (godine)
+        <input type="number" formControlName="trainerExperienceYears" min="0" />
+      </label>
+      <div class="error" *ngIf="form.controls.trainerExperienceYears.invalid && form.controls.trainerExperienceYears.touched">
+        Unesi broj godina iskustva (0 ili više).
+      </div>
+
+      <label>
+        Pol
+        <input type="text" formControlName="trainerGender" placeholder="npr. Muški / Ženski" />
+      </label>
+      <div class="error" *ngIf="form.controls.trainerGender.invalid && form.controls.trainerGender.touched">
+        Ovo polje je obavezno.
+      </div>
+
+      <label>
+        Datum rođenja
+        <input type="date" formControlName="trainerDateOfBirth" />
+      </label>
+      <div class="error" *ngIf="form.controls.trainerDateOfBirth.invalid && form.controls.trainerDateOfBirth.touched">
+        Datum rođenja je obavezan.
+      </div>
+    </div>
+
+    <div class="error" *ngIf="authError">
+      {{ authError }}
+    </div>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Kreiranje naloga...' : 'Registruj se' }}
+    </button>
+  </form>
+
+  <p class="switch">
+    Već imaš nalog?
+    <a routerLink="/login">Prijavi se</a>
+  </p>
+</section>
+
