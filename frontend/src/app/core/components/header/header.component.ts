@@ -20,8 +20,30 @@ export class HeaderComponent {
 
   currentUser$: Observable<User | null> = this.authService.currentUser$;
 
+  navLinks = {
+    guest: [
+      { label: 'Home', path: '/' },
+      { label: 'Packages', path: '/packages' },
+      { label: 'About', path: '/about' }
+    ],
+    member: [
+      { label: 'Home', path: '/' },
+      { label: 'Moj nalog', path: '/member/dashboard' }
+    ],
+    trainer: [
+      { label: 'Home', path: '/' },
+      { label: 'Trener panel', path: '/trainer/dashboard' }
+    ],
+    admin: [
+      { label: 'Home', path: '/admin/dashboard' },
+      { label: 'Members', path: '/members' },
+      { label: 'Trainers', path: '/trainers' },
+      { label: 'Sessions', path: '/sessions' }
+    ]
+  };
+  
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['']);
   }
 }

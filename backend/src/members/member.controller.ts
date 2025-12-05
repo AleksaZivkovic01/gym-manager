@@ -1,6 +1,11 @@
-import {Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 import { MemberService } from './member.service';
 import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
+import { User } from '../user/user.entity';
+
+type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
 @Controller('members')
 export class MemberController {
@@ -9,6 +14,13 @@ export class MemberController {
   @Get()
   getAll() {
     return this.memberService.findAll();
+  }
+
+  // Get current user's member data - MUST be before @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  getMyMember(@Req() req: AuthenticatedRequest) {
+    return this.memberService.findByUserId(req.user.id);
   }
 
   @Get(':id')

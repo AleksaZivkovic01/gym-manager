@@ -1,58 +1,50 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { selectCurrentUser, selectIsAuthenticated, selectAuthToken } from '../../store/auth/auth.selector';
+import { login, register, logout, loadUserFromStorage } from '../../store/auth/auth.actions';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { User } from '../../shared/models/user.model';
-
-const TOKEN_KEY = 'gym_manager_token';
-const USER_KEY = 'gym_manager_user';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly store = inject(Store);
   private readonly apiUrl = 'http://localhost:3000/auth';
 
-  private readonly currentUserSubject = new BehaviorSubject<User | null>(this.loadUser());
-  readonly currentUser$ = this.currentUserSubject.asObservable();
+  // Selectors as observables
+  readonly currentUser$ = this.store.select(selectCurrentUser);
+  readonly isAuthenticated$ = this.store.select(selectIsAuthenticated);
 
   login(payload: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload).pipe(
-      tap((response) => this.persistSession(response)),
-    );
+    // Dispatch action and return HTTP call for backward compatibility
+    this.store.dispatch(login({ credentials: payload }));
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload);
   }
 
   register(payload: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
-      tap((response) => this.persistSession(response)),
-    );
+    // Dispatch action and return HTTP call for backward compatibility
+    this.store.dispatch(register({ data: payload }));
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload);
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    this.currentUserSubject.next(null);
+    this.store.dispatch(logout());
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    let token: string | null = null;
+    this.store.select(selectAuthToken).subscribe(t => token = t).unsubscribe();
+    return token;
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
-  private persistSession(response: AuthResponse) {
-    localStorage.setItem(TOKEN_KEY, response.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
-    this.currentUserSubject.next(response.user);
-  }
-
-  private loadUser(): User | null {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    let authenticated = false;
+    this.store.select(selectIsAuthenticated).subscribe(auth => authenticated = auth).unsubscribe();
+    return authenticated;
   }
 }
 

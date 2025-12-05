@@ -145,9 +145,11 @@ export class RegisterComponent {
     const payload = this.buildPayload();
 
     this.authService.register(payload).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSubmitting = false;
-        this.router.navigate(['/members']);
+        // Show success message and redirect to login
+        alert('Registracija je uspešna! Vaš nalog čeka odobrenje administratora. Bićete obavešteni kada administrator odobri vašu registraciju.');
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isSubmitting = false;
@@ -156,4 +158,3 @@ export class RegisterComponent {
     });
   }
 }
-

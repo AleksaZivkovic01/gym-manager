@@ -1,0 +1,70 @@
+<section class="package-form">
+  <div class="header">
+    <h1>{{ isEdit ? 'Izmeni paket' : 'Dodaj novi paket' }}</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading && isEdit">
+    <p>Učitavanje...</p>
+  </div>
+
+  <form [formGroup]="packageForm" (ngSubmit)="save()" *ngIf="!loading || !isEdit">
+      <div class="form-group">
+        <label>
+          Naziv paketa *
+          <input type="text" formControlName="name" placeholder="npr. Basic Plan" />
+        </label>
+        <div class="error" *ngIf="packageForm.controls['name'].invalid && packageForm.controls['name'].touched">
+          Naziv je obavezan.
+        </div>
+      </div>
+
+    <div class="form-group">
+      <label>
+        Opis
+        <textarea formControlName="description" rows="3" placeholder="Opis paketa..."></textarea>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>
+          Cena (€) *
+          <input type="number" formControlName="price" step="0.01" min="0" placeholder="25.00" />
+        </label>
+        <div class="error" *ngIf="packageForm.controls['price'].invalid && packageForm.controls['price'].touched">
+          Cena mora biti veća ili jednaka 0.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Termina mesečno *
+          <input type="number" formControlName="sessionsPerMonth" min="0" placeholder="8" />
+          <small>Unesite 0 za neograničeno</small>
+        </label>
+        <div class="error" *ngIf="packageForm.controls['sessionsPerMonth'].invalid && packageForm.controls['sessionsPerMonth'].touched">
+          Broj termina mora biti veći ili jednak 0.
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" formControlName="isActive" />
+        <span>Aktivan paket</span>
+      </label>
+    </div>
+
+    <div class="error" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn-cancel">Otkaži</button>
+      <button type="submit" [disabled]="packageForm.invalid || loading" class="btn-save">
+        {{ isEdit ? 'Sačuvaj izmene' : 'Dodaj paket' }}
+      </button>
+    </div>
+  </form>
+</section>
+

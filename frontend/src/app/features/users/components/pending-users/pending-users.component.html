@@ -1,0 +1,45 @@
+<section class="pending-users">
+  <div class="header">
+    <h1>Korisnici na čekanju</h1>
+    <button (click)="loadPendingUsers()" class="refresh-btn">Osveži</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Učitavanje korisnika...</p>
+  </div>
+
+  <div class="error" *ngIf="error && !loading">
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="no-users" *ngIf="!loading && !error && pendingUsers.length === 0">
+    <p>Nema korisnika na čekanju.</p>
+  </div>
+
+  <div class="users-list" *ngIf="!loading && !error && pendingUsers.length > 0">
+    <div class="user-card" *ngFor="let user of pendingUsers">
+      <div class="user-info">
+        <div class="user-header">
+          <h3>{{ user.email }}</h3>
+          <span class="role-badge" [class.member]="user.role === 'member'" [class.trainer]="user.role === 'trainer'">
+            {{ getRoleLabel(user.role) }}
+          </span>
+        </div>
+        <p class="user-details">{{ getUserDetails(user) }}</p>
+        <p class="status-info">
+          <strong>Status:</strong> 
+          <span class="status-pending">Čeka odobrenje</span>
+        </p>
+      </div>
+      <div class="user-actions">
+        <button class="btn-approve" (click)="approveUser(user)">
+          ✓ Odobri
+        </button>
+        <button class="btn-reject" (click)="rejectUser(user)">
+          ✗ Odbij
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+

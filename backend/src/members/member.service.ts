@@ -54,4 +54,14 @@ export class MemberService {
       throw new NotFoundException(`Member with ID ${id} not found`);
     }
   }
+
+  // Find member by user ID
+  async findByUserId(userId: number): Promise<Member | null> {
+    return this.memberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.sessions', 'sessions')
+      .leftJoinAndSelect('member.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getOne();
+  }
 }

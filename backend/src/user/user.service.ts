@@ -43,4 +43,23 @@ export class UserService {
   async delete(id: number): Promise<void> {
     await this.userRepository.delete(id);
   }
+
+  // Get pending users (needs approval)
+  findPending(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { status: 'pending' },
+      relations: ['member', 'trainer'],
+      order: { id: 'ASC' },
+    });
+  }
+
+  // Approve user
+  async approve(id: number): Promise<User> {
+    return this.update(id, { status: 'approved' });
+  }
+
+  // Reject user
+  async reject(id: number): Promise<User> {
+    return this.update(id, { status: 'rejected' });
+  }
 }

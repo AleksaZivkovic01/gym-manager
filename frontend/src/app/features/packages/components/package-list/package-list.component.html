@@ -1,0 +1,50 @@
+<section class="package-list">
+  <div class="header">
+    <h1>Upravljanje paketima</h1>
+    <button (click)="addPackage()" class="btn-add">+ Dodaj paket</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Učitavanje paketa...</p>
+  </div>
+
+  <div class="error" *ngIf="error && !loading">
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="packages-table" *ngIf="!loading && !error">
+    <table>
+      <thead>
+        <tr>
+          <th>Naziv</th>
+          <th>Opis</th>
+          <th>Cena</th>
+          <th>Termini/mesec</th>
+          <th>Status</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages">
+          <td>{{ pkg.name }}</td>
+          <td>{{ pkg.description || '-' }}</td>
+          <td>{{ formatPrice(pkg.price) }}</td>
+          <td>{{ getSessionsLabel(pkg.sessionsPerMonth) }}</td>
+          <td>
+            <span [class.active]="pkg.isActive" [class.inactive]="!pkg.isActive">
+              {{ pkg.isActive ? 'Aktivan' : 'Neaktivan' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button (click)="editPackage(pkg.id)" class="btn-edit">Izmeni</button>
+            <button (click)="deletePackage(pkg.id)" class="btn-delete">Obriši</button>
+          </td>
+        </tr>
+        <tr *ngIf="packages.length === 0">
+          <td colspan="6" class="no-data">Nema paketa. Dodajte novi paket.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+

@@ -2,14 +2,19 @@
   <div class="logo" routerLink="/">GymManager</div>
 
   <nav>
-    <a routerLink="/members" routerLinkActive="active">Members</a>
-    <a routerLink="/trainers" routerLinkActive="active">Trainers</a>
-    <a routerLink="/sessions" routerLinkActive="active">Sessions</a>
-  </nav>
+  <ng-container *ngIf="currentUser$ | async as user; else guestNav">
+    <a *ngFor="let link of navLinks[user.role]" [routerLink]="link.path">{{ link.label }}</a>
+  </ng-container>
+
+  <ng-template #guestNav>
+    <a *ngFor="let link of navLinks['guest']" [routerLink]="link.path">{{ link.label }}</a>
+  </ng-template>
+</nav>
+
 
   <div class="auth-actions">
     <ng-container *ngIf="currentUser$ | async as user; else guestLinks">
-      <span class="user-info">{{ user.email }}</span>
+      <span class="user-info">{{ user.email }} ({{ user.role }})</span>
       <button mat-button color="accent" (click)="logout()">Logout</button>
     </ng-container>
 

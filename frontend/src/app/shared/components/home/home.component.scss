@@ -1,0 +1,44 @@
+.home {
+  max-width: 800px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.home h1 {
+  margin-bottom: 0.5rem;
+}
+
+.home p {
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+.home-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.home-actions a {
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.home-actions .primary {
+  background-color: #2d7ef7;
+  color: #fff;
+}
+
+.home-actions .secondary {
+  border: 1px solid #2d7ef7;
+  color: #2d7ef7;
+}
+
+.home-actions .ghost {
+  color: #555;
+}
+
+

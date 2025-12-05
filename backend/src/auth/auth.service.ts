@@ -30,14 +30,17 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthPayload> {
     const existingUser = await this.userService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new BadRequestException('Korisnik sa ovim email-om već postoji');
+      throw new BadRequestException('Korisnik sa ovim email-om već postoji. Molimo koristite drugi email ili se prijavite.');
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.userService.create({
+    const userRole = registerDto.role ?? 'member';
+    let user = await this.userService.create({
       email: registerDto.email,
       password: hashedPassword,
-      role: registerDto.role ?? 'member',
+      role: userRole,
+      // Admini su automatski odobreni, ostali moraju čekati odobrenje
+      status: userRole === 'admin' ? 'approved' : 'pending',
     });
 
     if (user.role === 'member' && registerDto.member) {
@@ -50,6 +53,9 @@ export class AuthService {
         user,
       });
       await this.memberRepository.save(member);
+      // Reload user with member relation
+      const reloadedUser = await this.userService.findOne(user.id);
+      if (reloadedUser) user = reloadedUser;
     }
 
     if (user.role === 'trainer' && registerDto.trainer) {
@@ -62,6 +68,9 @@ export class AuthService {
         user,
       });
       await this.trainerRepository.save(trainer);
+      // Reload user with trainer relation
+      const reloadedUser = await this.userService.findOne(user.id);
+      if (reloadedUser) user = reloadedUser;
     }
 
     return this.buildAuthPayload(user);
@@ -76,6 +85,18 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(loginDto.password, user.password);
     if (!passwordMatches) {
       throw new UnauthorizedException('Pogrešan email ili lozinka');
+    }
+
+    // Proveri da li je korisnik odobren (admini su uvek odobreni)
+    // Proveri status pre nego što dozvoliš login
+    if (user.role !== 'admin') {
+      if (!user.status || user.status === 'pending') {
+        throw new UnauthorizedException('Vaša registracija još nije odobrena. Molimo sačekajte odobrenje administratora.');
+      } else if (user.status === 'rejected') {
+        throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
+      } else if (user.status !== 'approved') {
+        throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
+      }
     }
 
     return this.buildAuthPayload(user);

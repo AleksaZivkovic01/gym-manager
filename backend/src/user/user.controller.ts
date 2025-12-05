@@ -1,6 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+
+type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
 @Controller('users')
 export class UserController {
@@ -14,6 +18,45 @@ export class UserController {
   @Get(':id')
   getOne(@Param('id', ParseIntPipe) id: number): Promise<User | null> {
     return this.userService.findOne(id);
+  }
+
+  // Admin only: Get pending users
+  @UseGuards(AuthGuard('jwt'))
+  @Get('pending/approvals')
+  getPendingUsers(@Req() req: AuthenticatedRequest): Promise<User[]> {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      throw new UnauthorizedException('Only admins can view pending users');
+    }
+    return this.userService.findPending();
+  }
+
+  // Admin only: Approve user
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id/approve')
+  approveUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<User> {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      throw new UnauthorizedException('Only admins can approve users');
+    }
+    return this.userService.approve(id);
+  }
+
+  // Admin only: Reject user
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id/reject')
+  rejectUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<User> {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      throw new UnauthorizedException('Only admins can reject users');
+    }
+    return this.userService.reject(id);
   }
 
   @Post()

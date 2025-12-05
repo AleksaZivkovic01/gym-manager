@@ -1,10 +1,18 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { Store } from '@ngrx/store';
+import { selectAuthToken } from '../../store/auth/auth.selector';
+import { take } from 'rxjs/operators';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
+  const store = inject(Store);
+  let token: string | null = null;
+
+  // Get token synchronously from store
+  store.select(selectAuthToken)
+    .pipe(take(1))
+    .subscribe(t => token = t)
+    .unsubscribe();
 
   if (token) {
     req = req.clone({

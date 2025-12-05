@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { User } from '../../../shared/models/user.model';
 import { LoginRequest } from '../../models/auth.model';
 
 @Component({
@@ -36,15 +37,27 @@ export class LoginComponent {
     this.authError = '';
 
     this.authService.login(this.form.getRawValue() as LoginRequest).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSubmitting = false;
-        this.router.navigate(['/members']);
+        this.redirectByRole(response.user);
       },
       error: (err) => {
         this.isSubmitting = false;
         this.authError = err?.error?.message ?? 'Prijava nije uspela. Pokušajte ponovo.';
       },
     });
+  }
+
+  private redirectByRole(user: User): void {
+    if (user.role === 'member') {
+      this.router.navigate(['/member/dashboard']);
+    } else if (user.role === 'trainer') {
+      this.router.navigate(['/trainer/dashboard']);
+    } else if (user.role === 'admin') {
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }
 

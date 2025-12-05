@@ -11,6 +11,8 @@ import { trainerReducer } from './store/trainer/trainer.reducer';
 import { TrainerEffects } from './store/trainer/trainer.effects';
 import { sessionReducer } from './store/session/session.reducer';
 import { SessionEffects } from './store/session/session.effects';
+import { authReducer } from './store/auth/auth.reducer';
+import { AuthEffects } from './store/auth/auth.effects';
 import { authInterceptor } from './auth/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -21,12 +23,14 @@ export const appConfig: ApplicationConfig = {
     provideStore({
       members: memberReducer,
       trainers: trainerReducer,
-      sessions: sessionReducer
+      sessions: sessionReducer,
+      auth: authReducer
     }), 
     provideEffects([
       MemberEffects,
       TrainerEffects,
-      SessionEffects
+      SessionEffects,
+      AuthEffects
     ]), 
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

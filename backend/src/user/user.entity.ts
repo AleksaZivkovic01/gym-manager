@@ -3,6 +3,7 @@ import { Member } from "../members/member.entity";
 import { Trainer } from "../trainers/trainer.entity";
 
 export type UserRole = 'member' | 'trainer' | 'admin';
+export type UserStatus = 'pending' | 'approved' | 'rejected';
 
 @Entity()
 export class User {
@@ -21,6 +22,13 @@ export class User {
     default: 'member'
   })
   role: UserRole;
+
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  })
+  status: UserStatus;
 
   @OneToOne(() => Member, member => member.user, { nullable: true })
   member?: Member;
