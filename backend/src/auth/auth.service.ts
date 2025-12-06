@@ -28,52 +28,82 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthPayload> {
-    const existingUser = await this.userService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw new BadRequestException('Korisnik sa ovim email-om već postoji. Molimo koristite drugi email ili se prijavite.');
-    }
+    try {
+      const existingUser = await this.userService.findByEmail(registerDto.email);
+      if (existingUser) {
+        throw new BadRequestException('Korisnik sa ovim email-om već postoji. Molimo koristite drugi email ili se prijavite.');
+      }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const userRole = registerDto.role ?? 'member';
-    let user = await this.userService.create({
-      email: registerDto.email,
-      password: hashedPassword,
-      role: userRole,
-      // Admini su automatski odobreni, ostali moraju čekati odobrenje
-      status: userRole === 'admin' ? 'approved' : 'pending',
-    });
-
-    if (user.role === 'member' && registerDto.member) {
-      const member = this.memberRepository.create({
-        name: registerDto.member.name,
-        level: registerDto.member.level,
-        isActive: true,
-        gender: registerDto.member.gender,
-        dateOfBirth: registerDto.member.dateOfBirth ? new Date(registerDto.member.dateOfBirth) : undefined,
-        user,
+      const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+      const userRole = registerDto.role ?? 'member';
+      let user = await this.userService.create({
+        email: registerDto.email,
+        password: hashedPassword,
+        role: userRole,
+        // Admini su automatski odobreni, ostali moraju čekati odobrenje
+        status: userRole === 'admin' ? 'approved' : 'pending',
       });
-      await this.memberRepository.save(member);
-      // Reload user with member relation
-      const reloadedUser = await this.userService.findOne(user.id);
-      if (reloadedUser) user = reloadedUser;
-    }
 
-    if (user.role === 'trainer' && registerDto.trainer) {
-      const trainer = this.trainerRepository.create({
-        name: registerDto.trainer.name,
-        specialty: registerDto.trainer.specialty,
-        experienceYears: registerDto.trainer.experienceYears,
-        gender: registerDto.trainer.gender,
-        dateOfBirth: registerDto.trainer.dateOfBirth ? new Date(registerDto.trainer.dateOfBirth) : undefined,
-        user,
-      });
-      await this.trainerRepository.save(trainer);
-      // Reload user with trainer relation
-      const reloadedUser = await this.userService.findOne(user.id);
-      if (reloadedUser) user = reloadedUser;
-    }
+      if (user.role === 'member' && registerDto.member) {
+        try {
+          const member = this.memberRepository.create({
+            name: registerDto.member.name,
+            level: registerDto.member.level,
+            isActive: true,
+            gender: registerDto.member.gender,
+            dateOfBirth: registerDto.member.dateOfBirth ? new Date(registerDto.member.dateOfBirth) : undefined,
+            user,
+          });
+          await this.memberRepository.save(member);
+          // Reload user with member relation
+          try {
+            const reloadedUser = await this.userService.findOne(user.id);
+            if (reloadedUser) user = reloadedUser;
+          } catch (reloadError) {
+            console.warn('Failed to reload user with member relation:', reloadError);
+            // Continue with user without relations
+          }
+        } catch (memberError) {
+          console.error('Error creating member:', memberError);
+          // If member creation fails, we should probably rollback user creation
+          // But for now, just log and continue
+          throw new BadRequestException('Greška pri kreiranju člana. Molimo pokušajte ponovo.');
+        }
+      }
 
-    return this.buildAuthPayload(user);
+      if (user.role === 'trainer' && registerDto.trainer) {
+        try {
+          const trainer = this.trainerRepository.create({
+            name: registerDto.trainer.name,
+            specialty: registerDto.trainer.specialty,
+            experienceYears: registerDto.trainer.experienceYears,
+            gender: registerDto.trainer.gender,
+            dateOfBirth: registerDto.trainer.dateOfBirth ? new Date(registerDto.trainer.dateOfBirth) : undefined,
+            user,
+          });
+          await this.trainerRepository.save(trainer);
+          // Reload user with trainer relation
+          try {
+            const reloadedUser = await this.userService.findOne(user.id);
+            if (reloadedUser) user = reloadedUser;
+          } catch (reloadError) {
+            console.warn('Failed to reload user with trainer relation:', reloadError);
+            // Continue with user without relations
+          }
+        } catch (trainerError) {
+          console.error('Error creating trainer:', trainerError);
+          throw new BadRequestException('Greška pri kreiranju trenera. Molimo pokušajte ponovo.');
+        }
+      }
+
+      return this.buildAuthPayload(user);
+    } catch (error) {
+      console.error('Error in register:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(error.message || 'Greška pri registraciji. Molimo pokušajte ponovo.');
+    }
   }
 
   async login(loginDto: LoginDto): Promise<AuthPayload> {

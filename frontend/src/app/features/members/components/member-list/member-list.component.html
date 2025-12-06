@@ -4,7 +4,9 @@
 <ul>
   <li *ngFor="let m of members; trackBy: trackById">
     {{ m.name }} ({{ m.level }})
-    <span *ngIf="!m.isActive" style="color:red">INACTIVE</span>
+    <span *ngIf="m.package"> - Package: {{ m.package.name }}</span>
+    <span *ngIf="!m.package" style="color:#999"> - No package</span>
+    <span *ngIf="!m.isActive" style="color:red"> INACTIVE</span>
     <button (click)="editMember(m.id)">Edit</button>
     <button (click)="deleteMember(m.id)">Delete</button>
   </li>

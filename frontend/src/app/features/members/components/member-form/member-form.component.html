@@ -8,7 +8,21 @@
   <br />
   <label>
     Level:
-    <input type="text" formControlName="level" />
+    <select formControlName="level">
+      <option value="beginner">Beginner</option>
+      <option value="medium">Medium</option>
+      <option value="expert">Expert</option>
+    </select>
+  </label>
+  <br />
+  <label>
+    Package:
+    <select formControlName="packageId">
+      <option [value]="null">No package</option>
+      <option *ngFor="let pkg of packages" [value]="pkg.id">
+        {{ pkg.name }} - {{ pkg.price }}€
+      </option>
+    </select>
   </label>
   <br />
   <label>

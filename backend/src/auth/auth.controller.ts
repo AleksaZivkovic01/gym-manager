@@ -14,8 +14,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() registerDto: RegisterDto): Promise<AuthPayload> {
-    return this.authService.register(registerDto);
+  async register(@Body() registerDto: RegisterDto): Promise<AuthPayload> {
+    try {
+      return await this.authService.register(registerDto);
+    } catch (error) {
+      console.error('Error in register controller:', error);
+      throw error;
+    }
   }
 
   @Post('login')

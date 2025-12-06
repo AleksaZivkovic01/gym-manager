@@ -1,24 +1,39 @@
 <section class="packages">
   <h2>Paketi članstva</h2>
 
-  <div class="packages-grid">
-    <article class="card">
-      <h3>Basic</h3>
-      <p>8 termina mesečno, pristup osnovnoj opremi.</p>
-      <div class="price">25€ / mesec</div>
-    </article>
+  <div class="loading" *ngIf="loading">
+    <p>Učitavanje paketa...</p>
+  </div>
 
-    <article class="card">
-      <h3>Standard</h3>
-      <p>12 termina mesečno, grupni treninzi + osnovna oprema.</p>
-      <div class="price">35€ / mesec</div>
+  <div class="packages-grid" *ngIf="!loading">
+    <article class="card" *ngFor="let pkg of packages">
+      <h3>{{ pkg.name }}</h3>
+      <p>{{ pkg.description || 'Paket bez opisa' }}</p>
+      <div class="package-info">
+        <div class="price">{{ formatPrice(pkg.price) }} / mesec</div>
+        <div class="sessions">{{ getSessionsLabel(pkg.sessionsPerMonth) }}</div>
+      </div>
+      <div class="package-actions" *ngIf="currentUser && currentUser.role === 'member'">
+        <button 
+          *ngIf="currentMember && !hasPackage(pkg.id)" 
+          (click)="selectPackage(pkg)" 
+          class="btn-select">
+          Izaberi paket
+        </button>
+        <span *ngIf="currentMember && hasPackage(pkg.id)" class="selected-badge">
+          ✓ Vaš trenutni paket
+        </span>
+        <span *ngIf="!currentMember" class="loading-member">
+          Učitavanje podataka...
+        </span>
+      </div>
+      <div class="package-actions" *ngIf="!currentUser || currentUser.role !== 'member'">
+        <a routerLink="/login" class="btn-login">Prijavite se da izaberete paket</a>
+      </div>
     </article>
-
-    <article class="card">
-      <h3>Premium</h3>
-      <p>Neograničeni termini, svi grupni treninzi, saune.</p>
-      <div class="price">50€ / mesec</div>
-    </article>
+    <div *ngIf="packages.length === 0" class="no-packages">
+      <p>Trenutno nema dostupnih paketa.</p>
+    </div>
   </div>
 </section>
 

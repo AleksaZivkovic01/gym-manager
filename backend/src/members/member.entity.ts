@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
 import { TrainingSession } from '../sessions/training-session.entity';
 import { User } from '../user/user.entity';
+import { Package } from '../packages/package.entity';
 
 @Entity()
 export class Member {
@@ -21,6 +22,13 @@ export class Member {
 
   @Column({ type: 'date', nullable: true })
   dateOfBirth?: Date;
+
+  @ManyToOne(() => Package, { nullable: true })
+  @JoinColumn()
+  package?: Package;
+
+  @Column({ nullable: true })
+  packageId?: number;
 
   @OneToMany(() => TrainingSession, (session) => session.member)
   sessions: TrainingSession[];

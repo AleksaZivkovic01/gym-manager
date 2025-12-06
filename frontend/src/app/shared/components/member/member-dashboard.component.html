@@ -23,6 +23,22 @@
           <span class="label">Ime:</span>
           <span class="value">{{ memberInfo.name }}</span>
         </div>
+        <div class="info-row" *ngIf="memberInfo.package">
+          <span class="label">Paket:</span>
+          <span class="value package-name">{{ memberInfo.package.name }}</span>
+        </div>
+        <div class="info-row" *ngIf="memberInfo.package">
+          <span class="label">Cena:</span>
+          <span class="value">{{ formatPrice(memberInfo.package.price) }}</span>
+        </div>
+        <div class="info-row" *ngIf="memberInfo.package">
+          <span class="label">Termina/mesec:</span>
+          <span class="value">{{ getSessionsLabel(memberInfo.package.sessionsPerMonth) }}</span>
+        </div>
+        <div class="info-row" *ngIf="!memberInfo.package">
+          <span class="label">Paket:</span>
+          <span class="value" style="color: #999;">Nema izabranog paketa</span>
+        </div>
       </div>
       <div class="no-data" *ngIf="!memberInfo">
         <p>Podaci o članstvu se učitavaju...</p>

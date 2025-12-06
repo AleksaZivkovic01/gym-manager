@@ -140,6 +140,18 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     };
     return labels[level] || level;
   }
+
+  formatPrice(price: number | string): string {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+    if (isNaN(numPrice)) {
+      return '0.00€';
+    }
+    return `${numPrice.toFixed(2)}€`;
+  }
+
+  getSessionsLabel(sessions: number): string {
+    return sessions === 0 ? 'Neograničeno' : `${sessions} termina`;
+  }
 }
 
 

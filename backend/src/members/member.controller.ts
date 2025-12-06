@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req, NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { MemberService } from './member.service';
@@ -24,8 +24,24 @@ export class MemberController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: number) {
-    return this.memberService.findOne(id);
+  async getOne(@Param('id') id: string) {
+    try {
+      const memberId = parseInt(id, 10);
+      if (isNaN(memberId)) {
+        throw new NotFoundException('Invalid member ID');
+      }
+      const member = await this.memberService.findOne(memberId);
+      if (!member) {
+        throw new NotFoundException(`Member with ID ${memberId} not found`);
+      }
+      return member;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error(`Error in getOne for member ID ${id}:`, error);
+      throw new NotFoundException(`Error loading member with ID ${id}`);
+    }
   }
 
   @Post()
@@ -34,8 +50,20 @@ export class MemberController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateMemberDto) {
-    return this.memberService.update(id, dto);
+  async update(@Param('id') id: string, @Body() dto: UpdateMemberDto) {
+    try {
+      const memberId = parseInt(id, 10);
+      if (isNaN(memberId)) {
+        throw new NotFoundException('Invalid member ID');
+      }
+      return await this.memberService.update(memberId, dto);
+    } catch (error) {
+      console.error(`Error in update for member ID ${id}:`, error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   @Delete(':id')

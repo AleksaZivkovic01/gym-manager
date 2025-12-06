@@ -1,3 +1,5 @@
+import { Package } from './package.model';
+
 export interface Member {
   id: number;
   name: string;
@@ -5,4 +7,6 @@ export interface Member {
   isActive: boolean;
   gender?: string;
   dateOfBirth?: string;
+  package?: Package;
+  packageId?: number;
 }

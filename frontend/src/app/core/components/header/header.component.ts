@@ -27,8 +27,9 @@ export class HeaderComponent {
       { label: 'About', path: '/about' }
     ],
     member: [
-      { label: 'Home', path: '/' },
-      { label: 'Moj nalog', path: '/member/dashboard' }
+      { label: 'Moj nalog', path: '/member/dashboard' },
+      { label: 'Packages', path: '/packages' }
+      
     ],
     trainer: [
       { label: 'Home', path: '/' },

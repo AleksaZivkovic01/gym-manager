@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, IsIn, IsDateString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsIn, IsDateString, IsInt } from 'class-validator';
 
 export class CreateMemberDto {
   @IsString()
@@ -18,7 +18,10 @@ export class CreateMemberDto {
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
-  
+
+  @IsOptional()
+  @IsInt()
+  packageId?: number;
 }
 
 export class UpdateMemberDto {
@@ -41,4 +44,8 @@ export class UpdateMemberDto {
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
+
+  @IsOptional()
+  @IsInt()
+  packageId?: number;
 }
