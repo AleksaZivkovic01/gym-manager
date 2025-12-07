@@ -6,9 +6,11 @@
   <li *ngFor="let s of sessions">
     <strong>{{ s.type }}</strong> - {{ s.date | date:'dd.MM.yyyy'}} at {{ s.time }}  
     <br>
-    Member: {{ s.member.name }} ({{ s.member.level }}) 
-    <br>
     Trainer: {{ s.trainer.name }} ({{ s.trainer.specialty }})
+    <br>
+    <span *ngIf="s.registrations">
+      Prijavljeno: {{ s.registrations.length }}/{{ s.maxParticipants }}
+    </span>
     <br>
 
     <button (click)="editSession(s.id)">Edit</button>

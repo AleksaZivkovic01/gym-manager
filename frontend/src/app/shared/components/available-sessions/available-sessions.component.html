@@ -1,0 +1,114 @@
+<div class="available-sessions-container">
+  <div class="header">
+    <h2>Dostupni Treningi</h2>
+    <p class="subtitle">Pregledajte i prijavite se na dostupne treninge</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Filtriraj po datumu:</label>
+      <select [(ngModel)]="filterType" class="filter-select">
+        <option value="all">Svi treningi</option>
+        <option value="upcoming">Predstojeći</option>
+        <option value="past">Prošli</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Filtriraj po treneru:</label>
+      <select [(ngModel)]="filterTrainer" class="filter-select">
+        <option value="">Svi treneri</option>
+        <option *ngFor="let trainer of trainers" [value]="trainer.id">
+          {{ trainer.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Filtriraj po tipu treninga:</label>
+      <select [(ngModel)]="filterSessionType" class="filter-select">
+        <option value="">Svi tipovi</option>
+        <option *ngFor="let type of sessionTypes" [value]="type">
+          {{ type }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Učitavanje treninga...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <!-- Sessions List -->
+  <div *ngIf="!loading && !error" class="sessions-grid">
+    <div 
+      *ngFor="let session of filteredSessions" 
+      class="session-card"
+      [class.registered]="isRegistered(session.id)"
+      [class.full]="isFull(session)">
+      
+      <div class="session-header">
+        <h3>{{ session.type }}</h3>
+        <span class="status-badge" [ngClass]="getStatusClass(session)">
+          {{ getStatusText(session) }}
+        </span>
+      </div>
+
+      <div class="session-info">
+        <div class="info-row">
+          <span class="label">Datum:</span>
+          <span class="value">{{ formatDate(session.date) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Vreme:</span>
+          <span class="value">{{ session.time }}</span>
+        </div>
+        <div class="info-row" *ngIf="session.trainer">
+          <span class="label">Trener:</span>
+          <span class="value trainer-name">{{ session.trainer.name }}</span>
+        </div>
+        <div class="info-row" *ngIf="session.trainer">
+          <span class="label">Specijalnost:</span>
+          <span class="value">{{ session.trainer.specialty }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Mesta:</span>
+          <span class="value">
+            {{ session.registrations?.length || 0 }}/{{ session.maxParticipants }}
+          </span>
+        </div>
+      </div>
+
+      <div class="session-actions">
+        <button 
+          *ngIf="canRegister(session)"
+          (click)="registerToSession(session)"
+          class="btn-register">
+          Prijavi se
+        </button>
+        <button 
+          *ngIf="isRegistered(session.id)"
+          (click)="unregisterFromSession(session)"
+          class="btn-unregister">
+          Odjavi se
+        </button>
+        <span *ngIf="isFull(session) && !isRegistered(session.id)" class="full-message">
+          Trening je popunjen
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && filteredSessions.length === 0" class="empty">
+    <p>Nema dostupnih treninga za prikaz.</p>
+  </div>
+</div>
+

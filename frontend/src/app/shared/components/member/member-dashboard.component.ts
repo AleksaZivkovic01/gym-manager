@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
 import { SessionService } from '../../../features/sessions/services/session.service';
 import { MemberService } from '../../../features/members/services/member.service';
@@ -11,7 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-member-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './member-dashboard.component.html',
   styleUrls: ['./member-dashboard.component.scss'],
 })
@@ -38,11 +39,13 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
         this.currentUser = user;
         if (user) {
           this.loadMemberData();
+        } else {
+          this.memberInfo = null;
+          this.allSessions = [];
+          this.upcomingSessions = [];
+          this.recentSessions = [];
         }
       });
-
-    // Load sessions
-    this.loadSessions();
   }
 
   ngOnDestroy() {
@@ -59,17 +62,32 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (member) => {
           this.memberInfo = member;
+          // Load sessions after member data is loaded
+          this.loadSessions();
         },
         error: (err) => {
           // If member not found, set to null
           this.memberInfo = null;
+          this.allSessions = [];
+          this.upcomingSessions = [];
+          this.recentSessions = [];
+          this.loading = false;
         }
       });
   }
 
   loadSessions() {
+    if (!this.memberInfo) {
+      this.loading = false;
+      this.allSessions = [];
+      this.upcomingSessions = [];
+      this.recentSessions = [];
+      return;
+    }
+
     this.loading = true;
-    this.sessionService.getSessions()
+    // Load only sessions where this member is registered
+    this.sessionService.getMySessions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sessions) => {
@@ -77,7 +95,11 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
           this.filterSessions();
           this.loading = false;
         },
-        error: () => {
+        error: (err) => {
+          console.error('Error loading sessions:', err);
+          this.allSessions = [];
+          this.upcomingSessions = [];
+          this.recentSessions = [];
           this.loading = false;
         }
       });
@@ -90,15 +112,10 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Filter sessions for this member
-    const memberSessions = this.allSessions.filter(
-      session => session.member?.id === this.memberInfo?.id
-    );
-
     const now = new Date();
     
     // Separate upcoming and recent sessions
-    this.upcomingSessions = memberSessions
+    this.upcomingSessions = this.allSessions
       .filter(session => {
         const sessionDate = new Date(session.date);
         return sessionDate >= now;
@@ -110,7 +127,7 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
       })
       .slice(0, 5);
 
-    this.recentSessions = memberSessions
+    this.recentSessions = this.allSessions
       .filter(session => {
         const sessionDate = new Date(session.date);
         return sessionDate < now;

@@ -67,7 +67,9 @@
           <div class="activity-details">
             <span class="activity-type">{{ session.type }}</span>
             <div class="activity-participants">
-              <span *ngIf="session.member">Član: {{ session.member.name }}</span>
+              <span *ngIf="session.registrations">
+                Prijavljeno: {{ session.registrations.length }}/{{ session.maxParticipants }}
+              </span>
               <span *ngIf="session.trainer"> • Trener: {{ session.trainer.name }}</span>
             </div>
           </div>

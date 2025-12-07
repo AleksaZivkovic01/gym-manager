@@ -1,0 +1,67 @@
+<div class="trainers-list-container">
+  <h2>Lista Trenera</h2>
+
+  <div *ngIf="loading" class="loading">
+    Učitavanje trenera...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && trainers.length === 0" class="empty">
+    Trenutno nema dostupnih trenera.
+  </div>
+
+  <div *ngIf="!loading && !error && trainers.length > 0" class="trainers-grid">
+    <div *ngFor="let trainer of trainers" class="trainer-card">
+      <div class="trainer-header">
+        <h3>{{ trainer.name }}</h3>
+        <span class="specialty">{{ trainer.specialty }}</span>
+      </div>
+      
+      <div class="trainer-info">
+        <div class="rating-section" *ngIf="getAverageRating(trainer.id) > 0">
+          <div class="rating-display">
+            <span class="stars">{{ getStars(getAverageRating(trainer.id)) }}</span>
+            <span class="rating-value">{{ getAverageRating(trainer.id).toFixed(1) }}</span>
+          </div>
+        </div>
+        <div class="rating-section" *ngIf="getAverageRating(trainer.id) === 0">
+          <span class="no-rating">Nema ocena</span>
+        </div>
+        <div *ngIf="trainer.experienceYears" class="info-item">
+          <span class="label">Iskustvo:</span>
+          <span class="value">{{ trainer.experienceYears }} {{ trainer.experienceYears === 1 ? 'godina' : 'godina' }}</span>
+        </div>
+        <div *ngIf="trainer.gender" class="info-item">
+          <span class="label">Pol:</span>
+          <span class="value">{{ trainer.gender }}</span>
+        </div>
+        <div class="rate-button" *ngIf="canRate()">
+          <button 
+            *ngIf="!hasRated(trainer.id)"
+            (click)="rateTrainer(trainer.id)"
+            class="btn-rate">
+            Oceni trenera
+          </button>
+          <button 
+            *ngIf="hasRated(trainer.id)"
+            (click)="rateTrainer(trainer.id)"
+            class="btn-rate-update">
+            Ažuriraj ocenu ({{ getMyRating(trainer.id)?.rating }}⭐)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-rating-modal
+  *ngIf="showRatingModal && selectedTrainer"
+  [trainerName]="selectedTrainer.name"
+  [existingRating]="selectedTrainerRating"
+  (close)="closeRatingModal()"
+  (submit)="submitRating($event)">
+</app-rating-modal>
+

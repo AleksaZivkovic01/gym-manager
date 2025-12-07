@@ -111,11 +111,15 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       })
       .slice(0, 10);
 
-    // Get unique members
+    // Get unique members from registrations
     const memberMap = new Map<number, Member>();
     trainerSessions.forEach(session => {
-      if (session.member && !memberMap.has(session.member.id)) {
-        memberMap.set(session.member.id, session.member);
+      if (session.registrations) {
+        session.registrations.forEach(registration => {
+          if (registration.member && !memberMap.has(registration.member.id)) {
+            memberMap.set(registration.member.id, registration.member);
+          }
+        });
       }
     });
     this.myMembers = Array.from(memberMap.values());
@@ -124,7 +128,7 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   getMemberSessionCount(memberId: number): number {
     return this.allSessions.filter(
       session => session.trainer?.id === this.trainerInfo?.id && 
-                 session.member?.id === memberId
+                 session.registrations?.some(reg => reg.member?.id === memberId)
     ).length;
   }
 

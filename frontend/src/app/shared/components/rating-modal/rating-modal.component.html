@@ -1,0 +1,50 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ existingRating ? 'Ažuriraj ocenu' : 'Oceni trenera' }}</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="trainer-name">Trener: {{ trainerName }}</p>
+      
+      <div class="rating-section">
+        <label>Ocena:</label>
+        <div class="stars-container">
+          <span
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            class="star"
+            [class.active]="star <= getDisplayRating()"
+            (click)="setRating(star)"
+            (mouseenter)="setHovered(star)"
+            (mouseleave)="clearHover()">
+            ⭐
+          </span>
+        </div>
+        <p class="rating-text" *ngIf="selectedRating > 0">
+          Izabrana ocena: {{ selectedRating }}/5
+        </p>
+      </div>
+
+      <div class="comment-section">
+        <label for="comment">Komentar (opciono):</label>
+        <textarea
+          id="comment"
+          [(ngModel)]="comment"
+          rows="4"
+          placeholder="Ostavite komentar o treneru..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()">Otkaži</button>
+      <button 
+        class="btn-submit" 
+        (click)="submitRating()"
+        [disabled]="selectedRating < 1 || selectedRating > 5">
+        {{ existingRating ? 'Ažuriraj' : 'Pošalji' }}
+      </button>
+    </div>
+  </div>
+</div>
+

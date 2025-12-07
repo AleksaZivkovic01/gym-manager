@@ -10,6 +10,7 @@ import { TrainingSessionModule } from './sessions/training-session.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PackageModule } from './packages/package.module';
+import { RatingModule } from './ratings/rating.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PackageModule } from './packages/package.module';
     UserModule,
     AuthModule,
     PackageModule,
+    RatingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

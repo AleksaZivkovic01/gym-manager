@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsDateString, Matches } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDateString, Matches, Min } from 'class-validator';
 
 export class CreateTrainingSessionDto {
   @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
@@ -11,10 +11,12 @@ export class CreateTrainingSessionDto {
   type: string;
 
   @IsInt()
-  memberId: number;
+  @Min(1)
+  trainerId: number;
 
   @IsInt()
-  trainerId: number;
+  @Min(1)
+  maxParticipants: number;
 }
 
 export class UpdateTrainingSessionDto {
@@ -32,9 +34,15 @@ export class UpdateTrainingSessionDto {
 
   @IsOptional()
   @IsInt()
-  memberId?: number;
+  trainerId?: number;
 
   @IsOptional()
   @IsInt()
-  trainerId?: number;
+  @Min(1)
+  maxParticipants?: number;
+}
+
+export class RegisterToSessionDto {
+  @IsInt()
+  memberId: number;
 }

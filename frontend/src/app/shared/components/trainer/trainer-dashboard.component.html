@@ -38,11 +38,8 @@
           </div>
           <div class="session-details">
             <span class="session-type">{{ session.type }}</span>
-            <span class="member-name" *ngIf="session.member">
-              Član: {{ session.member.name }}
-            </span>
-            <span class="member-level" *ngIf="session.member">
-              Nivo: {{ getLevelLabel(session.member.level) }}
+            <span class="participants-count" *ngIf="session.registrations">
+              Prijavljeno: {{ session.registrations.length }}/{{ session.maxParticipants }}
             </span>
           </div>
         </div>

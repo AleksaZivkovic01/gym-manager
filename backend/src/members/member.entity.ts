@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
-import { TrainingSession } from '../sessions/training-session.entity';
+import { SessionRegistration } from '../sessions/session-registration.entity';
 import { User } from '../user/user.entity';
 import { Package } from '../packages/package.entity';
 
@@ -30,8 +30,8 @@ export class Member {
   @Column({ nullable: true })
   packageId?: number;
 
-  @OneToMany(() => TrainingSession, (session) => session.member)
-  sessions: TrainingSession[];
+  @OneToMany(() => SessionRegistration, (registration) => registration.member)
+  sessionRegistrations: SessionRegistration[];
 
   @OneToOne(() => User, (user) => user.member)
   @JoinColumn() 

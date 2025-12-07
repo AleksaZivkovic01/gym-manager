@@ -17,6 +17,8 @@ import { SessionListComponent } from './features/sessions/components/session-lis
 import { SessionFormComponent } from './features/sessions/components/session-form/session-form.component';
 import { PackageListComponent } from './features/packages/components/package-list/package-list.component';
 import { PackageFormComponent } from './features/packages/components/package-form/package-form.component';
+import { TrainersListComponent } from './shared/components/trainers-list/trainers-list.component';
+import { AvailableSessionsComponent } from './shared/components/available-sessions/available-sessions.component';
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
 
@@ -39,6 +41,18 @@ export const routes: Routes = [
       {
         path: 'member/dashboard',
         component: MemberDashboardComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['member'] },
+      },
+      {
+        path: 'member/trainers',
+        component: TrainersListComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['member'] },
+      },
+      {
+        path: 'member/available-sessions',
+        component: AvailableSessionsComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['member'] },
       },

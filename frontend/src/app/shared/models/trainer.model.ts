@@ -4,6 +4,6 @@ export interface Trainer {
   specialty: string;
   experienceYears?: number;
   gender?: string;
-  dateOfBirth?: string; 
-
+  dateOfBirth?: string;
+  averageRating?: number; // Prosečna ocena (1-5)
 }

@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from './member.entity';
 import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
+import { SessionRegistration } from '../sessions/session-registration.entity';
 
 
 @Injectable()
@@ -10,17 +11,19 @@ export class MemberService {
   constructor(
     @InjectRepository(Member)
     private memberRepository: Repository<Member>,
+    @InjectRepository(SessionRegistration)
+    private registrationRepository: Repository<SessionRegistration>,
   ) {}
 
   findAll(): Promise<Member[]> {
-    return this.memberRepository.find({ relations: ['sessions', 'package'] });
+    return this.memberRepository.find({ relations: ['sessionRegistrations', 'package'] });
   }
 
   async findOne(id: number): Promise<Member | null> {
     try {
       const member = await this.memberRepository.findOne({
         where: { id },
-        relations: ['sessions', 'package', 'user'],
+        relations: ['sessionRegistrations', 'package', 'user'],
       });
       if (!member) {
         return null;
@@ -99,9 +102,39 @@ export class MemberService {
   }
 
   async delete(id: number): Promise<void> {
-    const result = await this.memberRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Member with ID ${id} not found`);
+    try {
+      // First check if member exists
+      const member = await this.memberRepository.findOne({
+        where: { id },
+        relations: ['sessionRegistrations'],
+      });
+
+      if (!member) {
+        throw new NotFoundException(`Member with ID ${id} not found`);
+      }
+
+      // Delete all session registrations associated with this member first
+      if (member.sessionRegistrations && member.sessionRegistrations.length > 0) {
+        const registrationIds = member.sessionRegistrations.map(reg => reg.id);
+        await this.registrationRepository.delete(registrationIds);
+        console.log(`Deleted ${registrationIds.length} session registration(s) for member ${id}`);
+      }
+
+      // Now delete the member
+      const result = await this.memberRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException(`Member with ID ${id} not found`);
+      }
+    } catch (error) {
+      console.error(`Error deleting member with ID ${id}:`, error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Check if it's a foreign key constraint error
+      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates foreign key')) {
+        throw new BadRequestException(`Cannot delete member with ID ${id} because it is referenced by other records (user). Please delete related user first.`);
+      }
+      throw error;
     }
   }
 
@@ -109,7 +142,7 @@ export class MemberService {
   async   findByUserId(userId: number): Promise<Member | null> {
     return this.memberRepository
       .createQueryBuilder('member')
-      .leftJoinAndSelect('member.sessions', 'sessions')
+      .leftJoinAndSelect('member.sessionRegistrations', 'sessionRegistrations')
       .leftJoinAndSelect('member.user', 'user')
       .leftJoinAndSelect('member.package', 'package')
       .where('user.id = :userId', { userId })

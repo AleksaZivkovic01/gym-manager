@@ -27,13 +27,14 @@ export class HeaderComponent {
       { label: 'About', path: '/about' }
     ],
     member: [
-      { label: 'Moj nalog', path: '/member/dashboard' },
-      { label: 'Packages', path: '/packages' }
+      { label: 'Home', path: '/member/dashboard' },
+      { label: 'Packages', path: '/packages' },
+      { label: 'Trainers', path: '/member/trainers' }
       
     ],
     trainer: [
       { label: 'Home', path: '/' },
-      { label: 'Trener panel', path: '/trainer/dashboard' }
+      { label: 'Home', path: '/trainer/dashboard' }
     ],
     admin: [
       { label: 'Home', path: '/admin/dashboard' },

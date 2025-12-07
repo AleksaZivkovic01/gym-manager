@@ -1,12 +1,18 @@
-import { Member } from "./member.model";
 import { Trainer } from "./trainer.model";
+import { Member } from "./member.model";
+
+export interface SessionRegistration {
+  id: number;
+  registeredAt: string;
+  member: Member;
+}
 
 export interface TrainingSession {
   id: number;
   date: string;
   time: string;
   type: string;
-  member:Member;
-  trainer:Trainer;
-
+  maxParticipants: number;
+  trainer: Trainer;
+  registrations?: SessionRegistration[];
 }

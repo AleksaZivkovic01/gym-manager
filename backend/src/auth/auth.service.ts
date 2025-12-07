@@ -107,29 +107,43 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<AuthPayload> {
-    const user = await this.userService.findByEmail(loginDto.email);
-    if (!user) {
-      throw new UnauthorizedException('Pogrešan email ili lozinka');
-    }
-
-    const passwordMatches = await bcrypt.compare(loginDto.password, user.password);
-    if (!passwordMatches) {
-      throw new UnauthorizedException('Pogrešan email ili lozinka');
-    }
-
-    // Proveri da li je korisnik odobren (admini su uvek odobreni)
-    // Proveri status pre nego što dozvoliš login
-    if (user.role !== 'admin') {
-      if (!user.status || user.status === 'pending') {
-        throw new UnauthorizedException('Vaša registracija još nije odobrena. Molimo sačekajte odobrenje administratora.');
-      } else if (user.status === 'rejected') {
-        throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
-      } else if (user.status !== 'approved') {
-        throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
+    try {
+      const user = await this.userService.findByEmail(loginDto.email);
+      if (!user) {
+        console.log(`Login attempt with non-existent email: ${loginDto.email}`);
+        throw new UnauthorizedException('Pogrešan email ili lozinka');
       }
-    }
 
-    return this.buildAuthPayload(user);
+      const passwordMatches = await bcrypt.compare(loginDto.password, user.password);
+      if (!passwordMatches) {
+        console.log(`Login attempt with wrong password for email: ${loginDto.email}`);
+        throw new UnauthorizedException('Pogrešan email ili lozinka');
+      }
+
+      // Proveri da li je korisnik odobren (admini su uvek odobreni)
+      // Proveri status pre nego što dozvoliš login
+      if (user.role !== 'admin') {
+        if (!user.status || user.status === 'pending') {
+          console.log(`Login attempt for pending user: ${loginDto.email}, status: ${user.status}`);
+          throw new UnauthorizedException('Vaša registracija još nije odobrena. Molimo sačekajte odobrenje administratora.');
+        } else if (user.status === 'rejected') {
+          console.log(`Login attempt for rejected user: ${loginDto.email}`);
+          throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
+        } else if (user.status !== 'approved') {
+          console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${user.status}`);
+          throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
+        }
+      }
+
+      console.log(`Successful login for user: ${loginDto.email}, role: ${user.role}, status: ${user.status}`);
+      return this.buildAuthPayload(user);
+    } catch (error) {
+      console.error('Error in login:', error);
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Greška pri prijavi. Molimo pokušajte ponovo.');
+    }
   }
 
   async validateUser(userId: number): Promise<User | null> {

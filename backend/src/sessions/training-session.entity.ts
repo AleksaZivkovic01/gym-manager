@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Member } from '../members/member.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Trainer } from '../trainers/trainer.entity';
+import { SessionRegistration } from './session-registration.entity';
 
 @Entity()
 export class TrainingSession {
@@ -16,9 +16,12 @@ export class TrainingSession {
   @Column()
   type: string;
 
-  @ManyToOne(() => Member, (member) => member.sessions)
-  member: Member;
+  @Column({ type: 'int', default: 10 })
+  maxParticipants: number;
 
   @ManyToOne(() => Trainer, (trainer) => trainer.sessions)
   trainer: Trainer;
+
+  @OneToMany(() => SessionRegistration, (registration) => registration.session)
+  registrations: SessionRegistration[];
 }

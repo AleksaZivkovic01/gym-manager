@@ -10,12 +10,8 @@
   <label>Type:</label>
   <input type="text" [(ngModel)]="session.type" name="type" required>
 
-  <label>Member:</label>
-  <select [(ngModel)]="selectedMemberId" name="memberId" required>
-    <option *ngFor="let m of members" [value]="m.id">
-      {{ m.name }} ({{ m.level }})
-    </option>
-  </select>
+  <label>Max Participants:</label>
+  <input type="number" [(ngModel)]="session.maxParticipants" name="maxParticipants" min="1" required>
 
   <label>Trainer:</label>
   <select [(ngModel)]="selectedTrainerId" name="trainerId" required>

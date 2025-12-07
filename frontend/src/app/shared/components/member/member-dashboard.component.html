@@ -2,6 +2,10 @@
   <div class="dashboard-header">
     <h1>Moj Dashboard</h1>
     <p class="welcome-text">Dobrodošli, {{ currentUser?.email }}</p>
+    <div class="quick-actions">
+      <a routerLink="/member/trainers" class="action-btn">Pregled Trenera</a>
+      <a routerLink="/member/available-sessions" class="action-btn">Dostupni Treningi</a>
+    </div>
   </div>
 
   <div class="dashboard-content">
@@ -48,7 +52,7 @@
     <!-- Upcoming Sessions Card -->
     <div class="card sessions-card">
       <h2>Predstojeći termini</h2>
-      <div class="sessions-list" *ngIf="upcomingSessions.length > 0">
+      <div class="sessions-list" *ngIf="upcomingSessions.length > 0 && !loading">
         <div class="session-item" *ngFor="let session of upcomingSessions">
           <div class="session-date">
             <span class="date">{{ formatDate(session.date) }}</span>
@@ -59,11 +63,15 @@
             <span class="trainer-name" *ngIf="session.trainer">
               Trener: {{ session.trainer.name }}
             </span>
+            <span class="session-participants" *ngIf="session.registrations && session.maxParticipants">
+              Mesta: {{ session.registrations.length }}/{{ session.maxParticipants }}
+            </span>
           </div>
         </div>
       </div>
-      <div class="no-data" *ngIf="upcomingSessions.length === 0 && !loading">
+      <div class="no-data" *ngIf="upcomingSessions.length === 0 && !loading && memberInfo">
         <p>Nemate zakazanih termina.</p>
+        <a routerLink="/member/available-sessions" class="link-to-sessions">Pogledajte dostupne treninge</a>
       </div>
       <div class="loading" *ngIf="loading">
         <p>Učitavanje...</p>

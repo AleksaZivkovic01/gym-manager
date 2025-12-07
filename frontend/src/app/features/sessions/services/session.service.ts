@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { TrainingSession } from '../../../shared/models/training-session.model';
+import { Member } from '../../../shared/models/member.model';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
@@ -18,26 +18,45 @@ export class SessionService {
     return this.http.get<TrainingSession>(`${this.apiUrl}/${id}`);
   }
 
-  addSession(session: TrainingSession) {
+  getSessionsByTrainer(trainerId: number): Observable<TrainingSession[]> {
+    return this.http.get<TrainingSession[]>(`${this.apiUrl}/trainer/${trainerId}`);
+  }
+
+  getMySessions(): Observable<TrainingSession[]> {
+    return this.http.get<TrainingSession[]>(`${this.apiUrl}/my-sessions`);
+  }
+
+  getRegisteredMembers(sessionId: number): Observable<Member[]> {
+    return this.http.get<Member[]>(`${this.apiUrl}/${sessionId}/members`);
+  }
+
+  addSession(session: Partial<TrainingSession>) {
     return this.http.post<TrainingSession>(this.apiUrl, {
       date: session.date,
       time: session.time,
       type: session.type,
-      memberId: session.member.id,
-      trainerId: session.trainer.id
+      trainerId: session.trainer?.id,
+      maxParticipants: session.maxParticipants || 10
     });
   }
 
-  updateSession(id: number, session: TrainingSession) {
+  updateSession(id: number, session: Partial<TrainingSession>) {
     return this.http.put<TrainingSession>(`${this.apiUrl}/${id}`, {
       date: session.date,
       time: session.time,
       type: session.type,
-      memberId: session.member.id,
-      trainerId: session.trainer.id
+      trainerId: session.trainer?.id,
+      maxParticipants: session.maxParticipants
     });
   }
 
+  registerToSession(sessionId: number, memberId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${sessionId}/register`, { memberId });
+  }
+
+  unregisterFromSession(sessionId: number, memberId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${sessionId}/register/${memberId}`);
+  }
 
   deleteSession(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);

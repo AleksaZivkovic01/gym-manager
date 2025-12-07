@@ -24,8 +24,13 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto): Promise<AuthPayload> {
-    return this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto): Promise<AuthPayload> {
+    try {
+      return await this.authService.login(loginDto);
+    } catch (error) {
+      console.error('Error in login controller:', error);
+      throw error;
+    }
   }
 
   @UseGuards(AuthGuard('jwt'))

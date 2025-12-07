@@ -67,7 +67,20 @@ export class MemberController {
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number) {
-    return this.memberService.delete(id);
+  async delete(@Param('id') id: string) {
+    try {
+      const memberId = parseInt(id, 10);
+      if (isNaN(memberId)) {
+        throw new NotFoundException('Invalid member ID');
+      }
+      await this.memberService.delete(memberId);
+      return { message: 'Member successfully deleted' };
+    } catch (error) {
+      console.error(`Error in delete for member ID ${id}:`, error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 }

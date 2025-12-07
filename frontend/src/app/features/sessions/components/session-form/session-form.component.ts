@@ -8,8 +8,6 @@ import { Member } from '../../../../shared/models/member.model';
 import { Trainer } from '../../../../shared/models/trainer.model';
 import { Store } from '@ngrx/store';
 
-import { loadMembers } from '../../../../store/member/member.actions';
-import { selectAllMembers } from '../../../../store/member/member.selector';
 import { loadTrainers } from '../../../../store/trainer/trainer.actions';
 import { selectAllTrainers } from '../../../../store/trainer/trainer.selector';
 import { addSession, loadSessions, updateSession } from '../../../../store/session/session.actions';
@@ -24,22 +22,20 @@ import { take } from 'rxjs';
   styleUrls: ['./session-form.component.scss']
 })
 export class SessionFormComponent implements OnInit {
-  session: TrainingSession = {
+  session: Partial<TrainingSession> = {
     id: 0,
     date: '',
     time: '',
     type: '',
-    member: { id: 0, name: '', level: 'beginner', isActive: true },
+    maxParticipants: 10,
     trainer: { id: 0, name: '', specialty: '', experienceYears: undefined, gender: '', dateOfBirth: '' }
   };
 
   sessionId: number | null = null;
   isEdit = false;
 
-  members: Member[] = [];
   trainers: Trainer[] = [];
 
-  selectedMemberId: number = 0;
   selectedTrainerId: number = 0;
 
   constructor(
@@ -50,20 +46,15 @@ export class SessionFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Učitavanje članova i trenera
-    this.store.dispatch(loadMembers());
+    // Učitavanje trenera
     this.store.dispatch(loadTrainers());
-
-    this.store.select(selectAllMembers)
-      .subscribe(members => {
-        this.members = members;
-        if (!this.isEdit) this.selectedMemberId = members[0]?.id ?? 0;
-      });
 
     this.store.select(selectAllTrainers)
       .subscribe(trainers => {
         this.trainers = trainers;
-        if (!this.isEdit) this.selectedTrainerId = trainers[0]?.id ?? 0;
+        if (!this.isEdit && trainers.length > 0) {
+          this.selectedTrainerId = trainers[0].id;
+        }
       });
 
     // Edit mod
@@ -81,11 +72,10 @@ export class SessionFormComponent implements OnInit {
               date: s.date,
               time: s.time,
               type: s.type,
-              member: { ...s.member },
+              maxParticipants: s.maxParticipants || 10,
               trainer: { ...s.trainer }
             };
 
-            this.selectedMemberId = s.member.id;
             this.selectedTrainerId = s.trainer.id;
           }
         });
@@ -93,23 +83,25 @@ export class SessionFormComponent implements OnInit {
   }
 
   saveSession() {
-    // Izbor member i trainer objekata
-    const member = this.members.find(m => m.id === +this.selectedMemberId)!;
+    // Izbor trainer objekta
     const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
 
     // Priprema objekta za store i backend
-    const sessionToStore: TrainingSession = {
+    const sessionToStore: Partial<TrainingSession> = {
       ...this.session,
-      member,
       trainer
     };
 
     if (this.isEdit) {
-      this.store.dispatch(updateSession({ session: sessionToStore }));
+      this.sessionService.updateSession(this.sessionId!, sessionToStore)
+        .subscribe(() => {
+          this.router.navigate(['/sessions']);
+        });
     } else {
-      this.store.dispatch(addSession({ session: sessionToStore }));
+      this.sessionService.addSession(sessionToStore)
+        .subscribe(() => {
+          this.router.navigate(['/sessions']);
+        });
     }
-
-    this.router.navigate(['/sessions']);
   }
 }
