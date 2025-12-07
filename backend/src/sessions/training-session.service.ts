@@ -80,6 +80,11 @@ export class TrainingSessionService {
     
     if (!member) throw new NotFoundException(`Member ${dto.memberId} not found`);
 
+    // Check if member is active (has a package)
+    if (!member.isActive) {
+      throw new BadRequestException('Ne možete rezervisati trening jer nemate aktivno članstvo. Molimo izaberite paket.');
+    }
+
     // Check if member is already registered
     const existingRegistration = await this.registrationRepository.findOne({
       where: { session: { id: sessionId }, member: { id: dto.memberId } },
@@ -108,7 +113,8 @@ export class TrainingSessionService {
 
   // Get all registered members for a session
   async getRegisteredMembers(sessionId: number): Promise<Member[]> {
-    const session = await this.findOne(sessionId);
+    // Verify session exists (will throw NotFoundException if not found)
+    await this.findOne(sessionId);
     const registrations = await this.registrationRepository.find({
       where: { session: { id: sessionId } },
       relations: ['member'],

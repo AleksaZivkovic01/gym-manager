@@ -193,6 +193,16 @@
         }
       }
 
+      .inactive-message {
+        color: #dc3545;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0.5rem;
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 4px;
+      }
+
       .full-message {
         display: block;
         text-align: center;

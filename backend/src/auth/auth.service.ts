@@ -49,7 +49,7 @@ export class AuthService {
           const member = this.memberRepository.create({
             name: registerDto.member.name,
             level: registerDto.member.level,
-            isActive: true,
+            isActive: false, 
             gender: registerDto.member.gender,
             dateOfBirth: registerDto.member.dateOfBirth ? new Date(registerDto.member.dateOfBirth) : undefined,
             user,
@@ -129,8 +129,9 @@ export class AuthService {
         } else if (user.status === 'rejected') {
           console.log(`Login attempt for rejected user: ${loginDto.email}`);
           throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
-        } else if (user.status !== 'approved') {
-          console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${user.status}`);
+        } else {
+          const statusValue: string = user.status || 'unknown';
+          console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${statusValue}`);
           throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
         }
       }

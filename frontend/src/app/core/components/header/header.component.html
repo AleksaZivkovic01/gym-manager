@@ -14,7 +14,7 @@
 
   <div class="auth-actions">
     <ng-container *ngIf="currentUser$ | async as user; else guestLinks">
-      <span class="user-info">{{ user.email }} ({{ user.role }})</span>
+      <span class="user-info">{{ getUserDisplayName(user) }} ({{ user.role }})</span>
       <button mat-button color="accent" (click)="logout()">Logout</button>
     </ng-container>
 

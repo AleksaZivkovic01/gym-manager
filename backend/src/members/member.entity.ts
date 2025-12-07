@@ -14,7 +14,7 @@ export class Member {
   @Column({ type: 'enum', enum: ['beginner', 'medium', 'expert'], default: 'beginner' })
   level: 'beginner' | 'medium' | 'expert';
 
-  @Column({ default: true })
+  @Column({ default: false })
   isActive: boolean;
 
   @Column({ nullable: true })

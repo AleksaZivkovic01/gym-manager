@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SessionService } from '../../../features/sessions/services/session.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { MemberService } from '../../../features/members/services/member.service';
 import { TrainingSession } from '../../../shared/models/training-session.model';
 import { User } from '../../../shared/models/user.model';
 import { Member } from '../../../shared/models/member.model';
@@ -22,7 +23,6 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
   memberInfo: Member | null = null;
   loading = true;
   error: string | null = null;
-  filterType: string = 'all'; // 'all', 'upcoming', 'past'
   filterTrainer: string = '';
   filterSessionType: string = '';
   trainers: { id: number; name: string }[] = [];
@@ -31,7 +31,8 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
 
   constructor(
     private sessionService: SessionService,
-    private authService: AuthService
+    private authService: AuthService,
+    private memberService: MemberService
   ) {}
 
   ngOnInit() {
@@ -41,11 +42,36 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
       .subscribe(user => {
         this.currentUser = user;
         if (user && user.role === 'member') {
-          this.memberInfo = user.member || null;
+          this.loadMemberData();
+        } else {
+          this.memberInfo = null;
+          this.loadData();
         }
       });
+  }
 
-    this.loadData();
+  loadMemberData() {
+    if (!this.currentUser || this.currentUser.role !== 'member') {
+      this.memberInfo = null;
+      this.loadData();
+      return;
+    }
+
+    // Load fresh member data to get updated isActive status
+    this.memberService.getMyMember()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (member) => {
+          this.memberInfo = member;
+          // Load data after member info is loaded
+          this.loadData();
+        },
+        error: (err) => {
+          // Fallback to user.member if getMyMember fails
+          this.memberInfo = this.currentUser?.member || null;
+          this.loadData();
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -113,14 +139,6 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
   get filteredSessions(): TrainingSession[] {
     let filtered = [...this.allSessions];
 
-    // Filter by date
-    const now = new Date();
-    if (this.filterType === 'upcoming') {
-      filtered = filtered.filter(s => new Date(s.date) >= now);
-    } else if (this.filterType === 'past') {
-      filtered = filtered.filter(s => new Date(s.date) < now);
-    }
-
     // Filter by trainer
     if (this.filterTrainer) {
       const trainerId = parseInt(this.filterTrainer, 10);
@@ -148,8 +166,9 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
 
   canRegister(session: TrainingSession): boolean {
     if (!this.memberInfo) return false;
+    if (!this.memberInfo.isActive) return false; // Member must be active (have a package)
     if (this.isRegistered(session.id)) return false;
-    
+
     const registeredCount = session.registrations?.length || 0;
     return registeredCount < session.maxParticipants;
   }

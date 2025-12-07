@@ -7,15 +7,6 @@
   <!-- Filters -->
   <div class="filters">
     <div class="filter-group">
-      <label>Filtriraj po datumu:</label>
-      <select [(ngModel)]="filterType" class="filter-select">
-        <option value="all">Svi treningi</option>
-        <option value="upcoming">Predstojeći</option>
-        <option value="past">Prošli</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
       <label>Filtriraj po treneru:</label>
       <select [(ngModel)]="filterTrainer" class="filter-select">
         <option value="">Svi treneri</option>
@@ -97,9 +88,12 @@
           *ngIf="isRegistered(session.id)"
           (click)="unregisterFromSession(session)"
           class="btn-unregister">
-          Odjavi se
+          Otkazi
         </button>
-        <span *ngIf="isFull(session) && !isRegistered(session.id)" class="full-message">
+        <span *ngIf="memberInfo && !memberInfo.isActive && !isRegistered(session.id)" class="inactive-message">
+          Morate izabrati paket da biste rezervisali trening
+        </span>
+        <span *ngIf="isFull(session) && !isRegistered(session.id) && memberInfo?.isActive" class="full-message">
           Trening je popunjen
         </span>
       </div>

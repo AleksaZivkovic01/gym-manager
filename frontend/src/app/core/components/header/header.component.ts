@@ -29,6 +29,7 @@ export class HeaderComponent {
     member: [
       { label: 'Home', path: '/member/dashboard' },
       { label: 'Packages', path: '/packages' },
+      {label:'Trainings',path: '/member/available-sessions'},
       { label: 'Trainers', path: '/member/trainers' }
       
     ],
@@ -47,5 +48,16 @@ export class HeaderComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['']);
+  }
+
+  getUserDisplayName(user: User): string {
+    if (user.member?.name) {
+      return user.member.name;
+    }
+    if (user.trainer?.name) {
+      return user.trainer.name;
+    }
+    // Fallback to email if name is not available
+    return user.email;
   }
 }

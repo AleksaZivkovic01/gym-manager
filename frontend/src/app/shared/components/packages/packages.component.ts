@@ -109,7 +109,7 @@ export class PackagesComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert(`Uspešno ste izabrali paket "${pkg.name}"!`);
+            alert(`Uspešno ste izabrali paket "${pkg.name}"! Vaše članstvo je sada aktivno.`);
             this.loadMemberData();
           },
           error: (err) => {

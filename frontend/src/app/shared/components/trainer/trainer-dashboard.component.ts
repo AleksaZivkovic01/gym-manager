@@ -149,6 +149,16 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     };
     return labels[level] || level;
   }
+
+  getDisplayName(): string {
+    if (this.trainerInfo?.name) {
+      return this.trainerInfo.name;
+    }
+    if (this.currentUser?.email) {
+      return this.currentUser.email;
+    }
+    return 'Trener';
+  }
 }
 
 

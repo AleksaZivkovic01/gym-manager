@@ -46,10 +46,14 @@ export class MemberService {
   }
 
   create(dto: CreateMemberDto): Promise<Member> {
+    // Member is active only if they have a package
+    const isActive = dto.packageId !== undefined && dto.packageId !== null;
+    
     const newMember = this.memberRepository.create({
       ...dto,
       dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       packageId: dto.packageId || undefined,
+      isActive: dto.isActive !== undefined ? dto.isActive : isActive,
     });
 
     return this.memberRepository.save(newMember);
@@ -69,9 +73,14 @@ export class MemberService {
         updateData.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
       }
       
-      // Handle packageId update
+      // Handle packageId update - automatically set isActive based on package
       if (dto.packageId !== undefined) {
         updateData.packageId = dto.packageId || null;
+        // Member is active only if they have a package
+        // Only update isActive if it's not explicitly set in DTO
+        if (dto.isActive === undefined) {
+          updateData.isActive = dto.packageId !== null && dto.packageId !== undefined;
+        }
       }
 
       await this.memberRepository.update(id, updateData);

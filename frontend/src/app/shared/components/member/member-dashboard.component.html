@@ -1,7 +1,7 @@
 <section class="dashboard">
   <div class="dashboard-header">
     <h1>Moj Dashboard</h1>
-    <p class="welcome-text">Dobrodošli, {{ currentUser?.email }}</p>
+    <p class="welcome-text">Dobrodošli, {{ getDisplayName() }}</p>
     <div class="quick-actions">
       <a routerLink="/member/trainers" class="action-btn">Pregled Trenera</a>
       <a routerLink="/member/available-sessions" class="action-btn">Dostupni Treningi</a>
@@ -54,18 +54,29 @@
       <h2>Predstojeći termini</h2>
       <div class="sessions-list" *ngIf="upcomingSessions.length > 0 && !loading">
         <div class="session-item" *ngFor="let session of upcomingSessions">
-          <div class="session-date">
-            <span class="date">{{ formatDate(session.date) }}</span>
-            <span class="time">{{ session.time }}</span>
+          <div class="session-content">
+            <div class="session-header">
+              <span class="session-type">{{ session.type }}</span>
+            </div>
+            <div class="session-date-time">
+              <div class="date">{{ formatDate(session.date) }}</div>
+              <div class="time">
+                <span class="time-label">Vreme:</span> {{ formatTime(session.time) }}
+              </div>
+            </div>
+            <div class="session-info">
+              <span class="trainer-name" *ngIf="session.trainer">
+                Trener: {{ session.trainer.name }}
+              </span>
+            </div>
           </div>
-          <div class="session-details">
-            <span class="session-type">{{ session.type }}</span>
-            <span class="trainer-name" *ngIf="session.trainer">
-              Trener: {{ session.trainer.name }}
-            </span>
-            <span class="session-participants" *ngIf="session.registrations && session.maxParticipants">
-              Mesta: {{ session.registrations.length }}/{{ session.maxParticipants }}
-            </span>
+          <div class="session-actions">
+            <button 
+              (click)="unregisterFromSession(session)" 
+              class="btn-cancel"
+              title="Otkazi termin">
+              Otkaži
+            </button>
           </div>
         </div>
       </div>

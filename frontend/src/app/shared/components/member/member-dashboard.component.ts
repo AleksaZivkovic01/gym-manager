@@ -149,6 +149,16 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    // If time is in format HH:mm:ss, extract only HH:mm
+    if (timeString.includes(':')) {
+      const parts = timeString.split(':');
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return timeString;
+  }
+
   getLevelLabel(level: string): string {
     const labels: { [key: string]: string } = {
       'beginner': 'Početnik',
@@ -168,6 +178,36 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
 
   getSessionsLabel(sessions: number): string {
     return sessions === 0 ? 'Neograničeno' : `${sessions} termina`;
+  }
+
+  getDisplayName(): string {
+    if (this.memberInfo?.name) {
+      return this.memberInfo.name;
+    }
+    if (this.currentUser?.email) {
+      return this.currentUser.email;
+    }
+    return 'Korisnik';
+  }
+
+  unregisterFromSession(session: TrainingSession) {
+    if (!this.memberInfo) {
+      return;
+    }
+
+    if (confirm(`Da li želite da otkažete termin "${session.type}" sa trenerom ${session.trainer?.name}?`)) {
+      this.sessionService.unregisterFromSession(session.id, this.memberInfo.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            alert('Uspešno ste otkazali termin!');
+            this.loadSessions(); // Reload to update the list
+          },
+          error: (err) => {
+            alert(err.error?.message || 'Greška pri otkazivanju termina');
+          }
+        });
+    }
   }
 }
 
