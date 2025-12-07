@@ -129,11 +129,13 @@ export class AuthService {
         } else if (user.status === 'rejected') {
           console.log(`Login attempt for rejected user: ${loginDto.email}`);
           throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
-        } else {
+        } else if (user.status !== 'approved') {
+          // Only throw error if status is not approved (covers any unexpected status values)
           const statusValue: string = user.status || 'unknown';
           console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${statusValue}`);
           throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
         }
+        // If status is 'approved', continue to login (no error thrown)
       }
 
       console.log(`Successful login for user: ${loginDto.email}, role: ${user.role}, status: ${user.status}`);

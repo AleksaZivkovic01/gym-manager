@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import * as AuthActions from './auth.actions';
 import { AuthResponse } from '../../auth/models/auth.model';
+import { User } from '../../shared/models/user.model';
 
 const TOKEN_KEY = 'gym_manager_token';
 const USER_KEY = 'gym_manager_user';
@@ -89,6 +90,25 @@ export class AuthEffects {
         }
         return AuthActions.logout();
       })
+    )
+  );
+
+  // Refresh current user
+  refreshCurrentUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.refreshCurrentUser),
+      switchMap(() =>
+        this.http.get<User>(`${API_URL}/me`).pipe(
+          map((user) => {
+            // Update localStorage
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+            return AuthActions.refreshCurrentUserSuccess({ user });
+          }),
+          catchError((error) =>
+            of(AuthActions.refreshCurrentUserFailure({ error: error.error?.message || error.message || 'Failed to refresh user' }))
+          )
+        )
+      )
     )
   );
 }

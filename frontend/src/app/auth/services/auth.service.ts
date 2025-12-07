@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { selectCurrentUser, selectIsAuthenticated, selectAuthToken } from '../../store/auth/auth.selector';
-import { login, register, logout, loadUserFromStorage } from '../../store/auth/auth.actions';
+import { login, register, logout, loadUserFromStorage, refreshCurrentUser } from '../../store/auth/auth.actions';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { User } from '../../shared/models/user.model';
 
@@ -45,6 +45,11 @@ export class AuthService {
     let authenticated = false;
     this.store.select(selectIsAuthenticated).subscribe(auth => authenticated = auth).unsubscribe();
     return authenticated;
+  }
+
+  refreshCurrentUser(): void {
+    // Dispatch action to refresh current user from backend
+    this.store.dispatch(refreshCurrentUser());
   }
 }
 

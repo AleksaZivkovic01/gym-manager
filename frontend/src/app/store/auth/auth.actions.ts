@@ -25,3 +25,14 @@ export const loadUserFromStorageSuccess = createAction(
 // Clear error
 export const clearAuthError = createAction('[Auth] Clear Error');
 
+// Refresh current user
+export const refreshCurrentUser = createAction('[Auth] Refresh Current User');
+export const refreshCurrentUserSuccess = createAction(
+  '[Auth] Refresh Current User Success',
+  props<{ user: User }>()
+);
+export const refreshCurrentUserFailure = createAction(
+  '[Auth] Refresh Current User Failure',
+  props<{ error: string }>()
+);
+

@@ -23,6 +23,10 @@ export class MemberService {
     return this.http.get<Member>(`${this.apiUrl}/me`);
   }
 
+  updateMyMember(member: Partial<Member>): Observable<Member> {
+    return this.http.put<Member>(`${this.apiUrl}/me`, member);
+  }
+
   addMember(member: Member): Observable<Member> {
     return this.http.post<Member>(this.apiUrl, member);
   }

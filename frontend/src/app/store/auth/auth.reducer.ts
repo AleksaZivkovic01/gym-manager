@@ -68,6 +68,12 @@ export const authReducer = createReducer(
   on(AuthActions.clearAuthError, (state) => ({
     ...state,
     error: null
+  })),
+
+  // Refresh current user
+  on(AuthActions.refreshCurrentUserSuccess, (state, { user }) => ({
+    ...state,
+    user
   }))
 );
 

@@ -30,5 +30,9 @@ export class UserService {
   getUser(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
+
+  updateMe(updateData: { email?: string; oldPassword?: string; newPassword?: string }): Observable<Omit<User, 'password'>> {
+    return this.http.put<Omit<User, 'password'>>(`${this.apiUrl}/me`, updateData);
+  }
 }
 

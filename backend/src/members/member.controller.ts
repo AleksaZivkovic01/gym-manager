@@ -23,6 +23,17 @@ export class MemberController {
     return this.memberService.findByUserId(req.user.id);
   }
 
+  // Update current user's member data - MUST be before @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @Put('me')
+  async updateMyMember(@Req() req: AuthenticatedRequest, @Body() dto: UpdateMemberDto) {
+    const member = await this.memberService.findByUserId(req.user.id);
+    if (!member) {
+      throw new NotFoundException('Member profile not found');
+    }
+    return this.memberService.update(member.id, dto);
+  }
+
   @Get(':id')
   async getOne(@Param('id') id: string) {
     try {

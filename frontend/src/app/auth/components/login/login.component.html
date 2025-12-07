@@ -1,6 +1,10 @@
 <section class="auth-card">
   <h2>Prijava</h2>
 
+  <div class="info-message" *ngIf="infoMessage">
+    {{ infoMessage }}
+  </div>
+
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       Email

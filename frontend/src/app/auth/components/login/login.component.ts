@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../../shared/models/user.model';
@@ -14,18 +14,36 @@ import { LoginRequest } from '../../models/auth.model';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   isSubmitting = false;
   authError = '';
+  infoMessage = '';
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  ngOnInit() {
+    // Check for message in query params
+    this.route.queryParams.subscribe(params => {
+      if (params['message']) {
+        this.infoMessage = params['message'];
+        this.authError = ''; // Clear any existing error
+        // Clear query params after reading
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true
+        });
+      }
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || this.isSubmitting) {

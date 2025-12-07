@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
@@ -62,6 +63,17 @@ export class UserController {
   @Post()
   create(@Body() user: Partial<User>): Promise<User> {
     return this.userService.create(user);
+  }
+
+  // Update current user's email and/or password - MUST be before @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @Put('me')
+  async updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateUserDto): Promise<Omit<User, 'password'>> {
+    const updated = await this.userService.updateCurrentUser(req.user.id, dto);
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...userWithoutPassword } = updated;
+    return userWithoutPassword;
   }
 
   @Put(':id')
