@@ -35,4 +35,14 @@ export class TrainerService {
   deleteTrainer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  // GET CURRENT TRAINER
+  getMyTrainer(): Observable<Trainer> {
+    return this.http.get<Trainer>(`${this.apiUrl}/me`);
+  }
+
+  // UPDATE CURRENT TRAINER
+  updateMyTrainer(trainer: Partial<Trainer>): Observable<Trainer> {
+    return this.http.put<Trainer>(`${this.apiUrl}/me`, trainer);
+  }
 }

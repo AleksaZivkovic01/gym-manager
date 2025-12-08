@@ -34,8 +34,7 @@ export class HeaderComponent {
       
     ],
     trainer: [
-      { label: 'Home', path: '/' },
-      { label: 'Home', path: '/trainer/dashboard' }
+      { label: 'Home', path: '/trainer/dashboard' },
     ],
     admin: [
       { label: 'Home', path: '/admin/dashboard' },

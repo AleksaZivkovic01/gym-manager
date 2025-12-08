@@ -17,6 +17,7 @@
       <span class="user-info">
         {{ getUserDisplayName(user) }} ({{ user.role }})
         <a *ngIf="user.role === 'member'" routerLink="/member/profile" class="profile-link">Profil</a>
+        <a *ngIf="user.role === 'trainer'" routerLink="/trainer/profile" class="profile-link">Profil</a>
       </span>
       <button mat-button color="accent" (click)="logout()">Logout</button>
     </ng-container>

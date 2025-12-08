@@ -5,5 +5,5 @@ export interface Trainer {
   experienceYears?: number;
   gender?: string;
   dateOfBirth?: string;
-  averageRating?: number; // Prosečna ocena (1-5)
+  averageRating?: number; 
 }

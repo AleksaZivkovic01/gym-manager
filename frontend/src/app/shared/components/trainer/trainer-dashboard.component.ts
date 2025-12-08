@@ -23,6 +23,8 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   upcomingSessions: TrainingSession[] = [];
   myMembers: Member[] = [];
   totalSessions = 0;
+  pastSessions = 0;
+  totalRegistrations = 0;
   loading = true;
   private destroy$ = new Subject<void>();
 
@@ -55,13 +57,20 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   loadTrainerData() {
     if (!this.currentUser) return;
     
-    // For now, we'll need to find trainer by user email or ID
-    this.trainerService.getTrainers()
+    this.trainerService.getMyTrainer()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(trainers => {
-        // Find trainer associated with current user
-        // This is a temporary solution - ideally backend should provide /trainers/me endpoint
-        this.trainerInfo = trainers.find(t => t.id === this.currentUser?.id) || null;
+      .subscribe({
+        next: (trainer) => {
+          this.trainerInfo = trainer;
+          // Re-filter sessions when trainer data is loaded
+          if (this.allSessions.length > 0) {
+            this.filterSessions();
+          }
+        },
+        error: (err) => {
+          console.error('Error loading trainer data:', err);
+          this.trainerInfo = null;
+        }
       });
   }
 
@@ -72,7 +81,10 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (sessions) => {
           this.allSessions = sessions;
-          this.filterSessions();
+          // Filter sessions if trainer info is already loaded
+          if (this.trainerInfo) {
+            this.filterSessions();
+          }
           this.loading = false;
         },
         error: () => {
@@ -82,10 +94,12 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   }
 
   filterSessions() {
-    if (!this.currentUser || !this.trainerInfo) {
+    if (!this.trainerInfo) {
       this.upcomingSessions = [];
       this.myMembers = [];
       this.totalSessions = 0;
+      this.pastSessions = 0;
+      this.totalRegistrations = 0;
       return;
     }
 
@@ -97,24 +111,37 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     this.totalSessions = trainerSessions.length;
 
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
     
-    // Get upcoming sessions
+    // Get upcoming sessions (today and future)
     this.upcomingSessions = trainerSessions
       .filter(session => {
         const sessionDate = new Date(session.date);
+        sessionDate.setHours(0, 0, 0, 0);
         return sessionDate >= now;
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
         return dateA.getTime() - dateB.getTime();
-      })
-      .slice(0, 10);
+      });
+
+    // Get past sessions count
+    this.pastSessions = trainerSessions.filter(session => {
+      const sessionDate = new Date(session.date);
+      sessionDate.setHours(0, 0, 0, 0);
+      return sessionDate < now;
+    }).length;
+
+    // Calculate total registrations
+    this.totalRegistrations = trainerSessions.reduce((total, session) => {
+      return total + (session.registrations?.length || 0);
+    }, 0);
 
     // Get unique members from registrations
     const memberMap = new Map<number, Member>();
     trainerSessions.forEach(session => {
-      if (session.registrations) {
+      if (session.registrations && session.registrations.length > 0) {
         session.registrations.forEach(registration => {
           if (registration.member && !memberMap.has(registration.member.id)) {
             memberMap.set(registration.member.id, registration.member);
@@ -158,6 +185,11 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       return this.currentUser.email;
     }
     return 'Trener';
+  }
+
+  getRatingStars(rating?: number): string {
+    if (!rating) return '';
+    return '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
   }
 }
 

@@ -1,7 +1,12 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req, NotFoundException } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 import { TrainerService } from './trainer.service';
 import { Trainer } from './trainer.entity';
 import { CreateTrainerDto, UpdateTrainerDto } from './dto/trainer.dto';
+import { User } from '../user/user.entity';
+
+type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
 @Controller('trainers')
 export class TrainerController {
@@ -10,6 +15,28 @@ export class TrainerController {
   @Get()
   getAll(): Promise<Trainer[]> {
     return this.trainerService.findAll();
+  }
+
+ 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  async getMyTrainer(@Req() req: AuthenticatedRequest) {
+    const trainer = await this.trainerService.findByUserId(req.user.id);
+    if (!trainer) {
+      throw new NotFoundException('Trainer profile not found');
+    }
+    return trainer;
+  }
+
+  // Update current user's trainer data - MUST be before @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @Put('me')
+  async updateMyTrainer(@Req() req: AuthenticatedRequest, @Body() dto: UpdateTrainerDto) {
+    const trainer = await this.trainerService.findByUserId(req.user.id);
+    if (!trainer) {
+      throw new NotFoundException('Trainer profile not found');
+    }
+    return this.trainerService.update(trainer.id, dto);
   }
 
   @Get(':id')

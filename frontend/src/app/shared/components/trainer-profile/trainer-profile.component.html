@@ -1,0 +1,185 @@
+<section class="profile-section">
+  <div class="profile-header">
+    <h1>Moj Profil</h1>
+    <p class="subtitle">Ažurirajte svoje lične podatke</p>
+  </div>
+
+  <div class="profile-content" *ngIf="!loading">
+    <div class="card profile-card">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Success Message -->
+        <div class="message success" *ngIf="successMessage">
+          {{ successMessage }}
+        </div>
+
+        <!-- Error Message -->
+        <div class="message error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="name">
+            Ime i prezime <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Unesite ime i prezime"
+            [class.invalid]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+          >
+            Ime je obavezno polje.
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">
+            Email <span class="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Unesite email adresu"
+            [class.invalid]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+          >
+            <span *ngIf="profileForm.controls.email.errors?.['required']">Email je obavezno polje.</span>
+            <span *ngIf="profileForm.controls.email.errors?.['email']">Email mora biti validan.</span>
+          </div>
+        </div>
+
+        <!-- Password Change Section -->
+        <div class="password-section">
+          <!-- Old Password Field -->
+          <div class="form-group">
+            <label for="oldPassword">Stara lozinka</label>
+            <input
+              type="password"
+              id="oldPassword"
+              formControlName="oldPassword"
+              placeholder="Unesite staru lozinku"
+            />
+            <div
+              class="error-message"
+              *ngIf="profileForm.controls.newPassword.value && !profileForm.controls.oldPassword.value && profileForm.controls.oldPassword.touched"
+            >
+              Stara lozinka je obavezna za promenu lozinke.
+            </div>
+          </div>
+
+          <!-- New Password Field -->
+          <div class="form-group">
+            <label for="newPassword">Nova lozinka</label>
+            <input
+              type="password"
+              id="newPassword"
+              formControlName="newPassword"
+              placeholder="Unesite novu lozinku (min. 6 karaktera)"
+              [class.invalid]="profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched"
+            />
+            <div
+              class="error-message"
+              *ngIf="profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched"
+            >
+              <span *ngIf="profileForm.controls.newPassword.errors?.['minlength']">Lozinka mora imati najmanje 6 karaktera.</span>
+            </div>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="form-group">
+            <label for="confirmPassword">Potvrdite novu lozinku</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="Potvrdite novu lozinku"
+              [class.invalid]="profileForm.controls.confirmPassword.errors?.['passwordMismatch'] && profileForm.controls.confirmPassword.touched"
+            />
+            <div
+              class="error-message"
+              *ngIf="profileForm.controls.confirmPassword.errors?.['passwordMismatch'] && profileForm.controls.confirmPassword.touched"
+            >
+              Lozinke se ne poklapaju.
+            </div>
+          </div>
+        </div>
+
+        <!-- Specialty Field -->
+        <div class="form-group">
+          <label for="specialty">
+            Specijalnost <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="specialty"
+            formControlName="specialty"
+            placeholder="Unesite specijalnost"
+            [class.invalid]="profileForm.controls.specialty.invalid && profileForm.controls.specialty.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="profileForm.controls.specialty.invalid && profileForm.controls.specialty.touched"
+          >
+            Specijalnost je obavezno polje.
+          </div>
+        </div>
+
+        <!-- Experience Years Field -->
+        <div class="form-group">
+          <label for="experienceYears">
+            Godine iskustva <span class="required">*</span>
+          </label>
+          <input
+            type="number"
+            id="experienceYears"
+            formControlName="experienceYears"
+            placeholder="Unesite godine iskustva"
+            min="0"
+            [class.invalid]="profileForm.controls.experienceYears.invalid && profileForm.controls.experienceYears.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="profileForm.controls.experienceYears.invalid && profileForm.controls.experienceYears.touched"
+          >
+            <span *ngIf="profileForm.controls.experienceYears.errors?.['required']">Godine iskustva su obavezno polje.</span>
+            <span *ngIf="profileForm.controls.experienceYears.errors?.['min']">Godine iskustva moraju biti pozitivan broj.</span>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="cancel()"
+            [disabled]="isSubmitting"
+          >
+            Otkaži
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="profileForm.invalid || isSubmitting"
+          >
+            <span *ngIf="!isSubmitting">Sačuvaj izmene</span>
+            <span *ngIf="isSubmitting">Čuvanje...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Učitavanje podataka...</p>
+  </div>
+</section>

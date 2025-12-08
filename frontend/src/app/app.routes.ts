@@ -20,6 +20,7 @@ import { PackageFormComponent } from './features/packages/components/package-for
 import { TrainersListComponent } from './shared/components/trainers-list/trainers-list.component';
 import { AvailableSessionsComponent } from './shared/components/available-sessions/available-sessions.component';
 import { MemberProfileComponent } from './shared/components/member-profile/member-profile.component';
+import { TrainerProfileComponent } from './shared/components/trainer-profile/trainer-profile.component';
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
 
@@ -68,6 +69,12 @@ export const routes: Routes = [
       {
         path: 'trainer/dashboard',
         component: TrainerDashboardComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['trainer'] },
+      },
+      {
+        path: 'trainer/profile',
+        component: TrainerProfileComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['trainer'] },
       },

@@ -58,6 +58,46 @@
     
     .value {
       color: #333;
+
+      &.rating-value {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .stars {
+          color: #ffc107;
+          font-size: 1.2rem;
+          letter-spacing: 2px;
+        }
+
+        .rating-number {
+          color: #666;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+.scrollable-content {
+  max-height: 250px;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #555;
     }
   }
 }
@@ -116,6 +156,7 @@
   flex-direction: column;
   gap: 0.75rem;
 }
+
 
 .member-item {
   display: flex;

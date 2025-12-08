@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Trainer } from './trainer.entity';
 import { CreateTrainerDto, UpdateTrainerDto } from './dto/trainer.dto';
+import { RatingService } from '../ratings/rating.service';
 
 @Injectable()
 export class TrainerService {
   constructor(
     @InjectRepository(Trainer)
     private trainerRepository: Repository<Trainer>,
+    @Inject(forwardRef(() => RatingService))
+    private ratingService: RatingService,
   ) {}
 
   findAll(): Promise<Trainer[]> {
@@ -21,6 +24,28 @@ export class TrainerService {
       relations: ['sessions'],
     });
     if (!trainer) throw new NotFoundException(`Trainer ${id} not found`);
+    return trainer;
+  }
+
+  
+  async findByUserId(userId: number): Promise<Trainer | null> {
+    const trainer = await this.trainerRepository
+      .createQueryBuilder('trainer')
+      .leftJoinAndSelect('trainer.user', 'user')
+      .leftJoinAndSelect('trainer.sessions', 'sessions')
+      .where('user.id = :userId', { userId })
+      .getOne();
+    
+    if (trainer) {
+      // Calculate and add average rating
+      try {
+        const averageRating = await this.ratingService.getAverageRating(trainer.id);
+        (trainer as any).averageRating = averageRating > 0 ? averageRating : null;
+      } catch {
+        (trainer as any).averageRating = null;
+      }
+    }
+    
     return trainer;
   }
 
