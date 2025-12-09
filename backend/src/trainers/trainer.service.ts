@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { Trainer } from './trainer.entity';
 import { CreateTrainerDto, UpdateTrainerDto } from './dto/trainer.dto';
 import { RatingService } from '../ratings/rating.service';
+import { TrainingSession } from '../sessions/training-session.entity';
 
 @Injectable()
 export class TrainerService {
   constructor(
     @InjectRepository(Trainer)
     private trainerRepository: Repository<Trainer>,
+    @InjectRepository(TrainingSession)
+    private sessionRepository: Repository<TrainingSession>,
     @Inject(forwardRef(() => RatingService))
     private ratingService: RatingService,
   ) {}
@@ -69,8 +72,18 @@ export class TrainerService {
   }
 
   async delete(id: number): Promise<void> {
-    const result = await this.trainerRepository.delete(id);
-    if (result.affected === 0)
+    // Check if trainer exists
+    const trainer = await this.trainerRepository.findOne({ where: { id } });
+    if (!trainer) {
       throw new NotFoundException(`Trainer ${id} not found`);
+    }
+
+    // Delete all training sessions associated with this trainer
+    // This is necessary because TrainingSession has a foreign key to Trainer
+    await this.sessionRepository.delete({ trainer: { id } });
+
+    // Delete the trainer
+    // Ratings will be automatically deleted due to CASCADE in Rating entity
+    await this.trainerRepository.delete(id);
   }
 }

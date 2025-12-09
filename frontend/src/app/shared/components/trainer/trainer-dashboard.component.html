@@ -2,6 +2,13 @@
   <div class="dashboard-header">
     <h1>Dashboard Trenera</h1>
     <p class="welcome-text">Dobrodošli, {{ getDisplayName() }}</p>
+    <button 
+      type="button" 
+      class="btn-add-session"
+      routerLink="/trainer/sessions"
+    >
+      Dodaj trening
+    </button>
   </div>
 
   <div class="dashboard-content">
@@ -49,7 +56,7 @@
           <div class="session-item" *ngFor="let session of upcomingSessions">
             <div class="session-date">
               <span class="date">{{ formatDate(session.date) }}</span>
-              <span class="time">{{ session.time }}</span>
+              <span class="time">{{ formatTime(session.time) }}h</span>
             </div>
             <div class="session-details">
               <span class="session-type">{{ session.type }}</span>
@@ -103,10 +110,6 @@
         <div class="stat-item">
           <span class="stat-value">{{ upcomingSessions.length }}</span>
           <span class="stat-label">Predstojeći</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ pastSessions }}</span>
-          <span class="stat-label">Prošli</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ myMembers.length }}</span>

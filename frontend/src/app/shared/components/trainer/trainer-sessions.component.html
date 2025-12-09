@@ -1,0 +1,215 @@
+<section class="trainer-sessions">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Moji treninzi</h1>
+      <button
+        *ngIf="!showSessionForm"
+        type="button"
+        class="btn-add-session"
+        (click)="toggleSessionForm()"
+      >
+        Dodaj trening
+    </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Session Form -->
+  <div class="add-session-form-container" *ngIf="showSessionForm">
+    <div class="card add-session-card">
+      <h2>{{ editingSessionId ? 'Izmeni trening sesiju' : 'Dodaj novu trening sesiju' }}</h2>
+
+      <form [formGroup]="sessionForm" (ngSubmit)="onSubmitSession()" class="session-form">
+        <!-- Success Message -->
+        <div class="message success" *ngIf="sessionSuccessMessage">
+          {{ sessionSuccessMessage }}
+        </div>
+
+        <!-- Error Message -->
+        <div class="message error" *ngIf="sessionErrorMessage">
+          {{ sessionErrorMessage }}
+        </div>
+
+        <!-- Date Field -->
+        <div class="form-group">
+          <label for="sessionDate">
+            Datum <span class="required">*</span>
+          </label>
+          <input
+            type="date"
+            id="sessionDate"
+            formControlName="date"
+            [class.invalid]="sessionForm.controls.date.invalid && sessionForm.controls.date.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="sessionForm.controls.date.invalid && sessionForm.controls.date.touched"
+          >
+            Datum je obavezno polje.
+          </div>
+        </div>
+
+        <!-- Time Field -->
+        <div class="form-group">
+          <label for="sessionTime">
+            Vreme <span class="required">*</span>
+          </label>
+          <input
+            type="time"
+            id="sessionTime"
+            formControlName="time"
+            [class.invalid]="sessionForm.controls.time.invalid && sessionForm.controls.time.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="sessionForm.controls.time.invalid && sessionForm.controls.time.touched"
+          >
+            <span *ngIf="sessionForm.controls.time.errors?.['required']">Vreme je obavezno polje.</span>
+            <span *ngIf="sessionForm.controls.time.errors?.['pattern']">Vreme mora biti u formatu HH:MM.</span>
+          </div>
+        </div>
+
+        <!-- Type Field -->
+        <div class="form-group">
+          <label for="sessionType">
+            Tip treninga <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="sessionType"
+            formControlName="type"
+            placeholder="npr. Kardio, Snaga, Joga..."
+            [class.invalid]="sessionForm.controls.type.invalid && sessionForm.controls.type.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="sessionForm.controls.type.invalid && sessionForm.controls.type.touched"
+          >
+            Tip treninga je obavezno polje.
+          </div>
+        </div>
+
+        <!-- Max Participants Field -->
+        <div class="form-group">
+          <label for="sessionMaxParticipants">
+            Maksimalan broj učesnika <span class="required">*</span>
+          </label>
+          <input
+            type="number"
+            id="sessionMaxParticipants"
+            formControlName="maxParticipants"
+            min="1"
+            [class.invalid]="sessionForm.controls.maxParticipants.invalid && sessionForm.controls.maxParticipants.touched"
+          />
+          <div
+            class="error-message"
+            *ngIf="sessionForm.controls.maxParticipants.invalid && sessionForm.controls.maxParticipants.touched"
+          >
+            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['required']">Broj učesnika je obavezno polje.</span>
+            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['min']">Broj učesnika mora biti najmanje 1.</span>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="isSubmittingSession || sessionForm.invalid"
+          >
+            {{ isSubmittingSession ? 'Kreiranje...' : 'Kreiraj trening' }}
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="toggleSessionForm()"
+            [disabled]="isSubmittingSession"
+          >
+            Otkaži
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sessions List -->
+  <div class="sessions-container">
+    <div class="loading" *ngIf="loading">
+      <p>Učitavanje treninga...</p>
+    </div>
+
+    <div class="sessions-list" *ngIf="!loading && sessions.length > 0">
+      <div class="session-card" *ngFor="let session of sessions">
+        <div class="session-header">
+          <h3 class="session-type">{{ session.type }}</h3>
+          <span class="session-status" [class.upcoming]="isUpcoming(session)" [class.past]="!isUpcoming(session)">
+            {{ isUpcoming(session) ? 'Predstojeći' : 'Prošao' }}
+          </span>
+        </div>
+        <div class="session-details">
+          <div class="detail-item">
+            <span class="detail-label">Datum:</span>
+            <span class="detail-value">{{ formatDate(session.date) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Vreme:</span>
+            <span class="detail-value">{{ formatTime(session.time) }}h</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Prijavljeno:</span>
+            <span class="detail-value">
+              {{ getRegisteredCount(session) }}/{{ session.maxParticipants }}
+              <button 
+                *ngIf="getRegisteredCount(session) > 0"
+                type="button" 
+                class="btn-show-members"
+                (click)="toggleMembersList(session)"
+                title="Prikaži prijavljene članove"
+              >
+                <!--{{ showMembersForSession[session.id] ? '▼' : '▶' }}-->
+                {{ showMembersForSession[session.id] ? 'Sakrij' : 'Prikaži' }}
+              </button>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Members List -->
+        <div class="members-list" *ngIf="showMembersForSession[session.id]">
+          <div class="members-loading" *ngIf="loadingMembers[session.id]">
+            <p>Učitavanje članova...</p>
+          </div>
+          <div class="members-content" *ngIf="!loadingMembers[session.id]">
+            <div class="member-item" *ngFor="let member of sessionMembers[session.id]">
+              {{ member.name }}
+            </div>
+            <div class="no-members" *ngIf="sessionMembers[session.id]?.length === 0">
+              <p>Nema prijavljenih članova.</p>
+            </div>
+          </div>
+        </div>
+        <div class="session-actions">
+          <button 
+            type="button" 
+            class="btn-edit"
+            (click)="editSession(session)"
+            [disabled]="showSessionForm"
+          >
+            Izmeni
+          </button>
+          <button 
+            type="button" 
+            class="btn-delete"
+            (click)="deleteSession(session)"
+            [disabled]="showSessionForm"
+          >
+            Obriši
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-sessions" *ngIf="!loading && sessions.length === 0">
+      <p>Nemate kreiranih treninga.</p>
+      <p class="hint">Kliknite na "Dodaj trening" da kreirate novu trening sesiju.</p>
+    </div>
+  </div>
+</section>

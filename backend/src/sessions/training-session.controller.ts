@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { TrainingSessionService } from './training-session.service';
-import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDto } from './dto/training-session.dto';
+import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDto, CreateTrainingSessionByTrainerDto } from './dto/training-session.dto';
 import { TrainingSession } from './training-session.entity';
 import { Member } from '../members/member.entity';
 import { User } from '../user/user.entity';
@@ -48,6 +48,16 @@ export class TrainingSessionController {
   @Post()
   create(@Body() dto: CreateTrainingSessionDto): Promise<TrainingSession> {
     return this.sessionService.create(dto);
+  }
+
+  // Create session by trainer (for authenticated trainer) - MUST be before @Post(':id/register')
+  @UseGuards(AuthGuard('jwt'))
+  @Post('me')
+  async createMySession(@Req() req: AuthenticatedRequest, @Body() dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
+    if (req.user.role !== 'trainer') {
+      throw new BadRequestException('Only trainers can create sessions');
+    }
+    return this.sessionService.createByTrainerForUser(req.user.id, dto);
   }
 
   @UseGuards(AuthGuard('jwt'))

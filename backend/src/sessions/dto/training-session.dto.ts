@@ -46,3 +46,18 @@ export class RegisterToSessionDto {
   @IsInt()
   memberId: number;
 }
+
+export class CreateTrainingSessionByTrainerDto {
+  @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
+  date: string;
+
+  @Matches(/^\d{2}:\d{2}$/, { message: 'Time must be in format HH:MM' })
+  time: string;
+
+  @IsString()
+  type: string;
+
+  @IsInt()
+  @Min(1)
+  maxParticipants: number;
+}

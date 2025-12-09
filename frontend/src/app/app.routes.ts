@@ -21,6 +21,7 @@ import { TrainersListComponent } from './shared/components/trainers-list/trainer
 import { AvailableSessionsComponent } from './shared/components/available-sessions/available-sessions.component';
 import { MemberProfileComponent } from './shared/components/member-profile/member-profile.component';
 import { TrainerProfileComponent } from './shared/components/trainer-profile/trainer-profile.component';
+import { TrainerSessionsComponent } from './shared/components/trainer/trainer-sessions.component';
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
 
@@ -75,6 +76,12 @@ export const routes: Routes = [
       {
         path: 'trainer/profile',
         component: TrainerProfileComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['trainer'] },
+      },
+      {
+        path: 'trainer/sessions',
+        component: TrainerSessionsComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['trainer'] },
       },

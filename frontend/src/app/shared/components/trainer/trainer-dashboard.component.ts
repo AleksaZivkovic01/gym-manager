@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
 import { SessionService } from '../../../features/sessions/services/session.service';
 import { TrainerService } from '../../../features/trainers/services/trainer.service';
@@ -12,7 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-trainer-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './trainer-dashboard.component.html',
   styleUrls: ['./trainer-dashboard.component.scss'],
 })
@@ -23,7 +24,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   upcomingSessions: TrainingSession[] = [];
   myMembers: Member[] = [];
   totalSessions = 0;
-  pastSessions = 0;
   totalRegistrations = 0;
   loading = true;
   private destroy$ = new Subject<void>();
@@ -98,7 +98,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       this.upcomingSessions = [];
       this.myMembers = [];
       this.totalSessions = 0;
-      this.pastSessions = 0;
       this.totalRegistrations = 0;
       return;
     }
@@ -125,13 +124,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
         const dateB = new Date(b.date);
         return dateA.getTime() - dateB.getTime();
       });
-
-    // Get past sessions count
-    this.pastSessions = trainerSessions.filter(session => {
-      const sessionDate = new Date(session.date);
-      sessionDate.setHours(0, 0, 0, 0);
-      return sessionDate < now;
-    }).length;
 
     // Calculate total registrations
     this.totalRegistrations = trainerSessions.reduce((total, session) => {
@@ -166,6 +158,9 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       month: 'long',
       year: 'numeric'
     });
+  }
+  formatTime(timeString: string): string {
+    return timeString.substring(0, 5); // da bi se prikazalo samo casovi i minuti bez sekundi,prva 5 karaktera
   }
 
   getLevelLabel(level: string): string {

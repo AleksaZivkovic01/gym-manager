@@ -40,6 +40,11 @@ export class SessionService {
     });
   }
 
+  // Create session by trainer (for authenticated trainer)
+  createMySession(session: { date: string; time: string; type: string; maxParticipants: number }): Observable<TrainingSession> {
+    return this.http.post<TrainingSession>(`${this.apiUrl}/me`, session);
+  }
+
   updateSession(id: number, session: Partial<TrainingSession>) {
     return this.http.put<TrainingSession>(`${this.apiUrl}/${id}`, {
       date: session.date,

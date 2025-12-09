@@ -35,6 +35,7 @@ export class HeaderComponent {
     ],
     trainer: [
       { label: 'Home', path: '/trainer/dashboard' },
+      { label: 'Training Sessions', path: '/trainer/sessions' },
     ],
     admin: [
       { label: 'Home', path: '/admin/dashboard' },

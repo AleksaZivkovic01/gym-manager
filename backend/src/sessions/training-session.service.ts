@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TrainingSession } from './training-session.entity';
 import { SessionRegistration } from './session-registration.entity';
-import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDto } from './dto/training-session.dto';
+import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDto, CreateTrainingSessionByTrainerDto } from './dto/training-session.dto';
 import { Member } from '../members/member.entity';
 import { Trainer } from '../trainers/trainer.entity';
+import { TrainerService } from '../trainers/trainer.service';
 
 @Injectable()
 export class TrainingSessionService {
@@ -18,6 +19,8 @@ export class TrainingSessionService {
     private memberRepository: Repository<Member>,
     @InjectRepository(Trainer)
     private trainerRepository: Repository<Trainer>,
+    @Inject(forwardRef(() => TrainerService))
+    private trainerService: TrainerService,
   ) {}
 
   async findAll(): Promise<TrainingSession[]> {
@@ -49,6 +52,32 @@ export class TrainingSessionService {
     });
 
     return this.sessionRepository.save(session);
+  }
+
+  // Create session by trainer (for authenticated trainer)
+  async createByTrainer(trainerId: number, dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
+    const trainer = await this.trainerRepository.findOne({ where: { id: trainerId } });
+    if (!trainer) throw new NotFoundException(`Trainer ${trainerId} not found`);
+
+    const session = this.sessionRepository.create({
+      date: new Date(dto.date),
+      time: dto.time,
+      type: dto.type,
+      maxParticipants: dto.maxParticipants,
+      trainer,
+    });
+
+    return this.sessionRepository.save(session);
+  }
+
+  // Create session by trainer using user ID
+  async createByTrainerForUser(userId: number, dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
+    const trainer = await this.trainerService.findByUserId(userId);
+    if (!trainer) {
+      throw new NotFoundException('Trainer profile not found');
+    }
+
+    return this.createByTrainer(trainer.id, dto);
   }
 
   async update(id: number, dto: UpdateTrainingSessionDto): Promise<TrainingSession> {
