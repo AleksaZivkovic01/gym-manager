@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TrainingSession } from './training-session.entity';
@@ -182,5 +183,19 @@ export class TrainingSessionService {
     });
 
     return registrations.map(reg => reg.session);
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleDeletePastSessions() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().slice(0, 5);
+
+    await this.sessionRepository
+      .createQueryBuilder()
+      .delete()
+      .where('date < :today', { today })
+      .orWhere('(date = :today AND time <= :currentTime)', { today, currentTime })
+      .execute();
   }
 }
