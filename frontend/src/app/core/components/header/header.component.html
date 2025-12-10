@@ -1,15 +1,16 @@
 <header class="navbar">
-  <div class="logo">GymManager</div>
+  <div class="left-section">
+    <div class="logo">GymManager</div>
+    <nav>
+      <ng-container *ngIf="currentUser$ | async as user; else guestNav">
+        <a *ngFor="let link of navLinks[user.role]" [routerLink]="link.path">{{ link.label }}</a>
+      </ng-container>
 
-  <nav>
-  <ng-container *ngIf="currentUser$ | async as user; else guestNav">
-    <a *ngFor="let link of navLinks[user.role]" [routerLink]="link.path">{{ link.label }}</a>
-  </ng-container>
-
-  <ng-template #guestNav>
-    <a *ngFor="let link of navLinks['guest']" [routerLink]="link.path">{{ link.label }}</a>
-  </ng-template>
-</nav>
+      <ng-template #guestNav>
+        <a *ngFor="let link of navLinks['guest']" [routerLink]="link.path">{{ link.label }}</a>
+      </ng-template>
+    </nav>
+  </div>
 
 
   <div class="auth-actions">
@@ -19,12 +20,16 @@
         <a *ngIf="user.role === 'member'" routerLink="/member/profile" class="profile-link">Profil</a>
         <a *ngIf="user.role === 'trainer'" routerLink="/trainer/profile" class="profile-link">Profil</a>
       </span>
+      <div *ngIf="user.role === 'member'" class="notifications-icon" (click)="toggleNotifications()">
+        <span class="inbox-icon">📩</span>
+        <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+      </div>
       <button mat-button color="accent" (click)="logout()">Logout</button>
     </ng-container>
 
     <ng-template #guestLinks>
-      <button mat-stroked-button routerLink="/login">Login</button>
-      <button mat-flat-button color="primary" routerLink="/register">Register</button>
+      <a mat-flat-button color="primary"  routerLink="/login">Login</a>
+      <a mat-flat-button color="primary" routerLink="/register">Register</a>
     </ng-template>
   </div>
 </header>

@@ -1,6 +1,6 @@
 <div class="available-sessions-container">
   <div class="header">
-    <h2>Dostupni Treningi</h2>
+    <h2>Dostupni Treninzi</h2>
     <p class="subtitle">Pregledajte i prijavite se na dostupne treninge</p>
   </div>
 
@@ -78,22 +78,31 @@
       </div>
 
       <div class="session-actions">
+        <!-- Guest user actions -->
         <button 
-          *ngIf="canRegister(session)"
+          *ngIf="!currentUser"
+          class="btn-register btn-guest"
+          disabled>
+          Prijavite se da biste zakazali trening
+        </button>
+        
+        <!-- Member actions -->
+        <button 
+          *ngIf="currentUser && canRegister(session)"
           (click)="registerToSession(session)"
           class="btn-register">
           Prijavi se
         </button>
         <button 
-          *ngIf="isRegistered(session.id)"
+          *ngIf="currentUser && isRegistered(session.id)"
           (click)="unregisterFromSession(session)"
           class="btn-unregister">
           Otkazi
         </button>
-        <span *ngIf="memberInfo && !memberInfo.isActive && !isRegistered(session.id)" class="inactive-message">
+        <span *ngIf="currentUser && memberInfo && !memberInfo.isActive && !isRegistered(session.id)" class="inactive-message">
           Morate izabrati paket da biste rezervisali trening
         </span>
-        <span *ngIf="isFull(session) && !isRegistered(session.id) && memberInfo?.isActive" class="full-message">
+        <span *ngIf="currentUser && isFull(session) && !isRegistered(session.id) && memberInfo?.isActive" class="full-message">
           Trening je popunjen
         </span>
       </div>

@@ -7,11 +7,13 @@ import { TrainingSessionController } from './training-session.controller';
 import { Member } from '../members/member.entity';
 import { Trainer } from '../trainers/trainer.entity';
 import { TrainersModule } from '../trainers/trainers.module';
+import { NotificationModule } from '../notifications/notification.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TrainingSession, SessionRegistration, Member, Trainer]),
     forwardRef(() => TrainersModule),
+    forwardRef(() => NotificationModule),
   ],
   providers: [TrainingSessionService],
   controllers: [TrainingSessionController],

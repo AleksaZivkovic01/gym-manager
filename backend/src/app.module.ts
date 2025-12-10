@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PackageModule } from './packages/package.module';
 import { RatingModule } from './ratings/rating.module';
+import { NotificationModule } from './notifications/notification.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -34,6 +35,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     PackageModule,
     RatingModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

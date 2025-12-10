@@ -22,6 +22,7 @@ import { AvailableSessionsComponent } from './shared/components/available-sessio
 import { MemberProfileComponent } from './shared/components/member-profile/member-profile.component';
 import { TrainerProfileComponent } from './shared/components/trainer-profile/trainer-profile.component';
 import { TrainerSessionsComponent } from './shared/components/trainer/trainer-sessions.component';
+import { NotificationsComponent } from './shared/components/notifications/notifications.component';
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
 
@@ -37,13 +38,21 @@ export const routes: Routes = [
     children: [
       // public
       { path: '', component: HomeComponent },
-      { path: 'packages', component: PackagesComponent },
-      { path: 'about', component: AboutComponent },
+      { path: 'guest/packages', component: PackagesComponent },
+      { path: 'guest/about', component: AboutComponent },
+      { path: 'guest/trainers', component: TrainersListComponent },
+      { path: 'guest/available-sessions', component: AvailableSessionsComponent },
 
       // member zone
       {
         path: 'member/dashboard',
         component: MemberDashboardComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['member'] },
+      },
+      {
+        path: 'member/packages',
+        component: PackagesComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['member'] },
       },
@@ -62,6 +71,12 @@ export const routes: Routes = [
       {
         path: 'member/profile',
         component: MemberProfileComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['member'] },
+      },
+      {
+        path: 'member/notifications',
+        component: NotificationsComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['member'] },
       },

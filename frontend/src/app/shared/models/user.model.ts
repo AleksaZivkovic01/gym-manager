@@ -1,7 +1,7 @@
 import { Member } from './member.model';
 import { Trainer } from './trainer.model';
 
-export type UserRole = 'member' | 'trainer' | 'admin';
+export type UserRole = 'guest' | 'member' | 'trainer' | 'admin';
 export type UserStatus = 'pending' | 'approved' | 'rejected';
 
 export interface User {

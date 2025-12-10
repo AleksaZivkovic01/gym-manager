@@ -73,6 +73,11 @@ export class MemberFormComponent implements OnInit, OnDestroy {
   }
 
   save() {
+    if (this.memberForm.invalid) {
+      this.memberForm.markAllAsTouched();
+      return;
+    }
+
     const member: Member = {
       id: this.memberId!,
       ...this.memberForm.value
@@ -84,6 +89,10 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       this.store.dispatch(addMember({ member }));
     }
 
+    this.router.navigate(['/members']);
+  }
+
+  goBack() {
     this.router.navigate(['/members']);
   }
 }

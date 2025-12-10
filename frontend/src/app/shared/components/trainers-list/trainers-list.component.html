@@ -1,6 +1,23 @@
 <div class="trainers-list-container">
   <h2>Lista Trenera</h2>
 
+  <div *ngIf="!loading && !error && trainers.length > 0" class="filter-section">
+    <label for="specialty-filter">Filtriraj po specijalnosti:</label>
+    <select 
+      id="specialty-filter"
+      [(ngModel)]="selectedSpecialty" 
+      (change)="onSpecialtyChange(selectedSpecialty)"
+      class="filter-select">
+      <option value="">Sve specijalnosti</option>
+      <option *ngFor="let specialty of specialties" [value]="specialty">
+        {{ specialty }}
+      </option>
+    </select>
+    <span *ngIf="specialties.length === 0 && !loading" class="no-specialties-info">
+      (Nema dostupnih specijalnosti za filtriranje)
+    </span>
+  </div>
+
   <div *ngIf="loading" class="loading">
     Učitavanje trenera...
   </div>
@@ -9,12 +26,13 @@
     {{ error }}
   </div>
 
-  <div *ngIf="!loading && !error && trainers.length === 0" class="empty">
-    Trenutno nema dostupnih trenera.
+  <div *ngIf="!loading && !error && filteredTrainers.length === 0" class="empty">
+    <span *ngIf="selectedSpecialty">Nema trenera sa selektovanom specijalnošću.</span>
+    <span *ngIf="!selectedSpecialty">Trenutno nema dostupnih trenera.</span>
   </div>
 
-  <div *ngIf="!loading && !error && trainers.length > 0" class="trainers-grid">
-    <div *ngFor="let trainer of trainers" class="trainer-card">
+  <div *ngIf="!loading && !error && filteredTrainers.length > 0" class="trainers-grid">
+    <div *ngFor="let trainer of filteredTrainers" class="trainer-card">
       <div class="trainer-header">
         <h3>{{ trainer.name }}</h3>
         <span class="specialty">{{ trainer.specialty }}</span>

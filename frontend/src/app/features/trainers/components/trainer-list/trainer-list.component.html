@@ -1,10 +1,33 @@
-<h2>Trainers</h2>
-<button (click)="addTrainer()">Add Trainer</button>
+<div class="trainer-list-container">
+  <div class="header-section">
+    <h2>Treneri</h2>
+    <button class="btn-add" (click)="addTrainer()">Dodaj trenera</button>
+  </div>
 
-<ul>
-  <li *ngFor="let t of trainers">
-    {{ t.id }} - {{ t.name }} ({{ t.specialty }})
-    <button (click)="editTrainer(t.id)">Edit</button>
-    <button (click)="deleteTrainer(t.id)">Delete</button>
-  </li>
-</ul>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Ime i Prezime</th>
+          <th>Specijalnost</th>
+          <th>Iskustvo (godine)</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of trainers; trackBy: trackById">
+          <td>{{ t.name }}</td>
+          <td>{{ t.specialty }}</td>
+          <td>{{ t.experienceYears || '-' }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="editTrainer(t.id)">Izmeni</button>
+            <button class="btn-delete" (click)="deleteTrainer(t.id)">Obriši</button>
+          </td>
+        </tr>
+        <tr *ngIf="trainers.length === 0">
+          <td colspan="5" class="empty-message">Nema trenera</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

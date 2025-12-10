@@ -1,13 +1,42 @@
-<h2>Members</h2>
-<button (click)="addMember()">Add Member</button>
+<div class="member-list-container">
+  <div class="header-section">
+    <h2>Članovi</h2>
+    <button class="btn-add" (click)="addMember()">Dodaj člana</button>
+  </div>
 
-<ul>
-  <li *ngFor="let m of members; trackBy: trackById">
-    {{ m.name }} ({{ m.level }})
-    <span *ngIf="m.package"> - Package: {{ m.package.name }}</span>
-    <span *ngIf="!m.package" style="color:#999"> - No package</span>
-    <span *ngIf="!m.isActive" style="color:red"> INACTIVE</span>
-    <button (click)="editMember(m.id)">Edit</button>
-    <button (click)="deleteMember(m.id)">Delete</button>
-  </li>
-</ul>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>         
+          <th>Ime i Prezime</th>
+          <th>Nivo</th>
+          <th>Paket</th>
+          <th>Status</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of members; trackBy: trackById">
+          <td>{{ m.name }}</td>
+          <td>{{ m.level }}</td>
+          <td>
+            <span *ngIf="m.package">{{ m.package.name }}</span>
+            <span *ngIf="!m.package" class="no-package">Nema paketa</span>
+          </td>
+          <td>
+            <span [class]="m.isActive ? 'status-active' : 'status-inactive'">
+              {{ m.isActive ? 'Aktivan' : 'Neaktivan' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-edit" (click)="editMember(m.id)">Izmeni</button>
+            <button class="btn-delete" (click)="deleteMember(m.id)">Obriši</button>
+          </td>
+        </tr>
+        <tr *ngIf="members.length === 0">
+          <td colspan="6" class="empty-message">Nema članova</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

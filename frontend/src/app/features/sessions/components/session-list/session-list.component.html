@@ -1,21 +1,42 @@
-<h2>Training Sessions</h2>
+<div class="session-list-container">
+  <div class="header-section">
+    <h2>Trening Sesije</h2>
+    <button class="btn-add" (click)="addSession()">Dodaj sesiju</button>
+  </div>
 
-<button (click)="addSession()">Add Session</button>
-
-<ul>
-  <li *ngFor="let s of sessions">
-    <strong>{{ s.type }}</strong> - {{ s.date | date:'dd.MM.yyyy'}} at {{ s.time }}  
-    <br>
-    Trainer: {{ s.trainer.name }} ({{ s.trainer.specialty }})
-    <br>
-    <span *ngIf="s.registrations">
-      Prijavljeno: {{ s.registrations.length }}/{{ s.maxParticipants }}
-    </span>
-    <br>
-
-    <button (click)="editSession(s.id)">Edit</button>
-    <button (click)="deleteSession(s.id)">Delete</button>
-
-    <hr>
-  </li>
-</ul>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>        
+          <th>Tip Treninga</th>
+          <th>Datum</th>
+          <th>Vreme</th>
+          <th>Trener</th>
+          <th>Prijavljeno</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of sessions; trackBy: trackById">       
+          <td>{{ s.type }}</td>
+          <td>{{ s.date | date:'dd.MM.yyyy' }}</td>
+          <td>{{ s.time }}</td>
+          <td>{{ s.trainer.name || '-' }}</td>
+          <td>
+            <span *ngIf="s.registrations">
+              {{ s.registrations.length }}/{{ s.maxParticipants }}
+            </span>
+            <span *ngIf="!s.registrations">0/{{ s.maxParticipants }}</span>
+          </td>
+          <td class="actions">
+            <button class="btn-edit" (click)="editSession(s.id)">Izmeni</button>
+            <button class="btn-delete" (click)="deleteSession(s.id)">Obriši</button>
+          </td>
+        </tr>
+        <tr *ngIf="sessions.length === 0">
+          <td colspan="7" class="empty-message">Nema trening sesija</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

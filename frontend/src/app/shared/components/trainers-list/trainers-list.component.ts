@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TrainerService } from '../../../features/trainers/services/trainer.service';
 import { RatingService } from '../../../features/ratings/services/rating.service';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -12,7 +13,7 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
 @Component({
   selector: 'app-trainers-list',
   standalone: true,
-  imports: [CommonModule, RatingModalComponent],
+  imports: [CommonModule, FormsModule, RatingModalComponent],
   templateUrl: './trainers-list.component.html',
   styleUrls: ['./trainers-list.component.scss'],
 })
@@ -26,6 +27,8 @@ export class TrainersListComponent implements OnInit, OnDestroy {
   showRatingModal = false;
   selectedTrainer: Trainer | null = null;
   selectedTrainerRating: Rating | null = null;
+  selectedSpecialty: string = '';
+  specialties: string[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -58,6 +61,9 @@ export class TrainersListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (trainers) => {
           this.trainers = trainers;
+          if (trainers && trainers.length > 0) {
+            this.extractSpecialties();
+          }
           this.loadRatings();
         },
         error: (err) => {
@@ -145,6 +151,37 @@ export class TrainersListComponent implements OnInit, OnDestroy {
 
   canRate(): boolean {
     return this.currentUser?.role === 'member' && !!this.currentUser?.member?.id;
+  }
+
+  extractSpecialties() {
+    this.specialties = [];
+    const specialtySet = new Set<string>();
+    if (this.trainers && this.trainers.length > 0) {
+      this.trainers.forEach(trainer => {
+        if (trainer && trainer.specialty) {
+          const specialty = String(trainer.specialty).trim();
+          if (specialty !== '') {
+            specialtySet.add(specialty);
+          }
+        }
+      });
+      this.specialties = Array.from(specialtySet).sort();
+    }
+  }
+
+  get filteredTrainers(): Trainer[] {
+    if (!this.selectedSpecialty) {
+      return this.trainers;
+    }
+    return this.trainers.filter(trainer => trainer.specialty === this.selectedSpecialty);
+  }
+
+  onSpecialtyChange(specialty: string) {
+    this.selectedSpecialty = specialty;
+  }
+
+  clearFilter() {
+    this.selectedSpecialty = '';
   }
 
   getStars(rating: number): string {

@@ -8,6 +8,7 @@ import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDt
 import { Member } from '../members/member.entity';
 import { Trainer } from '../trainers/trainer.entity';
 import { TrainerService } from '../trainers/trainer.service';
+import { NotificationService } from '../notifications/notification.service';
 
 @Injectable()
 export class TrainingSessionService {
@@ -22,6 +23,8 @@ export class TrainingSessionService {
     private trainerRepository: Repository<Trainer>,
     @Inject(forwardRef(() => TrainerService))
     private trainerService: TrainerService,
+    @Inject(forwardRef(() => NotificationService))
+    private notificationService: NotificationService,
   ) {}
 
   async findAll(): Promise<TrainingSession[]> {
@@ -84,6 +87,12 @@ export class TrainingSessionService {
   async update(id: number, dto: UpdateTrainingSessionDto): Promise<TrainingSession> {
     const session = await this.findOne(id);
 
+    // Sačuvaj stare vrednosti za poređenje
+    const oldDate = session.date;
+    const oldTime = session.time;
+    const oldType = session.type;
+    const oldMaxParticipants = session.maxParticipants;
+
     if (dto.trainerId) {
       const trainer = await this.trainerRepository.findOne({ where: { id: dto.trainerId } });
       if (!trainer) throw new NotFoundException(`Trainer ${dto.trainerId} not found`);
@@ -95,10 +104,65 @@ export class TrainingSessionService {
     if (dto.type) session.type = dto.type;
     if (dto.maxParticipants !== undefined) session.maxParticipants = dto.maxParticipants;
 
-    return this.sessionRepository.save(session);
+    const updatedSession = await this.sessionRepository.save(session);
+
+    // Kreiraj obaveštenja za sve prijavljene membere
+    const registrations = await this.registrationRepository.find({
+      where: { session: { id } },
+      relations: ['member'],
+    });
+
+    const changes: string[] = [];
+    
+    // Proveri da li je stvarno promenjeno
+    if (dto.date && new Date(dto.date).getTime() !== new Date(oldDate).getTime()) {
+      const newDate = new Date(dto.date).toLocaleDateString('sr-RS');
+      changes.push(`datum na ${newDate}`);
+    }
+    if (dto.time && dto.time !== oldTime) {
+      changes.push(`početak treninga na ${dto.time}`);
+    }
+    if (dto.type && dto.type !== oldType) {
+      changes.push(`tip treninga na "${dto.type}"`);
+    }
+    if (dto.maxParticipants !== undefined && dto.maxParticipants !== oldMaxParticipants) {
+      changes.push(`maksimalan broj učesnika na ${dto.maxParticipants}`);
+    }
+
+    if (changes.length > 0 && registrations.length > 0) {
+      const message = `Trening "${session.type}" koji ste rezervisali je ažuriran. Promenjeno: ${changes.join(', ')}.`;
+      for (const registration of registrations) {
+        try {
+          await this.notificationService.createNotification(registration.member.id, message);
+        } catch {
+          // ništa se ne dešava
+        }
+      }
+    }
+
+    return updatedSession;
   }
 
   async delete(id: number): Promise<void> {
+    const session = await this.findOne(id);
+
+    // Kreiraj obaveštenja za sve prijavljene membere pre brisanja
+    const registrations = await this.registrationRepository.find({
+      where: { session: { id } },
+      relations: ['member'],
+    });
+
+    if (registrations.length > 0) {
+      const message = `Trening "${session.type}" koji ste rezervisali je otkazan.`;
+      for (const registration of registrations) {
+        try {
+          await this.notificationService.createNotification(registration.member.id, message);
+        } catch {
+          // ništa se ne dešava 
+        }
+      }
+    }
+
     const result = await this.sessionRepository.delete(id);
     if (result.affected === 0) throw new NotFoundException(`Session ${id} not found`);
   }

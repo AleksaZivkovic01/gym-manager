@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../auth/services/auth.service';
-import { Observable } from 'rxjs';
+import { NotificationService } from '../../../features/notifications/services/notification.service';
+import { Observable, Subject, interval } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { User } from '../../../shared/models/user.model';
 
 @Component({
@@ -14,21 +16,27 @@ import { User } from '../../../shared/models/user.model';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   currentUser$: Observable<User | null> = this.authService.currentUser$;
+  unreadCount = 0;
+  showNotifications = false;
 
   navLinks = {
     guest: [
       { label: 'Home', path: '/' },
-      { label: 'Packages', path: '/packages' },
-      { label: 'About', path: '/about' }
+      { label: 'Packages', path: '/guest/packages' },
+      { label: 'Trainers', path: '/guest/trainers' },
+      { label: 'Trainings', path: '/guest/available-sessions' },
+      { label: 'About', path: '/guest/about' },
     ],
     member: [
       { label: 'Home', path: '/member/dashboard' },
-      { label: 'Packages', path: '/packages' },
+      { label: 'Packages', path: '/member/packages' },
       {label:'Trainings',path: '/member/available-sessions'},
       { label: 'Trainers', path: '/member/trainers' }
       
@@ -59,5 +67,52 @@ export class HeaderComponent {
     }
     // Fallback to email if name is not available
     return user.email;
+  }
+
+  ngOnInit() {
+    // Učitaj broj nepročitanih obaveštenja
+    this.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if (user?.role === 'member') {
+          this.loadUnreadCount();
+          // Proveri svakih 30 sekundi
+          interval(30000)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.loadUnreadCount());
+          
+          // Osveži kada se obaveštenje označi kao pročitano
+          this.notificationService.notificationRead
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.loadUnreadCount());
+        } else {
+          this.unreadCount = 0;
+        }
+      });
+  }
+
+  loadUnreadCount() {
+    this.notificationService.getUnreadCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.unreadCount = result.count;
+        },
+        error: () => {
+          this.unreadCount = 0;
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      this.router.navigate(['/member/notifications']);
+    }
   }
 }
