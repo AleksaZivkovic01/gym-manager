@@ -137,7 +137,23 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
   }
 
   get filteredSessions(): TrainingSession[] {
-    let filtered = [...this.allSessions];
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
+
+    // Filtriraj samo buduće termine (dostupni za rezervaciju)
+    let filtered = this.allSessions.filter(session => {
+      const sessionDateStr = session.date.split('T')[0];
+      const sessionTime = session.time.substring(0, 5);
+      
+      // Proveri da li je termin u budućnosti
+      if (sessionDateStr > today) {
+        return true;
+      } else if (sessionDateStr === today) {
+        return sessionTime > currentTime;
+      }
+      return false; // Termin je prošao, ne prikazuj ga
+    });
 
     // Filter by trainer
     if (this.filterTrainer) {
@@ -154,7 +170,11 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
     filtered.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
-      return dateA.getTime() - dateB.getTime();
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateA.getTime() - dateB.getTime();
+      }
+      // Ako su isti datum, sortiraj po vremenu
+      return a.time.localeCompare(b.time);
     });
 
     return filtered;

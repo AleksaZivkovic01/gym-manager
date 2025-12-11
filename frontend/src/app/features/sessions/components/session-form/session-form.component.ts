@@ -67,10 +67,19 @@ export class SessionFormComponent implements OnInit {
       this.store.select(selectSessionById(this.sessionId!))
         .subscribe(s => {
           if (s) {
+            // Normalizuj vreme na format HH:MM (uklanja sekunde ako postoje) za HTML input type="time"
+            let normalizedTime = s.time;
+            if (normalizedTime && normalizedTime.includes(':')) {
+              const parts = normalizedTime.split(':');
+              if (parts.length === 3) {
+                normalizedTime = `${parts[0]}:${parts[1]}`; // Ukloni sekunde
+              }
+            }
+
             this.session = {
               id: s.id,
               date: s.date,
-              time: s.time,
+              time: normalizedTime,
               type: s.type,
               maxParticipants: s.maxParticipants || 10,
               trainer: { ...s.trainer }
@@ -83,10 +92,17 @@ export class SessionFormComponent implements OnInit {
   }
 
   saveSession() {
+    if (!this.session.date || !this.session.time || !this.session.type || 
+        !this.session.maxParticipants || !this.selectedTrainerId || 
+        this.session.maxParticipants < 1) {
+      return;
+    }
+
     // Izbor trainer objekta
     const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
 
     // Priprema objekta za store i backend
+    // Backend će normalizovati vreme (ukloniti sekunde ako postoje)
     const sessionToStore: Partial<TrainingSession> = {
       ...this.session,
       trainer
@@ -94,14 +110,28 @@ export class SessionFormComponent implements OnInit {
 
     if (this.isEdit) {
       this.sessionService.updateSession(this.sessionId!, sessionToStore)
-        .subscribe(() => {
-          this.router.navigate(['/sessions']);
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/sessions']);
+          },
+          error: (err) => {
+            alert(err.error?.message || 'Greška pri ažuriranju sesije');
+          }
         });
     } else {
       this.sessionService.addSession(sessionToStore)
-        .subscribe(() => {
-          this.router.navigate(['/sessions']);
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/sessions']);
+          },
+          error: (err) => {
+            alert(err.error?.message || 'Greška pri dodavanju sesije');
+          }
         });
     }
+  }
+
+  goBack() {
+    this.router.navigate(['/sessions']);
   }
 }

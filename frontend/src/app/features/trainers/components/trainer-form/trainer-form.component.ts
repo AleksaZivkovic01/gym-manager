@@ -29,6 +29,7 @@ export class TrainerFormComponent implements OnInit {
     this.trainerForm = new FormGroup({
       name: new FormControl('', Validators.required),
       specialty: new FormControl('', Validators.required),
+      experienceYears: new FormControl(null)
     });
   }
 
@@ -44,7 +45,8 @@ export class TrainerFormComponent implements OnInit {
           if (trainer) {
             this.trainerForm.patchValue({
               name: trainer.name,
-              specialty: trainer.specialty
+              specialty: trainer.specialty,
+              experienceYears: trainer.experienceYears || null
             });
           }
         });
@@ -52,6 +54,10 @@ export class TrainerFormComponent implements OnInit {
   }
 
   saveTrainer(): void {
+    if (this.trainerForm.invalid) {
+      this.trainerForm.markAllAsTouched();
+      return;
+    }
    
     if (!this.isEdit) {
       const trainerData = this.trainerForm.value;
@@ -66,6 +72,10 @@ export class TrainerFormComponent implements OnInit {
     };
 
     this.store.dispatch(updateTrainer({ trainer }));
+    this.router.navigate(['/trainers']);
+  }
+
+  goBack() {
     this.router.navigate(['/trainers']);
   }
 }

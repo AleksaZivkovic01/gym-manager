@@ -110,19 +110,31 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     this.totalSessions = trainerSessions.length;
 
     const now = new Date();
-    now.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
     
-    // Get upcoming sessions (today and future)
+    // Get upcoming sessions (uzimajući u obzir i datum i vreme)
     this.upcomingSessions = trainerSessions
       .filter(session => {
-        const sessionDate = new Date(session.date);
-        sessionDate.setHours(0, 0, 0, 0);
-        return sessionDate >= now;
+        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
+        const sessionTime = session.time.substring(0, 5); // HH:MM format
+        
+        // Proveri da li je termin u budućnosti
+        if (sessionDateStr > today) {
+          return true; // Termin je u budućnosti
+        } else if (sessionDateStr === today) {
+          return sessionTime > currentTime; // Termin je danas, proveri da li je vreme u budućnosti
+        }
+        return false; // Termin je prošao
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
-        return dateA.getTime() - dateB.getTime();
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA.getTime() - dateB.getTime();
+        }
+        // Ako su isti datum, sortiraj po vremenu
+        return a.time.localeCompare(b.time);
       });
 
     // Calculate total registrations

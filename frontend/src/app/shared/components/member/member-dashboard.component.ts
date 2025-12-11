@@ -113,31 +113,55 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     }
 
     const now = new Date();
+    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
     
-    // Separate upcoming and recent sessions
+    // Separate upcoming and recent sessions (ne ograničavamo broj, svi će biti vidljivi kroz scroll)
     this.upcomingSessions = this.allSessions
       .filter(session => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= now;
+        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
+        const sessionTime = session.time.substring(0, 5); // HH:MM format
+        
+        // Proveri da li je termin u budućnosti (uzimajući u obzir i datum i vreme)
+        if (sessionDateStr > today) {
+          return true; // Termin je u budućnosti
+        } else if (sessionDateStr === today) {
+          return sessionTime >= currentTime; // Termin je danas, proveri vreme
+        }
+        return false; // Termin je u prošlosti
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
-        return dateA.getTime() - dateB.getTime();
-      })
-      .slice(0, 5);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA.getTime() - dateB.getTime();
+        }
+        // Ako su isti datum, sortiraj po vremenu
+        return a.time.localeCompare(b.time);
+      });
 
     this.recentSessions = this.allSessions
       .filter(session => {
-        const sessionDate = new Date(session.date);
-        return sessionDate < now;
+        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
+        const sessionTime = session.time.substring(0, 5); // HH:MM format
+        
+        // Proveri da li je termin prošao (uzimajući u obzir i datum i vreme)
+        if (sessionDateStr < today) {
+          return true; // Termin je u prošlosti
+        } else if (sessionDateStr === today) {
+          return sessionTime < currentTime; // Termin je danas, proveri da li je vreme prošlo
+        }
+        return false; // Termin je u budućnosti
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
-        return dateB.getTime() - dateA.getTime();
-      })
-      .slice(0, 5);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateB.getTime() - dateA.getTime(); // Najnoviji prvo
+        }
+        // Ako su isti datum, sortiraj po vremenu (najnoviji prvo)
+        return b.time.localeCompare(a.time);
+      });
   }
 
   formatDate(dateString: string): string {

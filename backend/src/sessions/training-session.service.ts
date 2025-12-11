@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TrainingSession } from './training-session.entity';
@@ -43,13 +42,23 @@ export class TrainingSessionService {
     return session;
   }
 
+  private normalizeTime(time: string): string {
+    if (!time) return time;
+    // Ukloni sekunde ako postoje (HH:MM:SS -> HH:MM)
+    const parts = time.split(':');
+    if (parts.length === 3) {
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return time;
+  }
+
   async create(dto: CreateTrainingSessionDto): Promise<TrainingSession> {
     const trainer = await this.trainerRepository.findOne({ where: { id: dto.trainerId } });
     if (!trainer) throw new NotFoundException(`Trainer ${dto.trainerId} not found`);
 
     const session = this.sessionRepository.create({
       date: new Date(dto.date),
-      time: dto.time,
+      time: this.normalizeTime(dto.time),
       type: dto.type,
       maxParticipants: dto.maxParticipants,
       trainer,
@@ -65,7 +74,7 @@ export class TrainingSessionService {
 
     const session = this.sessionRepository.create({
       date: new Date(dto.date),
-      time: dto.time,
+      time: this.normalizeTime(dto.time),
       type: dto.type,
       maxParticipants: dto.maxParticipants,
       trainer,
@@ -100,7 +109,7 @@ export class TrainingSessionService {
     }
 
     if (dto.date) session.date = new Date(dto.date);
-    if (dto.time) session.time = dto.time;
+    if (dto.time) session.time = this.normalizeTime(dto.time);
     if (dto.type) session.type = dto.type;
     if (dto.maxParticipants !== undefined) session.maxParticipants = dto.maxParticipants;
 
@@ -249,17 +258,4 @@ export class TrainingSessionService {
     return registrations.map(reg => reg.session);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleDeletePastSessions() {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const currentTime = now.toTimeString().slice(0, 5);
-
-    await this.sessionRepository
-      .createQueryBuilder()
-      .delete()
-      .where('date < :today', { today })
-      .orWhere('(date = :today AND time <= :currentTime)', { today, currentTime })
-      .execute();
-  }
 }

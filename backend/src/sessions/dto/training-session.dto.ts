@@ -4,7 +4,7 @@ export class CreateTrainingSessionDto {
   @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
   date: string;
 
-  @Matches(/^\d{2}:\d{2}$/, { message: 'Time must be in format HH:MM' })
+  @Matches(/^\d{2}:\d{2}(:\d{2})?$/, { message: 'Time must be in format HH:MM or HH:MM:SS' })
   time: string;
 
   @IsString()
@@ -51,7 +51,7 @@ export class CreateTrainingSessionByTrainerDto {
   @IsDateString({}, { message: 'Date must be in format YYYY-MM-DD' })
   date: string;
 
-  @Matches(/^\d{2}:\d{2}$/, { message: 'Time must be in format HH:MM' })
+  @Matches(/^\d{2}:\d{2}(:\d{2})?$/, { message: 'Time must be in format HH:MM or HH:MM:SS' })
   time: string;
 
   @IsString()
