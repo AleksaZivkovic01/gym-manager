@@ -1,11 +1,120 @@
 .navbar {
-  height: 60px;
+  height: 70px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 1.5rem;
   background: #222;
+  background-color: #222;
   color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: background 0.3s ease, background-color 0.3s ease;
+  box-sizing: border-box;
+  overflow: visible;
+  
+  @media (max-width: 768px) {
+    height: 60px;
+    padding: 0 0.75rem;
+  }
+
+  &.transparent {
+    background: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    
+    &,
+    *,
+    &::before,
+    &::after {
+      background: rgba(0, 0, 0, 0) !important;
+      background-color: rgba(0, 0, 0, 0) !important;
+      background-image: none !important;
+    }
+    
+    .left-section,
+    .auth-actions,
+    nav,
+    .logo {
+      background: rgba(0, 0, 0, 0) !important;
+      background-color: rgba(0, 0, 0, 0) !important;
+      background-image: none !important;
+    }
+    
+    .logo,
+    nav a,
+    .user-info,
+    button,
+    a {
+      color: white !important;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    }
+    
+    ::ng-deep {
+      button[mat-button],
+      button[mat-outlined-button] {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: white !important;
+      }
+      
+      a[mat-flat-button],
+      button[mat-flat-button] {
+        background: rgba(45, 126, 247, 0.6) !important;
+        background-color: rgba(45, 126, 247, 0.6) !important;
+        color: white !important;
+        box-shadow: 0 2px 6px rgba(45, 126, 247, 0.25) !important;
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        min-width: auto !important;
+        padding: 0.4rem 1rem !important;
+        font-size: 0.85rem !important;
+        backdrop-filter: blur(8px);
+        
+        &:hover {
+          background: rgba(45, 126, 247, 0.75) !important;
+          background-color: rgba(45, 126, 247, 0.75) !important;
+          box-shadow: 0 3px 10px rgba(45, 126, 247, 0.4) !important;
+          transform: translateY(-1px);
+        }
+      }
+      
+      .mat-mdc-button,
+      .mat-mdc-outlined-button {
+        background: transparent !important;
+        background-color: transparent !important;
+      }
+      
+      .mat-mdc-unelevated-button {
+        background: rgba(45, 126, 247, 0.6) !important;
+        background-color: rgba(45, 126, 247, 0.6) !important;
+        white-space: nowrap !important;
+        min-width: auto !important;
+        padding: 0.4rem 1rem !important;
+        font-size: 0.85rem !important;
+        backdrop-filter: blur(8px);
+      }
+      
+      .mdc-button {
+        background-color: transparent !important;
+      }
+      
+      .mdc-button--unelevated {
+        background-color: rgba(45, 126, 247, 0.6) !important;
+        white-space: nowrap !important;
+        min-width: auto !important;
+        padding: 0.4rem 1rem !important;
+        font-size: 0.85rem !important;
+        backdrop-filter: blur(8px);
+      }
+    }
+  }
 }
 
 .left-section {
@@ -17,6 +126,11 @@
 .logo {
   font-weight: bold;
   font-size: 1.2rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  
+  .navbar.transparent & {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  }
 }
 
 nav {
@@ -25,14 +139,73 @@ nav {
 }
 
 nav a {
-  margin-right: 15px;
+  margin-right: 25px;
   color: white;
   text-decoration: none;
   font-weight: 500;
-}
-
-nav a:hover {
-  text-decoration: underline;
+  font-size: 1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  
+  &:last-child {
+    margin-right: 0;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+  }
+  
+  &:hover {
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
+    &::before {
+      width: 80%;
+    }
+    
+    &::after {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    margin-right: 15px;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
 }
 
 nav a.active {
@@ -42,11 +215,47 @@ nav a.active {
 .auth-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  
+  ::ng-deep {
+    a[mat-flat-button],
+    button[mat-flat-button] {
+      min-width: auto !important;
+      padding: 0.4rem 1rem !important;
+      font-size: 0.85rem !important;
+      background: rgba(45, 126, 247, 0.6) !important;
+      background-color: rgba(45, 126, 247, 0.6) !important;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 6px rgba(45, 126, 247, 0.25) !important;
+      
+      &:hover {
+        background: rgba(45, 126, 247, 0.75) !important;
+        background-color: rgba(45, 126, 247, 0.75) !important;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    gap: 0.4rem;
+    
+    ::ng-deep {
+      a[mat-flat-button],
+      button[mat-flat-button] {
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.8rem !important;
+      }
+    }
+  }
 }
 
 .auth-actions button {
   color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.navbar.transparent .auth-actions a {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .user-info {

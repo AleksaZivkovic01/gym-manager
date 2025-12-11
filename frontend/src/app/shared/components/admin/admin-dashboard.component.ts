@@ -10,7 +10,8 @@ import { User } from '../../../shared/models/user.model';
 import { TrainingSession } from '../../../shared/models/training-session.model';
 import { Member } from '../../../shared/models/member.model';
 import { Trainer } from '../../../shared/models/trainer.model';
-import { Subject, takeUntil } from 'rxjs';
+import { Activity } from '../../../shared/models/activity.model';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 
 interface MembersSummary {
   active: number;
@@ -38,6 +39,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   upcomingSessionsCount = 0;
   pendingUsersCount = 0;
   recentSessions: TrainingSession[] = [];
+  recentActivities: Activity[] = [];
   membersSummary: MembersSummary | null = null;
   loading = true;
   private destroy$ = new Subject<void>();
@@ -106,6 +108,72 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           this.totalSessions = sessions.length;
           this.calculateUpcomingSessions(sessions);
           this.loadRecentSessions(sessions);
+        },
+        error: () => {
+          // Continue even if sessions fail
+        }
+      });
+
+    // Load recent activities (new users and new sessions)
+    this.loadRecentActivities();
+  }
+
+  loadRecentActivities() {
+    forkJoin({
+      users: this.userService.getAllUsers(),
+      sessions: this.sessionService.getSessions()
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ users, sessions }) => {
+          const activities: Activity[] = [];
+
+          // Add new users (last 7 days)
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+          users.forEach(user => {
+            if (user.createdAt && user.status === 'approved') {
+              const createdAt = new Date(user.createdAt);
+              if (createdAt >= sevenDaysAgo) {
+                activities.push({
+                  id: `user-${user.id}`,
+                  type: 'user_registered',
+                  timestamp: user.createdAt,
+                  data: {
+                    userName: user.member?.name || user.trainer?.name || user.email,
+                    userRole: user.role as 'member' | 'trainer'
+                  }
+                });
+              }
+            }
+          });
+
+          // Add new sessions (last 7 days)
+          sessions.forEach(session => {
+            if (session.createdAt) {
+              const createdAt = new Date(session.createdAt);
+              if (createdAt >= sevenDaysAgo) {
+                activities.push({
+                  id: `session-${session.id}`,
+                  type: 'session_created',
+                  timestamp: session.createdAt,
+                  data: {
+                    sessionType: session.type,
+                    sessionDate: session.date,
+                    sessionTime: session.time,
+                    trainerName: session.trainer?.name
+                  }
+                });
+              }
+            }
+          });
+
+          // Sort by timestamp (newest first) and take first 8
+          this.recentActivities = activities
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 8);
+
           this.loading = false;
         },
         error: () => {

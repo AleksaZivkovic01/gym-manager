@@ -17,8 +17,20 @@ export class TrainerService {
     private ratingService: RatingService,
   ) {}
 
-  findAll(): Promise<Trainer[]> {
-    return this.trainerRepository.find({ relations: ['sessions'] });
+  async findAll(): Promise<Trainer[]> {
+    const trainers = await this.trainerRepository.find({ relations: ['sessions'] });
+    
+    // Calculate average rating for each trainer
+    for (const trainer of trainers) {
+      try {
+        const averageRating = await this.ratingService.getAverageRating(trainer.id);
+        (trainer as any).averageRating = averageRating > 0 ? averageRating : null;
+      } catch {
+        (trainer as any).averageRating = null;
+      }
+    }
+    
+    return trainers;
   }
 
   async findOne(id: number): Promise<Trainer> {

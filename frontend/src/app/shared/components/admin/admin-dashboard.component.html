@@ -58,24 +58,27 @@
     <!-- Recent Activity -->
     <div class="card recent-activity-card">
       <h2>Nedavne aktivnosti</h2>
-      <div class="activity-list" *ngIf="recentSessions.length > 0">
-        <div class="activity-item" *ngFor="let session of recentSessions">
-          <div class="activity-date">
-            <span class="date">{{ formatDate(session.date) }}</span>
-            <span class="time">{{ session.time }}</span>
-          </div>
-          <div class="activity-details">
-            <span class="activity-type">{{ session.type }}</span>
-            <div class="activity-participants">
-              <span *ngIf="session.registrations">
-                Prijavljeno: {{ session.registrations.length }}/{{ session.maxParticipants }}
-              </span>
-              <span *ngIf="session.trainer"> • Trener: {{ session.trainer.name }}</span>
+      <div class="activity-list-scrollable" *ngIf="recentActivities.length > 0">
+        <div class="activity-list">
+          <div class="activity-item" *ngFor="let activity of recentActivities">
+            <div class="activity-icon" [class.user-icon]="activity.type === 'user_registered'" [class.session-icon]="activity.type === 'session_created'">
+              <span *ngIf="activity.type === 'user_registered'">👤</span>
+              <span *ngIf="activity.type === 'session_created'">📅</span>
+            </div>
+            <div class="activity-content">
+              <div class="activity-text" *ngIf="activity.type === 'user_registered'">
+                <span *ngIf="activity.data.userRole === 'member'">Registovan je novi član: <strong>{{ activity.data.userName }}</strong></span>
+                <span *ngIf="activity.data.userRole === 'trainer'">Registrovan je novi trener: <strong>{{ activity.data.userName }}</strong></span>
+              </div>
+              <div class="activity-text" *ngIf="activity.type === 'session_created'">
+                Kreiran novi trening: <strong>{{ activity.data.sessionType }}</strong>
+                <span *ngIf="activity.data.trainerName"> • Trener: {{ activity.data.trainerName }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="no-data" *ngIf="recentSessions.length === 0 && !loading">
+      <div class="no-data" *ngIf="recentActivities.length === 0 && !loading">
         <p>Nema nedavnih aktivnosti.</p>
       </div>
       <div class="loading" *ngIf="loading">

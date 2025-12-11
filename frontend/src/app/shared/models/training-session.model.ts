@@ -15,4 +15,5 @@ export interface TrainingSession {
   maxParticipants: number;
   trainer: Trainer;
   registrations?: SessionRegistration[];
+  createdAt?: string;
 }

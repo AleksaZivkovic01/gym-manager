@@ -1,9 +1,85 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body { 
+  height: 100%; 
+  background: transparent !important;
+  background-color: transparent !important;
+}
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+app-root {
+  background: transparent !important;
+  background-color: transparent !important;
+  display: block;
+}
 .app-main {
   padding: 20px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+/* Transparent header on home page - must override all possible backgrounds */
+header.navbar.transparent,
+.navbar.transparent {
+  background: rgba(0, 0, 0, 0) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  background-image: none !important;
+}
+
+header.navbar.transparent *,
+.navbar.transparent *,
+header.navbar.transparent *::before,
+.navbar.transparent *::before,
+header.navbar.transparent *::after,
+.navbar.transparent *::after {
+  background: rgba(0, 0, 0, 0) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  background-image: none !important;
+}
+
+header.navbar.transparent .left-section,
+.navbar.transparent .left-section,
+header.navbar.transparent .auth-actions,
+.navbar.transparent .auth-actions,
+header.navbar.transparent nav,
+.navbar.transparent nav {
+  background: rgba(0, 0, 0, 0) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  background-image: none !important;
+}
+
+header.navbar.transparent .mat-mdc-button,
+.navbar.transparent .mat-mdc-button,
+header.navbar.transparent .mat-mdc-outlined-button,
+.navbar.transparent .mat-mdc-outlined-button,
+header.navbar.transparent .mdc-button,
+.navbar.transparent .mdc-button,
+header.navbar.transparent button[mat-button],
+.navbar.transparent button[mat-button],
+header.navbar.transparent button[mat-outlined-button],
+.navbar.transparent button[mat-outlined-button],
+header.navbar.transparent .mdc-button__ripple,
+.navbar.transparent .mdc-button__ripple,
+header.navbar.transparent .mat-mdc-button-persistent-ripple,
+.navbar.transparent .mat-mdc-button-persistent-ripple {
+  background: rgba(0, 0, 0, 0) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  background-image: none !important;
+}
+
+header.navbar.transparent .mat-mdc-unelevated-button,
+.navbar.transparent .mat-mdc-unelevated-button,
+header.navbar.transparent .mdc-button--unelevated,
+.navbar.transparent .mdc-button--unelevated,
+header.navbar.transparent a[mat-flat-button],
+.navbar.transparent a[mat-flat-button],
+header.navbar.transparent button[mat-flat-button],
+.navbar.transparent button[mat-flat-button] {
+  background: rgba(45, 126, 247, 0.8) !important;
+  background-color: rgba(45, 126, 247, 0.8) !important;
 }

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MemberService } from '../../services/member.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Member } from '../../../../shared/models/member.model';
 import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
@@ -11,7 +12,7 @@ import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-member-list',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   standalone: true,
   templateUrl: './member-list.component.html',
   styleUrl: './member-list.component.scss'
@@ -19,6 +20,7 @@ import { Store } from '@ngrx/store';
 
 export class MemberListComponent implements OnInit,OnDestroy {
   members: Member[] = [];
+  searchTerm: string = '';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -59,5 +61,15 @@ export class MemberListComponent implements OnInit,OnDestroy {
 
   trackById(i: number, m: Member) {
     return m.id;
+  }
+
+  get filteredMembers(): Member[] {
+    if (!this.searchTerm.trim()) {
+      return this.members;
+    }
+    const search = this.searchTerm.toLowerCase().trim();
+    return this.members.filter(m => 
+      m.name.toLowerCase().includes(search)
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm";
 import { Member } from "../members/member.entity";
 import { Trainer } from "../trainers/trainer.entity";
 
@@ -35,4 +35,7 @@ export class User {
 
   @OneToOne(() => Trainer, trainer => trainer.user, { nullable: true })
   trainer?: Trainer;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

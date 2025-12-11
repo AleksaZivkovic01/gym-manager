@@ -11,5 +11,6 @@ export interface User {
   status?: UserStatus;
   member?: Member;
   trainer?: Trainer;
+  createdAt?: string;
 }
 

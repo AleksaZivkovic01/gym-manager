@@ -5,7 +5,7 @@
 
   .header-section {
     display: block;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 
     h2 {
       margin: 0 0 1rem 0;
@@ -26,6 +26,30 @@
 
       &:hover {
         background-color: #1565c0;
+      }
+    }
+  }
+
+  .filter-section {
+    margin-bottom: 1.5rem;
+
+    .search-input {
+      width: 100%;
+      max-width: 300px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+      }
+
+      &::placeholder {
+        color: #999;
       }
     }
   }

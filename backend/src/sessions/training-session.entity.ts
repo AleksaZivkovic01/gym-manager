@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
 import { Trainer } from '../trainers/trainer.entity';
 import { SessionRegistration } from './session-registration.entity';
 
@@ -24,4 +24,7 @@ export class TrainingSession {
 
   @OneToMany(() => SessionRegistration, (registration) => registration.session)
   registrations: SessionRegistration[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

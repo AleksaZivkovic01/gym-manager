@@ -1,11 +1,11 @@
-<section class="home">
+<section class="home" [style.background-image]="'url(/assets/images/background.jpg)'">
   <h1>Dobrodošli u GymManager</h1>
   <p>Pratite termine treninga, trenere i svoje članstvo na jednom mestu.</p>
 
   <div class="home-actions">
     <a routerLink="/login" class="primary">Prijavi se</a>
     <a routerLink="/register" class="secondary">Registruj se</a>
-    <a routerLink="/packages" class="ghost">Pogledaj pakete</a>
+    <a routerLink="/guest/packages" class="ghost">Pogledaj pakete</a>
   </div>
 </section>
 

@@ -4,6 +4,30 @@
     <button class="btn-add" (click)="addSession()">Dodaj sesiju</button>
   </div>
 
+  <div class="filter-section">
+    <button 
+      class="filter-btn" 
+      [class.active]="selectedFilter === 'upcoming'"
+      (click)="setFilter('upcoming')"
+    >
+      Predstojeći
+    </button>
+    <button 
+      class="filter-btn" 
+      [class.active]="selectedFilter === 'past'"
+      (click)="setFilter('past')"
+    >
+      Prošli
+    </button>
+    <button 
+      class="filter-btn" 
+      [class.active]="selectedFilter === 'all'"
+      (click)="setFilter('all')"
+    >
+      Svi
+    </button>
+  </div>
+
   <div class="table-container">
     <table class="data-table">
       <thead>
@@ -17,24 +41,57 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let s of sessions; trackBy: trackById">       
-          <td>{{ s.type }}</td>
-          <td>{{ s.date | date:'dd.MM.yyyy' }}</td>
-          <td>{{ s.time }}</td>
-          <td>{{ s.trainer.name || '-' }}</td>
-          <td>
-            <span *ngIf="s.registrations">
-              {{ s.registrations.length }}/{{ s.maxParticipants }}
+        <ng-container *ngFor="let s of filteredSessions; trackBy: trackById">
+          <tr>       
+            <td>{{ s.type }}</td>
+            <td>{{ s.date | date:'dd.MM.yyyy' }}</td>
+            <td>{{ s.time }}</td>
+            <td>{{ s.trainer.name || '-' }}</td>
+            <td>
+              <span>
+                {{ getRegisteredCount(s) }}/{{ s.maxParticipants }}
+                <button 
+                  *ngIf="getRegisteredCount(s) > 0"
+                  type="button" 
+                  class="btn-show-members"
+                  (click)="toggleMembersList(s)"
+                  [title]="isExpanded(s.id) ? 'Sakrij prijavljene članove' : 'Prikaži prijavljene članove'"
+                >
+                  {{ isExpanded(s.id) ? 'Sakrij' : 'Prikaži' }}
+                </button>
+              </span>
+            </td>
+            <td class="actions">
+              <button class="btn-edit" (click)="editSession(s.id)">Izmeni</button>
+              <button class="btn-delete" (click)="deleteSession(s.id)">Obriši</button>
+            </td>
+          </tr>
+          <!-- Expand row for members list -->
+          <tr class="expand-row" *ngIf="isExpanded(s.id)">
+            <td colspan="6" class="expand-cell">
+              <div class="members-loading" *ngIf="loadingMembers[s.id]">
+                <p>Učitavanje članova...</p>
+              </div>
+              <div class="members-content" *ngIf="!loadingMembers[s.id]">
+                <ul class="members-list" *ngIf="sessionMembers[s.id] && sessionMembers[s.id].length > 0">
+                  <li *ngFor="let member of sessionMembers[s.id]!" class="member-item">
+                    {{ member.name }}
+                  </li>
+                </ul>
+                <div class="no-members" *ngIf="!sessionMembers[s.id] || sessionMembers[s.id].length === 0">
+                  <p>Nema prijavljenih članova.</p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="filteredSessions.length === 0">
+          <td colspan="6" class="empty-message">
+            <span *ngIf="sessions.length === 0">Nema trening sesija</span>
+            <span *ngIf="sessions.length > 0 && filteredSessions.length === 0">
+              Nema trening sesija za izabrani filter
             </span>
-            <span *ngIf="!s.registrations">0/{{ s.maxParticipants }}</span>
           </td>
-          <td class="actions">
-            <button class="btn-edit" (click)="editSession(s.id)">Izmeni</button>
-            <button class="btn-delete" (click)="deleteSession(s.id)">Obriši</button>
-          </td>
-        </tr>
-        <tr *ngIf="sessions.length === 0">
-          <td colspan="7" class="empty-message">Nema trening sesija</td>
         </tr>
       </tbody>
     </table>

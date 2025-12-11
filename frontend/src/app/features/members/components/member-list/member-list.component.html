@@ -4,6 +4,15 @@
     <button class="btn-add" (click)="addMember()">Dodaj člana</button>
   </div>
 
+  <div class="filter-section">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Pretraži po imenu i prezimenu..." 
+      [(ngModel)]="searchTerm"
+    />
+  </div>
+
   <div class="table-container">
     <table class="data-table">
       <thead>
@@ -16,7 +25,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let m of members; trackBy: trackById">
+        <tr *ngFor="let m of filteredMembers; trackBy: trackById">
           <td>{{ m.name }}</td>
           <td>{{ m.level }}</td>
           <td>
@@ -33,7 +42,9 @@
             <button class="btn-delete" (click)="deleteMember(m.id)">Obriši</button>
           </td>
         </tr>
-        <tr *ngIf="members.length === 0">
+        <tr *ngIf="filteredMembers.length === 0">
+          <td colspan="5" class="empty-message" *ngIf="members.length === 0">Nema članova</td>
+          <td colspan="5" class="empty-message" *ngIf="members.length > 0 && filteredMembers.length === 0">Nema rezultata pretrage</td>
           <td colspan="6" class="empty-message">Nema članova</td>
         </tr>
       </tbody>

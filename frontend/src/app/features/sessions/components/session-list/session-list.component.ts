@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, interval } from 'rxjs';
 import { SessionService } from '../../services/session.service';
 import { TrainingSession } from '../../../../shared/models/training-session.model';
+import { Member } from '../../../../shared/models/member.model';
 import { select, Store } from '@ngrx/store';
 import { deleteSession, loadSessions } from '../../../../store/session/session.actions';
 import { selectAllSessions } from '../../../../store/session/session.selector';
@@ -17,9 +18,18 @@ import { selectAllSessions } from '../../../../store/session/session.selector';
 })
 export class SessionListComponent implements OnInit, OnDestroy {
   sessions: TrainingSession[] = [];
+  expandedSessionId: number | null = null;
+  sessionMembers: { [sessionId: number]: Member[] } = {};
+  loadingMembers: { [sessionId: number]: boolean } = {};
+  selectedFilter: 'upcoming' | 'past' | 'all' = 'upcoming';
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store, private router: Router) {}
+  constructor(
+    private store: Store, 
+    private router: Router,
+    private sessionService: SessionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.store.dispatch(loadSessions());
@@ -27,6 +37,13 @@ export class SessionListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(sessions => {
         this.sessions = sessions;
+      });
+
+    // Auto-refresh every minute to update filter when sessions pass
+    interval(60000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.cdr.detectChanges();
       });
   }
 
@@ -51,5 +68,80 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   trackById(index: number, session: TrainingSession) {
     return session.id;
+  }
+
+  getRegisteredCount(session: TrainingSession): number {
+    return session.registrations?.length || 0;
+  }
+
+  toggleMembersList(session: TrainingSession) {
+    const sessionId = session.id;
+    
+    if (this.expandedSessionId === sessionId) {
+      // Close if already expanded
+      this.expandedSessionId = null;
+    } else {
+      // Expand new session
+      this.expandedSessionId = sessionId;
+      
+      // Load members if not already loaded
+      if (!this.sessionMembers[sessionId]) {
+        this.loadSessionMembers(sessionId);
+      }
+    }
+  }
+
+  isExpanded(sessionId: number): boolean {
+    return this.expandedSessionId === sessionId;
+  }
+
+  loadSessionMembers(sessionId: number) {
+    this.loadingMembers[sessionId] = true;
+    this.sessionService.getRegisteredMembers(sessionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (members) => {
+          this.sessionMembers[sessionId] = members;
+          this.loadingMembers[sessionId] = false;
+        },
+        error: (err) => {
+          console.error('Error loading members for session:', err);
+          this.sessionMembers[sessionId] = [];
+          this.loadingMembers[sessionId] = false;
+        }
+      });
+  }
+
+  setFilter(filter: 'upcoming' | 'past' | 'all') {
+    this.selectedFilter = filter;
+    // Close any expanded rows when changing filter
+    this.expandedSessionId = null;
+  }
+
+  get filteredSessions(): TrainingSession[] {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
+
+    return this.sessions.filter(session => {
+      const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
+      const sessionTime = session.time.substring(0, 5); // HH:MM format
+
+      const isUpcoming = sessionDateStr > today || 
+                        (sessionDateStr === today && sessionTime > currentTime);
+      const isPast = sessionDateStr < today || 
+                   (sessionDateStr === today && sessionTime <= currentTime);
+
+      switch (this.selectedFilter) {
+        case 'upcoming':
+          return isUpcoming;
+        case 'past':
+          return isPast;
+        case 'all':
+          return true;
+        default:
+          return isUpcoming;
+      }
+    });
   }
 }

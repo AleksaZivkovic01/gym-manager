@@ -6,7 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../auth/services/auth.service';
 import { NotificationService } from '../../../features/notifications/services/notification.service';
 import { Observable, Subject, interval } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
+import { takeUntil, switchMap, filter } from 'rxjs/operators';
+import { NavigationEnd } from '@angular/router';
 import { User } from '../../../shared/models/user.model';
 
 @Component({
@@ -25,6 +26,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentUser$: Observable<User | null> = this.authService.currentUser$;
   unreadCount = 0;
   showNotifications = false;
+  isHomePage = false;
 
   navLinks = {
     guest: [
@@ -70,6 +72,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Check if we're on home page
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.isHomePage = this.router.url === '/' || this.router.url === '';
+      });
+    
+    // Set initial state
+    this.isHomePage = this.router.url === '/' || this.router.url === '';
+
     // Učitaj broj nepročitanih obaveštenja
     this.currentUser$
       .pipe(takeUntil(this.destroy$))
