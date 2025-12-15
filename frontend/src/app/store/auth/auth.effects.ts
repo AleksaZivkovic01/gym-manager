@@ -66,7 +66,15 @@ export class AuthEffects {
         tap(() => {
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
-          this.router.navigate(['/']);
+          // Only redirect to home if we're on a protected route
+          const currentUrl = this.router.url;
+          const protectedRoutes = ['/member/', '/trainer/', '/admin/'];
+          const isProtectedRoute = protectedRoutes.some(route => currentUrl.startsWith(route));
+          
+          if (isProtectedRoute) {
+            this.router.navigate(['/']);
+          }
+          // Otherwise, stay on current page (for public routes)
         })
       ),
     { dispatch: false }
@@ -85,9 +93,13 @@ export class AuthEffects {
             const user = JSON.parse(userRaw);
             return AuthActions.loadUserFromStorageSuccess({ user, token });
           } catch {
+            // Clear invalid data but don't redirect
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
             return AuthActions.logout();
           }
         }
+        // Return empty action to not redirect - router will handle navigation
         return AuthActions.logout();
       })
     )

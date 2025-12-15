@@ -133,6 +133,34 @@
 
   <!-- Sessions List -->
   <div class="sessions-container">
+    <!-- Filter Section -->
+    <div class="filter-section" *ngIf="!loading && allSessions.length > 0">
+      <button 
+        type="button"
+        class="filter-btn"
+        [class.active]="selectedFilter === 'upcoming'"
+        (click)="setFilter('upcoming')"
+      >
+        Predstojeći
+      </button>
+      <button 
+        type="button"
+        class="filter-btn"
+        [class.active]="selectedFilter === 'past'"
+        (click)="setFilter('past')"
+      >
+        Prošli
+      </button>
+      <button 
+        type="button"
+        class="filter-btn"
+        [class.active]="selectedFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        Svi
+      </button>
+    </div>
+
     <div class="loading" *ngIf="loading">
       <p>Učitavanje treninga...</p>
     </div>
@@ -207,9 +235,13 @@
       </div>
     </div>
 
-    <div class="no-sessions" *ngIf="!loading && sessions.length === 0">
+    <div class="no-sessions" *ngIf="!loading && sessions.length === 0 && allSessions.length === 0">
       <p>Nemate kreiranih treninga.</p>
       <p class="hint">Kliknite na "Dodaj trening" da kreirate novu trening sesiju.</p>
+    </div>
+    
+    <div class="no-sessions" *ngIf="!loading && sessions.length === 0 && allSessions.length > 0">
+      <p>Nema treninga za izabrani filter.</p>
     </div>
   </div>
 </section>

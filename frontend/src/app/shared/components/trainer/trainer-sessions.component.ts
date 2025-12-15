@@ -22,6 +22,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   trainerInfo: Trainer | null = null;
   sessions: TrainingSession[] = [];
+  allSessions: TrainingSession[] = []; // Svi treninzi (bez filtera)
   loading = true;
   showSessionForm = false;
   isSubmittingSession = false;
@@ -31,6 +32,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
   showMembersForSession: { [sessionId: number]: boolean } = {};
   sessionMembers: { [sessionId: number]: Member[] } = {};
   loadingMembers: { [sessionId: number]: boolean } = {};
+  selectedFilter: 'upcoming' | 'past' | 'all' = 'upcoming'; // Default: predstojeći
   private destroy$ = new Subject<void>();
   
   sessionForm: FormGroup<{
@@ -103,11 +105,12 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sessions) => {
-          this.sessions = sessions.sort((a, b) => {
+          this.allSessions = sessions.sort((a, b) => {
             const dateA = new Date(a.date + 'T' + a.time);
             const dateB = new Date(b.date + 'T' + b.time);
             return dateA.getTime() - dateB.getTime();
           });
+          this.applyFilter();
           this.loading = false;
         },
         error: (err) => {
@@ -115,6 +118,33 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
           this.loading = false;
         }
       });
+  }
+
+  applyFilter() {
+    const now = new Date();
+    
+    switch (this.selectedFilter) {
+      case 'upcoming':
+        this.sessions = this.allSessions.filter(session => {
+          const sessionDate = new Date(session.date + 'T' + session.time);
+          return sessionDate >= now;
+        });
+        break;
+      case 'past':
+        this.sessions = this.allSessions.filter(session => {
+          const sessionDate = new Date(session.date + 'T' + session.time);
+          return sessionDate < now;
+        });
+        break;
+      case 'all':
+        this.sessions = [...this.allSessions];
+        break;
+    }
+  }
+
+  setFilter(filter: 'upcoming' | 'past' | 'all') {
+    this.selectedFilter = filter;
+    this.applyFilter();
   }
 
   formatDate(dateString: string): string {

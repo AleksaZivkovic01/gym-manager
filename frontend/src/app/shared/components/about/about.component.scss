@@ -1,11 +1,169 @@
 .about {
-  max-width: 800px;
-  margin: 2rem auto;
-}
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  &, section {
+    margin-top: 0 !important;
+  }
 
-.about p {
-  margin-top: 0.5rem;
-  color: #555;
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 1rem 0;
+    
+    text-align: center;
+    letter-spacing: -0.5px;
+    
+    @media (max-width: 768px) {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  .intro-section {
+    margin-bottom: 2rem;
+    text-align: center;
+
+    .intro-text {
+      margin: 0 auto 0.5rem auto;
+      color: #555;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 800px;
+      
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    // za liniju iznad, kad se prelazi preko kartica
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2d7ef7, #1e5fc7);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      border-color: #2d7ef7;
+      
+      &::before {
+        transform: scaleX(1);
+      }
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d7ef7;
+      margin: 0 0 1.5rem 0;
+      letter-spacing: -0.3px;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 0.75rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.6;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        padding-left: 1.5rem;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &::before {
+          content: '✓';
+          position: absolute;
+          left: 0;
+          color: #2d7ef7;
+          font-weight: 700;
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+
+  .mission-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2d7ef7, #1e5fc7);
+    }
+
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #2d7ef7;
+      margin: 0 0 1rem 0;
+      letter-spacing: -0.3px;
+    }
+
+    .mission-text {
+      margin: 0;
+      color: #555;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
 }
 
 

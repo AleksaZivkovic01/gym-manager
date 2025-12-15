@@ -1,9 +1,20 @@
 .content {
-  padding: 20px;
+  padding: 0;
+  padding-top: 100px; // 70px header + 30px spacing
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
   position: relative;
   z-index: 1;
   background: #f8f9fa;
   min-height: calc(100vh - 70px);
+  
+  @media (max-width: 768px) {
+    padding-top: 90px; // 60px header + 30px spacing
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
   
   &:has(.home) {
     padding: 0;
@@ -12,6 +23,115 @@
     
     @media (max-width: 768px) {
       padding-top: 60px;
+    }
+  }
+
+  &:has(.auth-card) {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 70px);
+    padding: 2rem;
+    padding-top: 140px;
+    position: relative;
+    overflow: hidden;
+    
+    @media (max-width: 768px) {
+      padding-top: 130px;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(45, 126, 247, 0.05) 0%, transparent 70%);
+      animation: pulse 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(45, 126, 247, 0.03) 0%, transparent 70%);
+      animation: pulse 25s ease-in-out infinite reverse;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &:has(.member-form-container),
+  &:has(.trainer-form-container),
+  &:has(.session-form-container) {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 70px);
+    padding: 2rem;
+    padding-top: 120px;
+    position: relative;
+    overflow: hidden;
+    
+    @media (max-width: 768px) {
+      padding-top: 110px;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(45, 126, 247, 0.05) 0%, transparent 70%);
+      animation: pulse 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(45, 126, 247, 0.03) 0%, transparent 70%);
+      animation: pulse 25s ease-in-out infinite reverse;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .member-form-container,
+    .trainer-form-container,
+    .session-form-container {
+      position: relative;
+      z-index: 1;
     }
   }
 }
