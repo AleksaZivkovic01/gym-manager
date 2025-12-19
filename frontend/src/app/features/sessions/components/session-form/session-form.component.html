@@ -1,11 +1,11 @@
 <div class="session-form-container">
   <div class="form-header">
-    <h2>{{ isEdit ? 'Izmeni sesiju' : 'Dodaj sesiju' }}</h2>
+    <h2>{{ isEdit ? 'Edit session' : 'Add session' }}</h2>
   </div>
 
   <form (ngSubmit)="saveSession()" #sessionForm="ngForm" class="session-form">
     <div class="form-group">
-      <label for="date">Datum *</label>
+      <label for="date">Date *</label>
       <input 
         id="date"
         type="date" 
@@ -15,12 +15,12 @@
         class="form-input"
         [class.error]="!session.date && sessionForm.submitted">
       <span *ngIf="!session.date && sessionForm.submitted" class="error-message">
-        Datum je obavezan
+        Date is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="time">Vreme *</label>
+      <label for="time">Time *</label>
       <input 
         id="time"
         type="time" 
@@ -30,12 +30,12 @@
         class="form-input"
         [class.error]="!session.time && sessionForm.submitted">
       <span *ngIf="!session.time && sessionForm.submitted" class="error-message">
-        Vreme je obavezno
+        Time is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="type">Tip Treninga *</label>
+      <label for="type">Training Type *</label>
       <input 
         id="type"
         type="text" 
@@ -44,14 +44,14 @@
         required
         class="form-input"
         [class.error]="!session.type && sessionForm.submitted"
-        placeholder="Unesite tip treninga (npr. Yoga, Cardio, Strength)">
+        placeholder="Enter training type (e.g. Yoga, Cardio, Strength)">
       <span *ngIf="!session.type && sessionForm.submitted" class="error-message">
-        Tip treninga je obavezan
+        Training type is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="maxParticipants">Maksimalan broj učesnika *</label>
+      <label for="maxParticipants">Maximum number of participants *</label>
       <input 
         id="maxParticipants"
         type="number" 
@@ -61,14 +61,14 @@
         required
         class="form-input"
         [class.error]="(!session.maxParticipants || session.maxParticipants < 1) && sessionForm.submitted"
-        placeholder="Unesite maksimalan broj učesnika">
+        placeholder="Enter maximum number of participants">
       <span *ngIf="(!session.maxParticipants || session.maxParticipants < 1) && sessionForm.submitted" class="error-message">
-        Maksimalan broj učesnika mora biti najmanje 1
+        Maximum number of participants must be at least 1
       </span>
     </div>
 
     <div class="form-group">
-      <label for="trainerId">Trener *</label>
+          <label for="trainerId">Trainer *</label>
       <select 
         id="trainerId"
         [(ngModel)]="selectedTrainerId" 
@@ -76,22 +76,22 @@
         required
         class="form-select"
         [class.error]="!selectedTrainerId && sessionForm.submitted">
-        <option [value]="0">Izaberite trenera</option>
+        <option [value]="0">Select trainer</option>
         <option *ngFor="let t of trainers" [value]="t.id">
           {{ t.name }} ({{ t.specialty }})
         </option>
       </select>
       <span *ngIf="!selectedTrainerId && sessionForm.submitted" class="error-message">
-        Trener je obavezan
+        Trainer is required
       </span>
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-cancel" (click)="goBack()">Otkaži</button>
+      <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
       <button 
         type="submit" 
         class="btn-submit">
-        {{ isEdit ? 'Sačuvaj izmene' : 'Dodaj sesiju' }}
+        {{ isEdit ? 'Save changes' : 'Add session' }}
       </button>
     </div>
   </form>

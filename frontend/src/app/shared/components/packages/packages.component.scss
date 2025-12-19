@@ -1,3 +1,13 @@
+$basic-main: #60a5fa;
+$basic-dark: #3b82f6;
+
+$standard-main: #22c55e;
+$standard-dark: #16a34a;
+
+$premium-main: #a855f7;
+$premium-dark: #7e22ce;
+
+
 .packages {
   max-width: 1200px;
   margin: 0 auto;
@@ -190,4 +200,70 @@
   color: #999;
 }
 
+
+.plan-description {
+  white-space: pre-line;
+}
+
+
+.card.basic {
+  h3,
+  .price {
+    color: $basic-main;
+  }
+
+  &::before {
+    background: linear-gradient(90deg, $basic-main, $basic-dark);
+  }
+
+  &:hover {
+    border-color: $basic-main;
+  }
+
+  .btn-select {
+    background: linear-gradient(135deg, $basic-main, $basic-dark);
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.35);
+  }
+}
+
+.card.standard {
+  h3,
+  .price {
+    color: $standard-main;
+  }
+
+  &::before {
+    background: linear-gradient(90deg, $standard-main, $standard-dark);
+  }
+
+  &:hover {
+    border-color: $standard-main;
+  }
+
+  .btn-select {
+    background: linear-gradient(135deg, $standard-main, $standard-dark);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+  }
+  
+}
+
+.card.premium {
+  h3,
+  .price {
+    color: $premium-main;
+  }
+
+  &::before {
+    background: linear-gradient(90deg, $premium-main, $premium-dark);
+  }
+
+  &:hover {
+    border-color: $premium-main;
+  }
+
+  .btn-select {
+    background: linear-gradient(135deg, $premium-main, $premium-dark);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
+  }
+}
 

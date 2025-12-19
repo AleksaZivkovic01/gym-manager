@@ -1,5 +1,5 @@
 <section class="auth-card">
-  <h2>Registracija</h2>
+  <h2>Registration</h2>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
@@ -7,108 +7,108 @@
       <input type="email" formControlName="email" placeholder="you@example.com" />
     </label>
     <div class="error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-      Unesite ispravnu email adresu.
+      Enter a valid email address.
     </div>
 
     <label>
-      Lozinka
+      Password
       <input type="password" formControlName="password" placeholder="••••••••" />
     </label>
     <div class="error" *ngIf="form.controls.password.invalid && form.controls.password.touched">
-      Lozinka mora imati najmanje 6 karaktera.
+      Password must be at least 6 characters long.
     </div>
 
     <label>
-      Uloga
+      Role
       <select formControlName="role">
-        <option value="member">Član</option>
-        <option value="trainer">Trener</option>
+        <option value="member">Member</option>
+        <option value="trainer">Trainer</option>
       </select>
     </label>
 
     <!-- Member specific fields -->
     <div *ngIf="form.controls.role.value === 'member'" class="role-section">
-      <h3>Podaci o članu</h3>
+      <h3>Member data</h3>
 
       <label>
-        Ime i prezime
+        Name and surname
         <input type="text" formControlName="memberName" placeholder="Unesite ime člana" />
       </label>
       <div class="error" *ngIf="form.controls.memberName.invalid && form.controls.memberName.touched">
-        Ovo polje je obavezno.
+        This field is required.
       </div>
 
       <label>
-        Nivo
+        Level
         <select formControlName="memberLevel">
-          <option value="beginner">Početnik</option>
-          <option value="medium">Srednji</option>
-          <option value="expert">Ekspert</option>
+          <option value="beginner">Beginner</option>
+          <option value="medium">Medium</option>
+          <option value="expert">Expert</option>
         </select>
       </label>
       <div class="error" *ngIf="form.controls.memberLevel.invalid && form.controls.memberLevel.touched">
-        Izaberi nivo člana.
+          Choose member level.
       </div>
 
       <label>
-        Pol
-        <input type="text" formControlName="memberGender" placeholder="npr. Muški / Ženski" />
+        Gender
+        <input type="text" formControlName="memberGender" placeholder="npr. Male / Female" />
       </label>
       <div class="error" *ngIf="form.controls.memberGender.invalid && form.controls.memberGender.touched">
-        Ovo polje je obavezno.
+        This field is required.
       </div>
 
       <label>
-        Datum rođenja
+        Date of birth
         <input type="date" formControlName="memberDateOfBirth" />
       </label>
       <div class="error" *ngIf="form.controls.memberDateOfBirth.invalid && form.controls.memberDateOfBirth.touched">
-        Datum rođenja je obavezan.
+        This field is required.
       </div>
     </div>
 
     <!-- Trainer specific fields -->
     <div *ngIf="form.controls.role.value === 'trainer'" class="role-section">
-      <h3>Podaci o treneru</h3>
+      <h3>Trainer data</h3>
 
       <label>
-        Ime i prezime
-        <input type="text" formControlName="trainerName" placeholder="Unesite ime trenera" />
+        Name and surname
+        <input type="text" formControlName="trainerName" placeholder="Enter trainer name" />
       </label>
       <div class="error" *ngIf="form.controls.trainerName.invalid && form.controls.trainerName.touched">
-        Ovo polje je obavezno.
+        This field is required.
       </div>
 
       <label>
-        Specijalnost
-        <input type="text" formControlName="trainerSpecialty" placeholder="npr. Fitness, Crossfit..." />
+        Specialty
+          <input type="text" formControlName="trainerSpecialty" placeholder="e.g. Fitness, Crossfit, etc." />
       </label>
       <div class="error" *ngIf="form.controls.trainerSpecialty.invalid && form.controls.trainerSpecialty.touched">
-        Ovo polje je obavezno.
+        This field is required.
       </div>
 
       <label>
-        Iskustvo (godine)
+        Experience (years)
         <input type="number" formControlName="trainerExperienceYears" min="0" />
       </label>
       <div class="error" *ngIf="form.controls.trainerExperienceYears.invalid && form.controls.trainerExperienceYears.touched">
-        Unesi broj godina iskustva (0 ili više).
+        Enter the number of years of experience (0 or more).
       </div>
 
       <label>
-        Pol
-        <input type="text" formControlName="trainerGender" placeholder="npr. Muški / Ženski" />
+        Gender
+        <input type="text" formControlName="trainerGender" placeholder="e.g. Male / Female" />
       </label>
       <div class="error" *ngIf="form.controls.trainerGender.invalid && form.controls.trainerGender.touched">
-        Ovo polje je obavezno.
+        This field is required.
       </div>
 
       <label>
-        Datum rođenja
+        Date of birth
         <input type="date" formControlName="trainerDateOfBirth" />
       </label>
       <div class="error" *ngIf="form.controls.trainerDateOfBirth.invalid && form.controls.trainerDateOfBirth.touched">
-        Datum rođenja je obavezan.
+        This field is required.
       </div>
     </div>
 
@@ -117,13 +117,13 @@
     </div>
 
     <button type="submit" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Kreiranje naloga...' : 'Registruj se' }}
+      {{ isSubmitting ? 'Creating account...' : 'Register' }}
     </button>
   </form>
 
   <p class="switch">
-    Već imaš nalog?
-    <a routerLink="/login">Prijavi se</a>
+    Already have an account?
+    <a routerLink="/login">Login</a>
   </p>
 </section>
 

@@ -1,25 +1,25 @@
 <div class="trainers-list-container">
-  <h2>Lista Trenera</h2>
+  <h2>Our Trainers</h2>
 
   <div *ngIf="!loading && !error && trainers.length > 0" class="filter-section">
-    <label for="specialty-filter">Filtriraj po specijalnosti:</label>
+    <label for="specialty-filter">Filter by specialty:</label>
     <select 
       id="specialty-filter"
       [(ngModel)]="selectedSpecialty" 
       (change)="onSpecialtyChange(selectedSpecialty)"
       class="filter-select">
-      <option value="">Sve specijalnosti</option>
+      <option value="">All specialties</option>
       <option *ngFor="let specialty of specialties" [value]="specialty">
         {{ specialty }}
       </option>
     </select>
     <span *ngIf="specialties.length === 0 && !loading" class="no-specialties-info">
-      (Nema dostupnih specijalnosti za filtriranje)
+      (No available specialties for filtering)
     </span>
   </div>
 
   <div *ngIf="loading" class="loading">
-    Učitavanje trenera...
+    Loading trainers...
   </div>
 
   <div *ngIf="error" class="error">
@@ -27,8 +27,8 @@
   </div>
 
   <div *ngIf="!loading && !error && filteredTrainers.length === 0" class="empty">
-    <span *ngIf="selectedSpecialty">Nema trenera sa selektovanom specijalnošću.</span>
-    <span *ngIf="!selectedSpecialty">Trenutno nema dostupnih trenera.</span>
+    <span *ngIf="selectedSpecialty">No trainers with selected specialty.</span>
+    <span *ngIf="!selectedSpecialty">No available trainers.</span>
   </div>
 
   <div *ngIf="!loading && !error && filteredTrainers.length > 0" class="trainers-grid">
@@ -46,14 +46,14 @@
           </div>
         </div>
         <div class="rating-section" *ngIf="getAverageRating(trainer.id) === 0">
-          <span class="no-rating">Nema ocena</span>
+          <span class="no-rating">No ratings</span>
         </div>
         <div *ngIf="trainer.experienceYears" class="info-item">
-          <span class="label">Iskustvo:</span>
-          <span class="value">{{ trainer.experienceYears }} {{ trainer.experienceYears === 1 ? 'godina' : 'godina' }}</span>
+          <span class="label">Experience:</span>
+          <span class="value">{{ trainer.experienceYears }} {{ trainer.experienceYears === 1 ? 'year' : 'years' }}</span>
         </div>
         <div *ngIf="trainer.gender" class="info-item">
-          <span class="label">Pol:</span>
+          <span class="label">Gender:</span>
           <span class="value">{{ trainer.gender }}</span>
         </div>
         <div class="rate-button" *ngIf="canRate()">
@@ -61,13 +61,13 @@
             *ngIf="!hasRated(trainer.id)"
             (click)="rateTrainer(trainer.id)"
             class="btn-rate">
-            Oceni trenera
+            Rate trainer
           </button>
           <button 
             *ngIf="hasRated(trainer.id)"
             (click)="rateTrainer(trainer.id)"
             class="btn-rate-update">
-            Ažuriraj ocenu ({{ getMyRating(trainer.id)?.rating }}⭐)
+            Update rating ({{ getMyRating(trainer.id)?.rating }}⭐)
           </button>
         </div>
       </div>

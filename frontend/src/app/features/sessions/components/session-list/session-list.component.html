@@ -1,7 +1,7 @@
 <div class="session-list-container">
   <div class="header-section">
-    <h2>Trening Sesije</h2>
-    <button class="btn-add" (click)="addSession()">Dodaj sesiju</button>
+    <h2>Training Sessions</h2>
+    <button class="btn-add" (click)="addSession()">Add session</button>
   </div>
 
   <div class="filter-section">
@@ -10,21 +10,21 @@
       [class.active]="selectedFilter === 'upcoming'"
       (click)="setFilter('upcoming')"
     >
-      Predstojeći
+      Upcoming
     </button>
     <button 
       class="filter-btn" 
       [class.active]="selectedFilter === 'past'"
       (click)="setFilter('past')"
     >
-      Prošli
+      Past
     </button>
     <button 
       class="filter-btn" 
       [class.active]="selectedFilter === 'all'"
       (click)="setFilter('all')"
     >
-      Svi
+      All
     </button>
   </div>
 
@@ -32,12 +32,12 @@
     <table class="data-table">
       <thead>
         <tr>        
-          <th>Tip Treninga</th>
-          <th>Datum</th>
-          <th>Vreme</th>
-          <th>Trener</th>
-          <th>Prijavljeno</th>
-          <th>Akcije</th>
+            <th>Training Type</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Trainer</th>
+          <th>Registered</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -55,22 +55,22 @@
                   type="button" 
                   class="btn-show-members"
                   (click)="toggleMembersList(s)"
-                  [title]="isExpanded(s.id) ? 'Sakrij prijavljene članove' : 'Prikaži prijavljene članove'"
+                  [title]="isExpanded(s.id) ? 'Hide registered members' : 'Show registered members'"
                 >
-                  {{ isExpanded(s.id) ? 'Sakrij' : 'Prikaži' }}
+                  {{ isExpanded(s.id) ? 'Hide' : 'Show' }}
                 </button>
               </span>
             </td>
             <td class="actions">
-              <button class="btn-edit" (click)="editSession(s.id)">Izmeni</button>
-              <button class="btn-delete" (click)="deleteSession(s.id)">Obriši</button>
+              <button class="btn-edit" (click)="editSession(s.id)">Edit</button>
+              <button class="btn-delete" (click)="deleteSession(s.id)">Delete</button>
             </td>
           </tr>
           <!-- Expand row for members list -->
           <tr class="expand-row" *ngIf="isExpanded(s.id)">
             <td colspan="6" class="expand-cell">
               <div class="members-loading" *ngIf="loadingMembers[s.id]">
-                <p>Učitavanje članova...</p>
+                <p>Loading members...</p>
               </div>
               <div class="members-content" *ngIf="!loadingMembers[s.id]">
                 <ul class="members-list" *ngIf="sessionMembers[s.id] && sessionMembers[s.id].length > 0">
@@ -79,7 +79,7 @@
                   </li>
                 </ul>
                 <div class="no-members" *ngIf="!sessionMembers[s.id] || sessionMembers[s.id].length === 0">
-                  <p>Nema prijavljenih članova.</p>
+                  <p>No registered members.</p>
                 </div>
               </div>
             </td>
@@ -87,9 +87,9 @@
         </ng-container>
         <tr *ngIf="filteredSessions.length === 0">
           <td colspan="6" class="empty-message">
-            <span *ngIf="sessions.length === 0">Nema trening sesija</span>
+            <span *ngIf="sessions.length === 0">No training sessions</span>
             <span *ngIf="sessions.length > 0 && filteredSessions.length === 0">
-              Nema trening sesija za izabrani filter
+              No training sessions for selected filter
             </span>
           </td>
         </tr>

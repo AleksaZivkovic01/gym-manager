@@ -1,56 +1,56 @@
 <section class="dashboard">
   <div class="dashboard-header">
-    <h1>Dashboard Trenera</h1>
-    <p class="welcome-text">Dobrodošli, {{ getDisplayName() }}</p>
+    <h1>Trainer Panel</h1>
+    <p class="welcome-text">Welcome back, {{ getDisplayName() }}</p>
     <button 
       type="button" 
       class="btn-add-session"
       routerLink="/trainer/sessions"
     >
-      Dodaj trening
+      Add Training
     </button>
   </div>
 
   <div class="dashboard-content">
     <!-- Trainer Info Card -->
     <div class="card trainer-info-card">
-      <h2>Moj Profil</h2>
+      <h2>My Profile</h2>
       <div class="trainer-info" *ngIf="trainerInfo">
         <div class="info-row">
-          <span class="label">Ime i prezime:</span>
+          <span class="label">Name and surname:</span>
           <span class="value">{{ trainerInfo.name }}</span>
         </div>
         <div class="info-row" *ngIf="trainerInfo.specialty">
-          <span class="label">Specijalnost:</span>
+          <span class="label">Specialty:</span>
           <span class="value">{{ trainerInfo.specialty }}</span>
         </div>
         <div class="info-row" *ngIf="trainerInfo.experienceYears !== null && trainerInfo.experienceYears !== undefined">
-          <span class="label">Godine iskustva:</span>
-          <span class="value">{{ trainerInfo.experienceYears }}</span>
+          <span class="label">Experience:</span>
+          <span class="value">{{ trainerInfo.experienceYears > 1 ? trainerInfo.experienceYears + ' years' : '1 year' }}</span>
         </div>
         <div class="info-row" *ngIf="trainerInfo.averageRating !== null && trainerInfo.averageRating !== undefined">
-          <span class="label">Prosečna ocena:</span>
+          <span class="label">Average rating:</span>
           <span class="value rating-value">
             <span class="stars">{{ getRatingStars(trainerInfo.averageRating) }}</span>
             <span class="rating-number">({{ trainerInfo.averageRating.toFixed(1) }})</span>
           </span>
         </div>
         <div class="info-row" *ngIf="trainerInfo.averageRating === null || trainerInfo.averageRating === undefined">
-          <span class="label">Prosečna ocena:</span>
-          <span class="value">Nema ocene</span>
+          <span class="label">Average rating:</span>
+          <span class="value">No ratings</span>
         </div>
       </div>
       <div class="no-data" *ngIf="!trainerInfo && !loading">
-        <p>Podaci o treneru nisu dostupni.</p>
+        <p>Trainer data is not available.</p>
       </div>
       <div class="loading" *ngIf="!trainerInfo && loading">
-        <p>Učitavanje podataka...</p>
+        <p>Loading data...</p>
       </div>
     </div>
 
     <!-- Upcoming Sessions Card -->
     <div class="card sessions-card">
-      <h2>Predstojeći termini</h2>
+      <h2>Upcoming Sessions</h2>
       <div class="scrollable-content">
         <div class="sessions-list" *ngIf="upcomingSessions.length > 0">
           <div class="session-item" *ngFor="let session of upcomingSessions">
@@ -61,23 +61,23 @@
             <div class="session-details">
               <span class="session-type">{{ session.type }}</span>
               <span class="participants-count" *ngIf="session.registrations">
-                Prijavljeno: {{ session.registrations.length }}/{{ session.maxParticipants }}
+                Registered: {{ session.registrations.length }}/{{ session.maxParticipants }}
               </span>
             </div>
           </div>
         </div>
         <div class="no-data" *ngIf="upcomingSessions.length === 0 && !loading">
-          <p>Nemate zakazanih termina.</p>
+          <p>You have no scheduled sessions.</p>
         </div>
         <div class="loading" *ngIf="loading">
-          <p>Učitavanje...</p>
+          <p>Loading...</p>
         </div>
       </div>
     </div>
 
     <!-- My Members Card -->
     <div class="card members-card">
-      <h2>Moji članovi</h2>
+      <h2>My Members</h2>
       <div class="scrollable-content">
         <div class="members-list" *ngIf="myMembers.length > 0 && !loading">
           <div class="member-item" *ngFor="let member of myMembers">
@@ -86,42 +86,42 @@
               <span class="member-level">{{ getLevelLabel(member.level) }}</span>
             </div>
             <div class="member-sessions-count">
-              {{ getMemberSessionCount(member.id) }} termina
+              {{ getMemberSessionCount(member.id) > 1 ? getMemberSessionCount(member.id) + ' sessions' : '1 session' }}
             </div>
           </div>
         </div>
         <div class="no-data" *ngIf="myMembers.length === 0 && !loading">
-          <p>Nemate dodeljenih članova.</p>
+          <p>You have no assigned members.</p>
         </div>
         <div class="loading" *ngIf="loading">
-          <p>Učitavanje...</p>
+          <p>Loading...</p>
         </div>
       </div>
     </div>
 
     <!-- Statistics Card -->
     <div class="card stats-card">
-      <h2>Statistike</h2>
+      <h2>Statistics</h2>
       <div class="stats-grid" *ngIf="!loading">
         <div class="stat-item">
           <span class="stat-value">{{ totalSessions }}</span>
-          <span class="stat-label">Ukupno termina</span>
+          <span class="stat-label">Total sessions</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ upcomingSessions.length }}</span>
-          <span class="stat-label">Predstojeći</span>
+          <span class="stat-label">Upcoming sessions</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ myMembers.length }}</span>
-          <span class="stat-label">Aktivni članovi</span>
+          <span class="stat-label">Active members</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ totalRegistrations }}</span>
-          <span class="stat-label">Ukupno prijava</span>
+          <span class="stat-label">Total registrations</span>
         </div>
       </div>
       <div class="loading" *ngIf="loading">
-        <p>Učitavanje...</p>
+        <p>Loading...</p>
       </div>
     </div>
   </div>

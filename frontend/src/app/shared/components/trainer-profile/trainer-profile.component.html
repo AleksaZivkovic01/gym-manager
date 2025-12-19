@@ -1,7 +1,7 @@
 <section class="profile-section">
   <div class="profile-header">
-    <h1>Moj Profil</h1>
-    <p class="subtitle">Ažurirajte svoje lične podatke</p>
+    <h1>My profile</h1>
+    <p class="subtitle">Update your personal information</p>
   </div>
 
   <div class="profile-content" *ngIf="!loading">
@@ -20,20 +20,20 @@
         <!-- Name Field -->
         <div class="form-group">
           <label for="name">
-            Ime i prezime <span class="required">*</span>
+            Name and surname <span class="required">*</span>
           </label>
           <input
             type="text"
             id="name"
             formControlName="name"
-            placeholder="Unesite ime i prezime"
+            placeholder="Enter name and surname"
             [class.invalid]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
           />
           <div
             class="error-message"
             *ngIf="profileForm.controls.name.invalid && profileForm.controls.name.touched"
           >
-            Ime je obavezno polje.
+            Name is a required field.
           </div>
         </div>
 
@@ -46,15 +46,15 @@
             type="email"
             id="email"
             formControlName="email"
-            placeholder="Unesite email adresu"
+            placeholder="Enter email address"
             [class.invalid]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
           />
           <div
             class="error-message"
             *ngIf="profileForm.controls.email.invalid && profileForm.controls.email.touched"
           >
-            <span *ngIf="profileForm.controls.email.errors?.['required']">Email je obavezno polje.</span>
-            <span *ngIf="profileForm.controls.email.errors?.['email']">Email mora biti validan.</span>
+            <span *ngIf="profileForm.controls.email.errors?.['required']">Email is a required field.</span>
+            <span *ngIf="profileForm.controls.email.errors?.['email']">Email must be valid.</span>
           </div>
         </div>
 
@@ -62,54 +62,54 @@
         <div class="password-section">
           <!-- Old Password Field -->
           <div class="form-group">
-            <label for="oldPassword">Stara lozinka</label>
+            <label for="oldPassword">Old password</label>
             <input
               type="password"
               id="oldPassword"
               formControlName="oldPassword"
-              placeholder="Unesite staru lozinku"
+              placeholder="Enter old password"
             />
             <div
               class="error-message"
               *ngIf="profileForm.controls.newPassword.value && !profileForm.controls.oldPassword.value && profileForm.controls.oldPassword.touched"
             >
-              Stara lozinka je obavezna za promenu lozinke.
+              Old password is required for password change.
             </div>
           </div>
 
           <!-- New Password Field -->
           <div class="form-group">
-            <label for="newPassword">Nova lozinka</label>
+            <label for="newPassword">New password</label>
             <input
               type="password"
               id="newPassword"
               formControlName="newPassword"
-              placeholder="Unesite novu lozinku (min. 6 karaktera)"
+              placeholder="Enter new password (min. 6 characters)"
               [class.invalid]="profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched"
             />
             <div
               class="error-message"
               *ngIf="profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched"
             >
-              <span *ngIf="profileForm.controls.newPassword.errors?.['minlength']">Lozinka mora imati najmanje 6 karaktera.</span>
+              <span *ngIf="profileForm.controls.newPassword.errors?.['minlength']">Password must be at least 6 characters.</span>
             </div>
           </div>
 
           <!-- Confirm Password Field -->
           <div class="form-group">
-            <label for="confirmPassword">Potvrdite novu lozinku</label>
+            <label for="confirmPassword">Confirm new password</label>
             <input
               type="password"
               id="confirmPassword"
               formControlName="confirmPassword"
-              placeholder="Potvrdite novu lozinku"
+              placeholder="Confirm new password"
               [class.invalid]="profileForm.controls.confirmPassword.errors?.['passwordMismatch'] && profileForm.controls.confirmPassword.touched"
             />
             <div
               class="error-message"
               *ngIf="profileForm.controls.confirmPassword.errors?.['passwordMismatch'] && profileForm.controls.confirmPassword.touched"
             >
-              Lozinke se ne poklapaju.
+              Passwords doesn't match.
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@
         <!-- Specialty Field -->
         <div class="form-group">
           <label for="specialty">
-            Specijalnost <span class="required">*</span>
+            Specialty <span class="required">*</span>
           </label>
           <input
             type="text"
@@ -130,14 +130,14 @@
             class="error-message"
             *ngIf="profileForm.controls.specialty.invalid && profileForm.controls.specialty.touched"
           >
-            Specijalnost je obavezno polje.
+            Specialty is a required field.
           </div>
         </div>
 
         <!-- Experience Years Field -->
         <div class="form-group">
           <label for="experienceYears">
-            Godine iskustva <span class="required">*</span>
+            Experience years <span class="required">*</span>
           </label>
           <input
             type="number"
@@ -164,15 +164,15 @@
             (click)="cancel()"
             [disabled]="isSubmitting"
           >
-            Otkaži
+            Cancel
           </button>
           <button
             type="submit"
             class="btn btn-primary"
             [disabled]="profileForm.invalid || isSubmitting"
           >
-            <span *ngIf="!isSubmitting">Sačuvaj izmene</span>
-            <span *ngIf="isSubmitting">Čuvanje...</span>
+            <span *ngIf="!isSubmitting">Save changes</span>
+            <span *ngIf="isSubmitting">Saving...</span>
           </button>
         </div>
       </form>
@@ -180,6 +180,6 @@
   </div>
 
   <div class="loading" *ngIf="loading">
-    <p>Učitavanje podataka...</p>
+    <p>Loading data...</p>
   </div>
 </section>

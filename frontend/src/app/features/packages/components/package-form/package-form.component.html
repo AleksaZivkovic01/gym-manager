@@ -1,49 +1,49 @@
 <section class="package-form">
   <div class="header">
-    <h1>{{ isEdit ? 'Izmeni paket' : 'Dodaj novi paket' }}</h1>
+    <h1>{{ isEdit ? 'Edit package' : 'Add new package' }}</h1>
   </div>
 
   <div class="loading" *ngIf="loading && isEdit">
-    <p>Učitavanje...</p>
+    <p>Loading...</p>
   </div>
 
   <form [formGroup]="packageForm" (ngSubmit)="save()" *ngIf="!loading || !isEdit">
       <div class="form-group">
         <label>
-          Naziv paketa *
+          Package name *
           <input type="text" formControlName="name" placeholder="npr. Basic Plan" />
         </label>
         <div class="error" *ngIf="packageForm.controls['name'].invalid && packageForm.controls['name'].touched">
-          Naziv je obavezan.
+          Package name is required.
         </div>
       </div>
 
     <div class="form-group">
       <label>
-        Opis
-        <textarea formControlName="description" rows="3" placeholder="Opis paketa..."></textarea>
+        Description
+        <textarea formControlName="description" rows="3" placeholder="Package description..."></textarea>
       </label>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label>
-          Cena (€) *
+          Price (€) *
           <input type="number" formControlName="price" step="0.01" min="0" placeholder="25.00" />
         </label>
         <div class="error" *ngIf="packageForm.controls['price'].invalid && packageForm.controls['price'].touched">
-          Cena mora biti veća ili jednaka 0.
+          Price must be greater than or equal to 0.
         </div>
       </div>
 
       <div class="form-group">
         <label>
-          Termina mesečno *
+          Sessions per month *
           <input type="number" formControlName="sessionsPerMonth" min="0" placeholder="8" />
-          <small>Unesite 0 za neograničeno</small>
+          <small>Enter 0 for unlimited</small>
         </label>
         <div class="error" *ngIf="packageForm.controls['sessionsPerMonth'].invalid && packageForm.controls['sessionsPerMonth'].touched">
-          Broj termina mora biti veći ili jednak 0.
+          Number of sessions must be greater than or equal to 0.
         </div>
       </div>
     </div>
@@ -51,7 +51,7 @@
     <div class="form-group checkbox-group">
       <label>
         <input type="checkbox" formControlName="isActive" />
-        <span>Aktivan paket</span>
+            <span>Active package</span>
       </label>
     </div>
 
@@ -60,9 +60,9 @@
     </div>
 
     <div class="form-actions">
-      <button type="button" (click)="cancel()" class="btn-cancel">Otkaži</button>
+      <button type="button" (click)="cancel()" class="btn-cancel">Cancel</button>
       <button type="submit" [disabled]="packageForm.invalid || loading" class="btn-save">
-        {{ isEdit ? 'Sačuvaj izmene' : 'Dodaj paket' }}
+        {{ isEdit ? 'Save changes' : 'Add package' }}
       </button>
     </div>
   </form>

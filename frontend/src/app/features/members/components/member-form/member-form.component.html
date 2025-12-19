@@ -1,47 +1,46 @@
 <div class="member-form-container">
   <div class="form-header">
-    <h2>{{ isEdit ? 'Izmeni člana' : 'Dodaj člana' }}</h2>
+    <h2>{{ isEdit ? 'Edit member' : 'Add member' }}</h2>
   </div>
 
   <form [formGroup]="memberForm" (ngSubmit)="save()" class="member-form">
     <div class="form-group">
-      <label for="name">Ime i Prezime *</label>
+      <label for="name">Name and surname *</label>
       <input 
         id="name"
         type="text" 
         formControlName="name"
         class="form-input"
         [class.error]="memberForm.get('name')?.invalid && memberForm.get('name')?.touched"
-        placeholder="Unesite ime i prezime">
+        placeholder="Enter name and surname">
       <span *ngIf="memberForm.get('name')?.invalid && memberForm.get('name')?.touched" class="error-message">
-        Ime i prezime je obavezno
+        Name and surname is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="level">Nivo *</label>
+      <label for="level">Level *</label>
       <select 
         id="level"
         formControlName="level"
         class="form-select"
         [class.error]="memberForm.get('level')?.invalid && memberForm.get('level')?.touched">
-        <option value="">Izaberite nivo</option>
-        <option value="beginner">Početnik</option>
-        <option value="medium">Srednji</option>
-        <option value="expert">Napredni</option>
+        <option value="beginner">Beginner</option>
+        <option value="medium">Medium</option>
+        <option value="expert">Expert</option>
       </select>
       <span *ngIf="memberForm.get('level')?.invalid && memberForm.get('level')?.touched" class="error-message">
-        Nivo je obavezan
+        Level is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="packageId">Paket</label>
+      <label for="packageId">Package</label>
       <select 
         id="packageId"
         formControlName="packageId"
         class="form-select">
-        <option [value]="null">Nema paketa</option>
+        <option [value]="null">No package</option>
         <option *ngFor="let pkg of packages" [value]="pkg.id">
           {{ pkg.name }} - {{ pkg.price }}€
         </option>
@@ -54,18 +53,18 @@
           type="checkbox" 
           formControlName="isActive"
           class="form-checkbox">
-        <span>Aktivan član</span>
+        <span>Active member</span>
       </label>
       
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-cancel" (click)="goBack()">Otkaži</button>
+      <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
       <button 
         type="submit" 
         class="btn-submit"
         [disabled]="memberForm.invalid">
-        {{ isEdit ? 'Sačuvaj izmene' : 'Dodaj člana' }}
+        {{ isEdit ? 'Save changes' : 'Add member' }}
       </button>
     </div>
   </form>

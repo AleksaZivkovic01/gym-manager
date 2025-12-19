@@ -1,5 +1,5 @@
 <section class="auth-card">
-  <h2>Prijava</h2>
+  <h2>Login</h2>
 
   <div class="info-message" *ngIf="infoMessage">
     {{ infoMessage }}
@@ -11,15 +11,15 @@
       <input type="email" formControlName="email" placeholder="you@example.com" />
     </label>
     <div class="error" *ngIf="form.controls.email.invalid && form.controls.email.touched">
-      Unesite ispravnu email adresu.
+      Enter a valid email address.
     </div>
 
     <label>
-      Lozinka
+      Password
       <input type="password" formControlName="password" placeholder="••••••••" />
     </label>
     <div class="error" *ngIf="form.controls.password.invalid && form.controls.password.touched">
-      Lozinka je obavezna.
+      Password is required.
     </div>
 
     <div class="error" *ngIf="authError">
@@ -27,13 +27,13 @@
     </div>
 
     <button type="submit" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Prijavljivanje...' : 'Prijavi se' }}
+      {{ isSubmitting ? 'Logging in...' : 'Login' }}
     </button>
   </form>
 
   <p class="switch">
-    Nemaš nalog?
-    <a routerLink="/register">Registruj se</a>
+    Don't have an account?
+    <a routerLink="/register">Register</a>
   </p>
 </section>
 

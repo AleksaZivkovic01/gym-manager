@@ -1,14 +1,14 @@
 <div class="member-list-container">
   <div class="header-section">
-    <h2>Članovi</h2>
-    <button class="btn-add" (click)="addMember()">Dodaj člana</button>
+    <h2>Members</h2>
+    <button class="btn-add" (click)="addMember()">Add member</button>
   </div>
 
   <div class="filter-section">
     <input 
       type="text" 
       class="search-input" 
-      placeholder="Pretraži po imenu i prezimenu..." 
+      placeholder="Search by name and surname..." 
       [(ngModel)]="searchTerm"
     />
   </div>
@@ -17,11 +17,11 @@
     <table class="data-table">
       <thead>
         <tr>         
-          <th>Ime i Prezime</th>
-          <th>Nivo</th>
-          <th>Paket</th>
+          <th>Name and surname</th>
+          <th>Level</th>
+          <th>Package</th>
           <th>Status</th>
-          <th>Akcije</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -30,22 +30,22 @@
           <td>{{ m.level }}</td>
           <td>
             <span *ngIf="m.package">{{ m.package.name }}</span>
-            <span *ngIf="!m.package" class="no-package">Nema paketa</span>
+            <span *ngIf="!m.package" class="no-package">No package</span>
           </td>
           <td>
             <span [class]="m.isActive ? 'status-active' : 'status-inactive'">
-              {{ m.isActive ? 'Aktivan' : 'Neaktivan' }}
+              {{ m.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
           <td class="actions">
-            <button class="btn-edit" (click)="editMember(m.id)">Izmeni</button>
-            <button class="btn-delete" (click)="deleteMember(m.id)">Obriši</button>
+            <button class="btn-edit" (click)="editMember(m.id)">Edit</button>
+            <button class="btn-delete" (click)="deleteMember(m.id)">Delete</button>
           </td>
         </tr>
         <tr *ngIf="filteredMembers.length === 0">
-          <td colspan="5" class="empty-message" *ngIf="members.length === 0">Nema članova</td>
-          <td colspan="5" class="empty-message" *ngIf="members.length > 0 && filteredMembers.length === 0">Nema rezultata pretrage</td>
-          <td colspan="6" class="empty-message">Nema članova</td>
+            <td colspan="5" class="empty-message" *ngIf="members.length === 0">No members</td>
+          <td colspan="5" class="empty-message" *ngIf="members.length > 0 && filteredMembers.length === 0">No search results</td>
+          <td colspan="6" class="empty-message">No members</td>
         </tr>
       </tbody>
     </table>

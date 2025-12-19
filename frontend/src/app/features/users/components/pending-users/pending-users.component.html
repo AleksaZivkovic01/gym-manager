@@ -1,11 +1,11 @@
 <section class="pending-users">
   <div class="header">
     <h1>Korisnici na čekanju</h1>
-    <button (click)="loadPendingUsers()" class="refresh-btn">Osveži</button>
+    <button (click)="loadPendingUsers()" class="refresh-btn">Refresh</button>
   </div>
 
   <div class="loading" *ngIf="loading">
-    <p>Učitavanje korisnika...</p>
+    <p>Loading users...</p>
   </div>
 
   <div class="error" *ngIf="error && !loading">
@@ -13,7 +13,7 @@
   </div>
 
   <div class="no-users" *ngIf="!loading && !error && pendingUsers.length === 0">
-    <p>Nema korisnika na čekanju.</p>
+    <p>No users on waiting list.</p>
   </div>
 
   <div class="users-list" *ngIf="!loading && !error && pendingUsers.length > 0">
@@ -28,15 +28,15 @@
         <p class="user-details">{{ getUserDetails(user) }}</p>
         <p class="status-info">
           <strong>Status:</strong> 
-          <span class="status-pending">Čeka odobrenje</span>
+          <span class="status-pending">Waiting for approval</span>
         </p>
       </div>
       <div class="user-actions">
         <button class="btn-approve" (click)="approveUser(user)">
-          ✓ Odobri
+            ✓ Approve
         </button>
         <button class="btn-reject" (click)="rejectUser(user)">
-          ✗ Odbij
+          ✗ Reject
         </button>
       </div>
     </div>

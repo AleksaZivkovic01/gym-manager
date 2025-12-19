@@ -1,11 +1,11 @@
 <section class="package-list">
   <div class="header">
-    <h1>Upravljanje paketima</h1>
-    <button (click)="addPackage()" class="btn-add">+ Dodaj paket</button>
+    <h1>Package Management</h1>
+    <button (click)="addPackage()" class="btn-add">+ Add package</button>
   </div>
 
   <div class="loading" *ngIf="loading">
-    <p>Učitavanje paketa...</p>
+    <p>Loading packages...</p>
   </div>
 
   <div class="error" *ngIf="error && !loading">
@@ -16,12 +16,12 @@
     <table>
       <thead>
         <tr>
-          <th>Naziv</th>
-          <th>Opis</th>
-          <th>Cena</th>
-          <th>Termini/mesec</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Sessions per month</th>
           <th>Status</th>
-          <th>Akcije</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -32,16 +32,16 @@
           <td>{{ getSessionsLabel(pkg.sessionsPerMonth) }}</td>
           <td>
             <span [class.active]="pkg.isActive" [class.inactive]="!pkg.isActive">
-              {{ pkg.isActive ? 'Aktivan' : 'Neaktivan' }}
+              {{ pkg.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
           <td class="actions">
-            <button (click)="editPackage(pkg.id)" class="btn-edit">Izmeni</button>
-            <button (click)="deletePackage(pkg.id)" class="btn-delete">Obriši</button>
+            <button (click)="editPackage(pkg.id)" class="btn-edit">Edit</button>
+            <button (click)="deletePackage(pkg.id)" class="btn-delete">Delete</button>
           </td>
         </tr>
         <tr *ngIf="packages.length === 0">
-          <td colspan="6" class="no-data">Nema paketa. Dodajte novi paket.</td>
+          <td colspan="6" class="no-data">No packages. Add a new package.</td>
         </tr>
       </tbody>
     </table>

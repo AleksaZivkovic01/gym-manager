@@ -1,55 +1,55 @@
 <div class="trainer-form-container">
   <div class="form-header">
-    <h2>{{ isEdit ? 'Izmeni trenera' : 'Dodaj trenera' }}</h2>
+    <h2>{{ isEdit ? 'Edit trainer' : 'Add trainer' }}</h2>
   </div>
 
   <form [formGroup]="trainerForm" (ngSubmit)="saveTrainer()" class="trainer-form">
     <div class="form-group">
-      <label for="name">Ime i Prezime *</label>
+      <label for="name">Name and surname *</label>
       <input 
         id="name"
         type="text" 
         formControlName="name"
         class="form-input"
         [class.error]="trainerForm.get('name')?.invalid && trainerForm.get('name')?.touched"
-        placeholder="Unesite ime i prezime trenera">
+        placeholder="Enter name and surname">
       <span *ngIf="trainerForm.get('name')?.invalid && trainerForm.get('name')?.touched" class="error-message">
-        Ime i prezime je obavezno
+        Name and surname is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="specialty">Specijalnost *</label>
+      <label for="specialty">Specialty *</label>
       <input 
         id="specialty"
         type="text" 
         formControlName="specialty"
         class="form-input"
         [class.error]="trainerForm.get('specialty')?.invalid && trainerForm.get('specialty')?.touched"
-        placeholder="Unesite specijalnost (npr. Yoga, Cardio, Strength)">
+        placeholder="Enter specialty (e.g. Yoga, Cardio, Strength)">
       <span *ngIf="trainerForm.get('specialty')?.invalid && trainerForm.get('specialty')?.touched" class="error-message">
-        Specijalnost je obavezna
+        Specialty is required
       </span>
     </div>
 
     <div class="form-group">
-      <label for="experienceYears">Iskustvo (godine)</label>
+      <label for="experienceYears">Experience (years)</label>
       <input 
         id="experienceYears"
         type="number" 
         formControlName="experienceYears"
         class="form-input"
         min="0"
-        placeholder="Unesite broj godina iskustva">
+        placeholder="Enter number of years of experience">
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-cancel" (click)="goBack()">Otkaži</button>
+      <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
       <button 
         type="submit" 
         class="btn-submit"
         [disabled]="trainerForm.invalid">
-        {{ isEdit ? 'Sačuvaj izmene' : 'Dodaj trenera' }}
+        {{ isEdit ? 'Save changes' : 'Add trainer' }}
       </button>
     </div>
   </form>

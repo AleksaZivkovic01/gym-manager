@@ -16,9 +16,8 @@
   <div class="auth-actions">
     <ng-container *ngIf="currentUser$ | async as user; else guestLinks">
       <span class="user-info">
-        {{ getUserDisplayName(user) }} ({{ user.role }})
-        <a *ngIf="user.role === 'member'" routerLink="/member/profile" class="profile-link">Profil</a>
-        <a *ngIf="user.role === 'trainer'" routerLink="/trainer/profile" class="profile-link">Profil</a>
+        <a *ngIf="user.role === 'member'" routerLink="/member/profile" class="profile-link">Profile</a>
+        <a *ngIf="user.role === 'trainer'" routerLink="/trainer/profile" class="profile-link">Profile</a>
       </span>
       <div *ngIf="user.role === 'member'" class="notifications-icon" (click)="toggleNotifications()">
         <span class="inbox-icon">📩</span>

@@ -1,17 +1,17 @@
 <section class="dashboard">
   <div class="dashboard-header">
-    <h1>Moj Dashboard</h1>
-    <p class="welcome-text">Dobrodošli, {{ getDisplayName() }}</p>
+    <h1>My account⭐</h1>
+    <p class="welcome-text">Welcome back, {{ getDisplayName() }}</p>
     <div class="quick-actions">
-      <a routerLink="/member/trainers" class="action-btn">Pregled Trenera</a>
-      <a routerLink="/member/available-sessions" class="action-btn">Dostupni Treningi</a>
+      <a routerLink="/member/trainers" class="action-btn">Find Trainer</a>
+      <a routerLink="/member/available-sessions" class="action-btn">Book a training</a>
     </div>
   </div>
 
   <div class="dashboard-content">
     <!-- Membership Info Card -->
     <div class="card membership-card">
-      <h2>Članstvo</h2>
+      <h2>My membership</h2>
       <div class="membership-info" *ngIf="memberInfo">
         <div class="info-row">
           <span class="label">Status:</span>
@@ -20,38 +20,38 @@
           </span>
         </div>
         <div class="info-row">
-          <span class="label">Nivo:</span>
+          <span class="label">Training level:</span>
           <span class="value">{{ getLevelLabel(memberInfo.level) }}</span>
         </div>
         <div class="info-row" *ngIf="memberInfo.name">
-          <span class="label">Ime:</span>
+          <span class="label">Member:</span>
           <span class="value">{{ memberInfo.name }}</span>
         </div>
         <div class="info-row" *ngIf="memberInfo.package">
-          <span class="label">Paket:</span>
+          <span class="label">Membership package:</span>
           <span class="value package-name">{{ memberInfo.package.name }}</span>
         </div>
         <div class="info-row" *ngIf="memberInfo.package">
-          <span class="label">Cena:</span>
+          <span class="label">Price:</span>
           <span class="value">{{ formatPrice(memberInfo.package.price) }}</span>
         </div>
         <div class="info-row" *ngIf="memberInfo.package">
-          <span class="label">Termina/mesec:</span>
+          <span class="label">Sessions per month:</span>
           <span class="value">{{ getSessionsLabel(memberInfo.package.sessionsPerMonth) }}</span>
         </div>
         <div class="info-row" *ngIf="!memberInfo.package">
-          <span class="label">Paket:</span>
-          <span class="value" style="color: #999;">Nema izabranog paketa</span>
+          <span class="label">Membership package:</span>
+          <span class="value" style="color: #999;">No package selected</span>
         </div>
       </div>
       <div class="no-data" *ngIf="!memberInfo">
-        <p>Podaci o članstvu se učitavaju...</p>
+        <p>Membership data is loading...</p>
       </div>
     </div>
 
     <!-- Upcoming Sessions Card -->
     <div class="card sessions-card">
-      <h2>Predstojeći termini</h2>
+      <h2>Upcoming sessions</h2>
       <div class="sessions-list" *ngIf="upcomingSessions.length > 0 && !loading">
         <div class="session-item" *ngFor="let session of upcomingSessions">
           <div class="session-content">
@@ -61,12 +61,12 @@
             <div class="session-date-time">
               <div class="date">{{ formatDate(session.date) }}</div>
               <div class="time">
-                <span class="time-label">Vreme:</span> {{ formatTime(session.time) }}
+                <span class="time-label">Time:</span> {{ formatTime(session.time) }}
               </div>
             </div>
             <div class="session-info">
               <span class="trainer-name" *ngIf="session.trainer">
-                Trener: {{ session.trainer.name }}
+                Trainer: {{ session.trainer.name }}
               </span>
             </div>
           </div>
@@ -75,23 +75,23 @@
               (click)="unregisterFromSession(session)" 
               class="btn-cancel"
               title="Otkazi termin">
-              Otkaži
+              Otkazi
             </button>
           </div>
         </div>
       </div>
       <div class="no-data" *ngIf="upcomingSessions.length === 0 && !loading && memberInfo">
-        <p>Nemate zakazanih termina.</p>
-        <a routerLink="/member/available-sessions" class="link-to-sessions">Pogledajte dostupne treninge</a>
+        <p>No trainings scheduled.</p>
+        <a routerLink="/member/available-sessions" class="link-to-sessions">View Available Trainings</a>
       </div>
       <div class="loading" *ngIf="loading">
-        <p>Učitavanje...</p>
+        <p>Loading...</p>
       </div>
     </div>
 
     <!-- Recent Sessions Card -->
     <div class="card recent-sessions-card">
-      <h2>Poslednji termini</h2>
+      <h2>Recent sessions</h2>
       <div class="sessions-list" *ngIf="recentSessions.length > 0">
         <div class="session-item" *ngFor="let session of recentSessions">
           <div class="session-date">
@@ -101,13 +101,13 @@
           <div class="session-details">
             <span class="session-type">{{ session.type }}</span>
             <span class="trainer-name" *ngIf="session.trainer">
-              Trener: {{ session.trainer.name }}
+              Trainer: {{ session.trainer.name }}
             </span>
           </div>
         </div>
       </div>
       <div class="no-data" *ngIf="recentSessions.length === 0 && !loading">
-        <p>Nemate prethodnih termina.</p>
+        <p>No previous sessions.</p>
       </div>
     </div>
   </div>

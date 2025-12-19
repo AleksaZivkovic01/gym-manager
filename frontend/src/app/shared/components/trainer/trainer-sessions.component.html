@@ -1,14 +1,14 @@
 <section class="trainer-sessions">
   <div class="page-header">
     <div class="header-content">
-      <h1>Moji treninzi</h1>
+      <h1>My training sessions</h1>
       <button
         *ngIf="!showSessionForm"
         type="button"
         class="btn-add-session"
         (click)="toggleSessionForm()"
       >
-        Dodaj trening
+       Add training session
     </button>
     </div>
   </div>
@@ -16,7 +16,7 @@
   <!-- Add/Edit Session Form -->
   <div class="add-session-form-container" *ngIf="showSessionForm">
     <div class="card add-session-card">
-      <h2>{{ editingSessionId ? 'Izmeni trening sesiju' : 'Dodaj novu trening sesiju' }}</h2>
+      <h2>{{ editingSessionId ? 'Edit training session' : 'Add new training session' }}</h2>
 
       <form [formGroup]="sessionForm" (ngSubmit)="onSubmitSession()" class="session-form">
         <!-- Success Message -->
@@ -32,7 +32,7 @@
         <!-- Date Field -->
         <div class="form-group">
           <label for="sessionDate">
-            Datum <span class="required">*</span>
+            Date <span class="required">*</span>
           </label>
           <input
             type="date"
@@ -44,14 +44,14 @@
             class="error-message"
             *ngIf="sessionForm.controls.date.invalid && sessionForm.controls.date.touched"
           >
-            Datum je obavezno polje.
+            Date is a required field.
           </div>
         </div>
 
         <!-- Time Field -->
         <div class="form-group">
           <label for="sessionTime">
-            Vreme <span class="required">*</span>
+            Time <span class="required">*</span>
           </label>
           <input
             type="time"
@@ -63,15 +63,15 @@
             class="error-message"
             *ngIf="sessionForm.controls.time.invalid && sessionForm.controls.time.touched"
           >
-            <span *ngIf="sessionForm.controls.time.errors?.['required']">Vreme je obavezno polje.</span>
-            <span *ngIf="sessionForm.controls.time.errors?.['pattern']">Vreme mora biti u formatu HH:MM.</span>
+            <span *ngIf="sessionForm.controls.time.errors?.['required']">Time is a required field.</span>
+            <span *ngIf="sessionForm.controls.time.errors?.['pattern']">Time must be in HH:MM format.</span>
           </div>
         </div>
 
         <!-- Type Field -->
         <div class="form-group">
           <label for="sessionType">
-            Tip treninga <span class="required">*</span>
+            Training type <span class="required">*</span>
           </label>
           <input
             type="text"
@@ -84,14 +84,14 @@
             class="error-message"
             *ngIf="sessionForm.controls.type.invalid && sessionForm.controls.type.touched"
           >
-            Tip treninga je obavezno polje.
+            Training type is a required field.
           </div>
         </div>
 
         <!-- Max Participants Field -->
         <div class="form-group">
           <label for="sessionMaxParticipants">
-            Maksimalan broj učesnika <span class="required">*</span>
+            Max participants <span class="required">*</span>
           </label>
           <input
             type="number"
@@ -104,8 +104,8 @@
             class="error-message"
             *ngIf="sessionForm.controls.maxParticipants.invalid && sessionForm.controls.maxParticipants.touched"
           >
-            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['required']">Broj učesnika je obavezno polje.</span>
-            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['min']">Broj učesnika mora biti najmanje 1.</span>
+            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['required']">Max participants is a required field.</span>
+            <span *ngIf="sessionForm.controls.maxParticipants.errors?.['min']">Max participants must be at least 1.</span>
           </div>
         </div>
 
@@ -116,7 +116,7 @@
             class="btn btn-primary"
             [disabled]="isSubmittingSession || sessionForm.invalid"
           >
-            {{ isSubmittingSession ? 'Kreiranje...' : 'Kreiraj trening' }}
+            {{ isSubmittingSession ? 'Creating...' : 'Create Training' }}
           </button>
           <button 
             type="button" 
@@ -124,7 +124,7 @@
             (click)="toggleSessionForm()"
             [disabled]="isSubmittingSession"
           >
-            Otkaži
+            Cancel
           </button>
         </div>
       </form>
@@ -141,7 +141,7 @@
         [class.active]="selectedFilter === 'upcoming'"
         (click)="setFilter('upcoming')"
       >
-        Predstojeći
+        Upcoming
       </button>
       <button 
         type="button"
@@ -149,7 +149,7 @@
         [class.active]="selectedFilter === 'past'"
         (click)="setFilter('past')"
       >
-        Prošli
+        Past
       </button>
       <button 
         type="button"
@@ -157,12 +157,12 @@
         [class.active]="selectedFilter === 'all'"
         (click)="setFilter('all')"
       >
-        Svi
+        All
       </button>
     </div>
 
     <div class="loading" *ngIf="loading">
-      <p>Učitavanje treninga...</p>
+      <p>Loading sessions...</p>
     </div>
 
     <div class="sessions-list" *ngIf="!loading && sessions.length > 0">
@@ -170,20 +170,20 @@
         <div class="session-header">
           <h3 class="session-type">{{ session.type }}</h3>
           <span class="session-status" [class.upcoming]="isUpcoming(session)" [class.past]="!isUpcoming(session)">
-            {{ isUpcoming(session) ? 'Predstojeći' : 'Prošao' }}
+            {{ isUpcoming(session) ? 'Upcoming' : 'Past' }}
           </span>
         </div>
         <div class="session-details">
           <div class="detail-item">
-            <span class="detail-label">Datum:</span>
+            <span class="detail-label">Date:</span>
             <span class="detail-value">{{ formatDate(session.date) }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Vreme:</span>
+            <span class="detail-label">Time:</span>
             <span class="detail-value">{{ formatTime(session.time) }}h</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Prijavljeno:</span>
+            <span class="detail-label">Registered:</span>
             <span class="detail-value">
               {{ getRegisteredCount(session) }}/{{ session.maxParticipants }}
               <button 
@@ -191,10 +191,10 @@
                 type="button" 
                 class="btn-show-members"
                 (click)="toggleMembersList(session)"
-                title="Prikaži prijavljene članove"
+                title="Show registered members"
               >
                 <!--{{ showMembersForSession[session.id] ? '▼' : '▶' }}-->
-                {{ showMembersForSession[session.id] ? 'Sakrij' : 'Prikaži' }}
+                {{ showMembersForSession[session.id] ? 'Hide' : 'Show' }}
               </button>
             </span>
           </div>
@@ -203,14 +203,14 @@
         <!-- Members List -->
         <div class="members-list" *ngIf="showMembersForSession[session.id]">
           <div class="members-loading" *ngIf="loadingMembers[session.id]">
-            <p>Učitavanje članova...</p>
+            <p>Loading members...</p>
           </div>
           <div class="members-content" *ngIf="!loadingMembers[session.id]">
             <div class="member-item" *ngFor="let member of sessionMembers[session.id]">
               {{ member.name }}
             </div>
             <div class="no-members" *ngIf="sessionMembers[session.id]?.length === 0">
-              <p>Nema prijavljenih članova.</p>
+              <p>No registered members.</p>
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@
             (click)="editSession(session)"
             [disabled]="showSessionForm"
           >
-            Izmeni
+            Edit
           </button>
           <button 
             type="button" 
@@ -229,19 +229,19 @@
             (click)="deleteSession(session)"
             [disabled]="showSessionForm"
           >
-            Obriši
+            Delete
           </button>
         </div>
       </div>
     </div>
 
     <div class="no-sessions" *ngIf="!loading && sessions.length === 0 && allSessions.length === 0">
-      <p>Nemate kreiranih treninga.</p>
-      <p class="hint">Kliknite na "Dodaj trening" da kreirate novu trening sesiju.</p>
+      <p>You don't have any sessions created.</p>
+      <p class="hint">Click "Add Session" to create a new session.</p>
     </div>
     
     <div class="no-sessions" *ngIf="!loading && sessions.length === 0 && allSessions.length > 0">
-      <p>Nema treninga za izabrani filter.</p>
+      <p>No sessions available for the selected filter.</p>
     </div>
   </div>
 </section>

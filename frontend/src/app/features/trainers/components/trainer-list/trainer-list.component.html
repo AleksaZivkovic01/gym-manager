@@ -1,14 +1,14 @@
 <div class="trainer-list-container">
   <div class="header-section">
-    <h2>Treneri</h2>
-    <button class="btn-add" (click)="addTrainer()">Dodaj trenera</button>
+    <h2>Trainers</h2>
+    <button class="btn-add" (click)="addTrainer()">Add trainer</button>
   </div>
 
   <div class="filter-section">
     <input 
       type="text" 
       class="search-input" 
-      placeholder="Pretraži po imenu i prezimenu..." 
+      placeholder="Search by name and surname..." 
       [(ngModel)]="searchTerm"
     />
   </div>
@@ -17,11 +17,11 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>Ime i Prezime</th>
-          <th>Specijalnost</th>
-          <th>Iskustvo (godine)</th>
-          <th>Prosečna ocena</th>
-          <th>Akcije</th>
+            <th>Name and surname</th>
+          <th>Specialty</th>
+          <th>Experience (years)</th>
+          <th>Average rating</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -34,17 +34,17 @@
               {{ t.averageRating.toFixed(1) }}
             </span>
             <span *ngIf="t.averageRating === null || t.averageRating === undefined" class="no-rating">
-              Nema ocena
+              No ratings
             </span>
           </td>
           <td class="actions">
-            <button class="btn-edit" (click)="editTrainer(t.id)">Izmeni</button>
-            <button class="btn-delete" (click)="deleteTrainer(t.id)">Obriši</button>
+            <button class="btn-edit" (click)="editTrainer(t.id)">Edit</button>
+            <button class="btn-delete" (click)="deleteTrainer(t.id)">Delete</button>
           </td>
         </tr>
         <tr *ngIf="filteredTrainers.length === 0">
-          <td colspan="5" class="empty-message" *ngIf="trainers.length === 0">Nema trenera</td>
-          <td colspan="5" class="empty-message" *ngIf="trainers.length > 0 && filteredTrainers.length === 0">Nema rezultata pretrage</td>
+          <td colspan="5" class="empty-message" *ngIf="trainers.length === 0">No trainers</td>
+          <td colspan="5" class="empty-message" *ngIf="trainers.length > 0 && filteredTrainers.length === 0">No search results</td>
         </tr>
       </tbody>
     </table>

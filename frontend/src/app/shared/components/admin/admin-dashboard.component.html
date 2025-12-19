@@ -1,7 +1,7 @@
 <section class="dashboard">
   <div class="dashboard-header">
-    <h1>Admin Dashboard</h1>
-    <p class="welcome-text">Dobrodošli, Admine</p>
+    <h1>Admin Panel</h1>
+    <p class="welcome-text">Welcome back, Admin</p>
   </div>
 
   <div class="dashboard-content">
@@ -18,9 +18,9 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ totalMembers }}</span>
-          <span class="stat-label">Ukupno članova</span>
+          <span class="stat-label">Total members</span>
           <span class="stat-change" *ngIf="activeMembers">
-            {{ activeMembers }} aktivnih
+            {{ activeMembers }} active
           </span>
         </div>
       </div>
@@ -34,7 +34,7 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ totalTrainers }}</span>
-          <span class="stat-label">Trenera</span>
+          <span class="stat-label">Trainers</span>
         </div>
       </div>
 
@@ -47,9 +47,9 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ totalSessions }}</span>
-          <span class="stat-label">Ukupno termina</span>
+          <span class="stat-label">Total sessions</span>
           <span class="stat-change" *ngIf="upcomingSessionsCount">
-            {{ upcomingSessionsCount }} predstojećih
+            {{ upcomingSessionsCount }} upcoming
           </span>
         </div>
       </div>
@@ -57,7 +57,7 @@
 
     <!-- Recent Activity -->
     <div class="card recent-activity-card">
-      <h2>Nedavne aktivnosti</h2>
+      <h2>Recent activities</h2>
       <div class="activity-list-scrollable" *ngIf="recentActivities.length > 0">
         <div class="activity-list">
           <div class="activity-item" *ngFor="let activity of recentActivities">
@@ -67,60 +67,60 @@
             </div>
             <div class="activity-content">
               <div class="activity-text" *ngIf="activity.type === 'user_registered'">
-                <span *ngIf="activity.data.userRole === 'member'">Registovan je novi član: <strong>{{ activity.data.userName }}</strong></span>
-                <span *ngIf="activity.data.userRole === 'trainer'">Registrovan je novi trener: <strong>{{ activity.data.userName }}</strong></span>
+                <span *ngIf="activity.data.userRole === 'member'">New member registered: <strong>{{ activity.data.userName }}</strong></span>
+                <span *ngIf="activity.data.userRole === 'trainer'">New trainer registered: <strong>{{ activity.data.userName }}</strong></span>
               </div>
               <div class="activity-text" *ngIf="activity.type === 'session_created'">
-                Kreiran novi trening: <strong>{{ activity.data.sessionType }}</strong>
-                <span *ngIf="activity.data.trainerName"> • Trener: {{ activity.data.trainerName }}</span>
+                New training created: <strong>{{ activity.data.sessionType }}</strong>
+                <span *ngIf="activity.data.trainerName"> • Trainer: {{ activity.data.trainerName }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="no-data" *ngIf="recentActivities.length === 0 && !loading">
-        <p>Nema nedavnih aktivnosti.</p>
+        <p>No recent activities.</p>
       </div>
       <div class="loading" *ngIf="loading">
-        <p>Učitavanje...</p>
+        <p>Loading...</p>
       </div>
     </div>
 
     <!-- Quick Actions -->
     <div class="card quick-actions-card">
-      <h2>Brze akcije</h2>
+      <h2>Quick actions</h2>
       <div class="actions-grid">
         <a routerLink="/members/add" class="action-btn">
           <span class="action-icon">+</span>
-          <span>Dodaj člana</span>
+          <span>Add member</span>
         </a>
         <a routerLink="/trainers/add" class="action-btn">
           <span class="action-icon">+</span>
-          <span>Dodaj trenera</span>
+          <span>Add trainer</span>
         </a>
         <a routerLink="/sessions/add" class="action-btn">
           <span class="action-icon">+</span>
-          <span>Dodaj termin</span>
+          <span>Add session</span>
         </a>
         <a routerLink="/members" class="action-btn">
           <span class="action-icon">👥</span>
-          <span>Pregled članova</span>
+          <span>View members</span>
         </a>
         <a routerLink="/trainers" class="action-btn">
-          <span class="action-icon">👨‍🏫</span>
-          <span>Pregled trenera</span>
+          <span class="action-icon">🏋️‍♂️</span>
+            <span>View trainers</span>
         </a>
         <a routerLink="/sessions" class="action-btn">
           <span class="action-icon">📅</span>
-          <span>Pregled termina</span>
+          <span>View sessions</span>
         </a>
         <a routerLink="/admin/packages" class="action-btn">
           <span class="action-icon">📦</span>
-          <span>Upravljanje paketima</span>
+          <span>Manage packages</span>
         </a>
         <a routerLink="/admin/pending-users" class="action-btn pending-action">
           <span class="action-icon">⏳</span>
-          <span>Korisnici na čekanju</span>
+          <span>Pending users</span>
           <span class="pending-badge" *ngIf="pendingUsersCount > 0">{{ pendingUsersCount }}</span>
         </a>
       </div>
@@ -128,26 +128,26 @@
 
     <!-- Members Overview -->
     <div class="card members-overview-card">
-      <h2>Pregled članova</h2>
+      <h2>View members</h2>
       <div class="members-summary" *ngIf="membersSummary">
         <div class="summary-item">
-          <span class="summary-label">Aktivni:</span>
+          <span class="summary-label">Active:</span>
           <span class="summary-value active">{{ membersSummary.active }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Neaktivni:</span>
+          <span class="summary-label">Inactive:</span>
           <span class="summary-value inactive">{{ membersSummary.inactive }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Početnici:</span>
+          <span class="summary-label">Beginners:</span>
           <span class="summary-value">{{ membersSummary.byLevel.beginner }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Srednji:</span>
+          <span class="summary-label">Medium:</span>
           <span class="summary-value">{{ membersSummary.byLevel.medium }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Napredni:</span>
+          <span class="summary-label">Expert:</span>
           <span class="summary-value">{{ membersSummary.byLevel.expert }}</span>
         </div>
       </div>

@@ -249,13 +249,13 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
 
   getStatusText(session: TrainingSession): string {
     if (this.isRegistered(session.id)) {
-      return 'Prijavljen';
+      return 'Enrolled';
     }
     if (this.isFull(session)) {
-      return 'Popunjeno';
+      return 'Full';
     }
     const registeredCount = session.registrations?.length || 0;
-    return `${registeredCount}/${session.maxParticipants} prijavljeno`;
+    return `${registeredCount}/${session.maxParticipants} Enrolled`;
   }
 
   getStatusClass(session: TrainingSession): string {
