@@ -31,7 +31,7 @@ export class AuthService {
     try {
       const existingUser = await this.userService.findByEmail(registerDto.email);
       if (existingUser) {
-        throw new BadRequestException('Korisnik sa ovim email-om već postoji. Molimo koristite drugi email ili se prijavite.');
+        throw new BadRequestException('A user with this email already exists. Please use another email or login.');
       }
 
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
@@ -40,7 +40,7 @@ export class AuthService {
         email: registerDto.email,
         password: hashedPassword,
         role: userRole,
-        // Admini su automatski odobreni, ostali moraju čekati odobrenje
+        // admin automatski odobren
         status: userRole === 'admin' ? 'approved' : 'pending',
       });
 
@@ -61,13 +61,10 @@ export class AuthService {
             if (reloadedUser) user = reloadedUser;
           } catch (reloadError) {
             console.warn('Failed to reload user with member relation:', reloadError);
-            // Continue with user without relations
           }
         } catch (memberError) {
           console.error('Error creating member:', memberError);
-          // If member creation fails, we should probably rollback user creation
-          // But for now, just log and continue
-          throw new BadRequestException('Greška pri kreiranju člana. Molimo pokušajte ponovo.');
+          throw new BadRequestException('Error with creating member. Please try again.');
         }
       }
 
@@ -88,11 +85,10 @@ export class AuthService {
             if (reloadedUser) user = reloadedUser;
           } catch (reloadError) {
             console.warn('Failed to reload user with trainer relation:', reloadError);
-            // Continue with user without relations
           }
         } catch (trainerError) {
           console.error('Error creating trainer:', trainerError);
-          throw new BadRequestException('Greška pri kreiranju trenera. Molimo pokušajte ponovo.');
+          throw new BadRequestException('Error with creating trainer. Please try again.');
         }
       }
 
@@ -102,7 +98,7 @@ export class AuthService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException(error.message || 'Greška pri registraciji. Molimo pokušajte ponovo.');
+      throw new BadRequestException(error.message || 'Registration error. Please try again.');
     }
   }
 
@@ -111,33 +107,30 @@ export class AuthService {
       const user = await this.userService.findByEmail(loginDto.email);
       if (!user) {
         console.log(`Login attempt with non-existent email: ${loginDto.email}`);
-        throw new UnauthorizedException('Pogrešan email ili lozinka');
+        throw new UnauthorizedException('Invalid email or password');
       }
 
       const passwordMatches = await bcrypt.compare(loginDto.password, user.password);
       if (!passwordMatches) {
         console.log(`Login attempt with wrong password for email: ${loginDto.email}`);
-        throw new UnauthorizedException('Pogrešan email ili lozinka');
+        throw new UnauthorizedException('Invalid email or password');
       }
 
-      // Proveri da li je korisnik odobren (admini su uvek odobreni)
-      // Proveri status pre nego što dozvoliš login
+      
       if (user.role !== 'admin') {
         if (!user.status || user.status === 'pending') {
           console.log(`Login attempt for pending user: ${loginDto.email}, status: ${user.status}`);
-          throw new UnauthorizedException('Vaša registracija još nije odobrena. Molimo sačekajte odobrenje administratora.');
+          throw new UnauthorizedException('Your registration has not been approved yet. Please wait for approval from an administrator.');
         } else if (user.status === 'rejected') {
           console.log(`Login attempt for rejected user: ${loginDto.email}`);
-          throw new UnauthorizedException('Vaša registracija je odbijena. Kontaktirajte administratora za više informacija.');
+          throw new UnauthorizedException('Your registration has been rejected. Contact an administrator for more information.');
         } else if (user.status !== 'approved') {
-          // Only throw error if status is not approved (covers any unexpected status values)
           const statusValue: string = user.status || 'unknown';
           console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${statusValue}`);
-          throw new UnauthorizedException('Vaš nalog nije odobren. Kontaktirajte administratora.');
+          throw new UnauthorizedException('Your account is not approved. Contact an administrator.');
         }
-        // If status is 'approved', continue to login (no error thrown)
+        // ako je odobren status, nastavi dalje
       }
-
       console.log(`Successful login for user: ${loginDto.email}, role: ${user.role}, status: ${user.status}`);
       return this.buildAuthPayload(user);
     } catch (error) {
@@ -145,7 +138,7 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException('Greška pri prijavi. Molimo pokušajte ponovo.');
+      throw new UnauthorizedException('Error during login. Please try again.');
     }
   }
 
@@ -160,6 +153,8 @@ export class AuthService {
       role: user.role,
     });
 
+    // uklanja se password iz user objekta i vraca user bez passworda
+    // rest operator
     const { password: _password, ...safeUser } = user;
     void _password;
 

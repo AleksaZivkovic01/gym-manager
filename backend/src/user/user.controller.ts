@@ -21,39 +21,35 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  // Admin only: Get pending users
+  // Admin 
   @UseGuards(AuthGuard('jwt'))
   @Get('pending/approvals')
   getPendingUsers(@Req() req: AuthenticatedRequest): Promise<User[]> {
-    // Check if user is admin
     if (req.user.role !== 'admin') {
       throw new UnauthorizedException('Only admins can view pending users');
     }
     return this.userService.findPending();
   }
 
-  // Admin only: Approve user
+
   @UseGuards(AuthGuard('jwt'))
   @Put(':id/approve')
   approveUser(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: AuthenticatedRequest,
   ): Promise<User> {
-    // Check if user is admin
     if (req.user.role !== 'admin') {
       throw new UnauthorizedException('Only admins can approve users');
     }
     return this.userService.approve(id);
   }
 
-  // Admin only: Reject user
   @UseGuards(AuthGuard('jwt'))
   @Put(':id/reject')
   rejectUser(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: AuthenticatedRequest,
   ): Promise<User> {
-    // Check if user is admin
     if (req.user.role !== 'admin') {
       throw new UnauthorizedException('Only admins can reject users');
     }
@@ -65,7 +61,7 @@ export class UserController {
     return this.userService.create(user);
   }
 
-  // Update current user's email and/or password - MUST be before @Put(':id')
+  // Update 
   @UseGuards(AuthGuard('jwt'))
   @Put('me')
   async updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateUserDto): Promise<Omit<User, 'password'>> {
