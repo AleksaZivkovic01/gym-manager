@@ -16,7 +16,7 @@
         <div class="info-row">
           <span class="label">Status:</span>
           <span class="value" [class.active]="memberInfo.isActive" [class.inactive]="!memberInfo.isActive">
-            {{ memberInfo.isActive ? 'Aktivno' : 'Neaktivno' }}
+            {{ memberInfo.isActive ? 'Active' : 'Inactive' }}
           </span>
         </div>
         <div class="info-row">
@@ -75,7 +75,7 @@
               (click)="unregisterFromSession(session)" 
               class="btn-cancel"
               title="Otkazi termin">
-              Otkazi
+              Cancel
             </button>
           </div>
         </div>

@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { RatingService } from './rating.service';
 import { CreateRatingDto, UpdateRatingDto } from './dto/rating.dto';
 import { Rating } from './rating.entity';
 import { User } from '../user/user.entity';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
@@ -22,19 +25,23 @@ export class RatingController {
     return this.ratingService.getAverageRating(trainerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('member')
   @Get('my-rating')
   async getMyRating(
     @Param('trainerId', ParseIntPipe) trainerId: number,
     @Req() req: AuthenticatedRequest,
   ): Promise<Rating | null> {
-    if (req.user.role !== 'member' || !req.user.member?.id) {
-      throw new Error('User is not a member');
+    if (!req.user.member?.id) {
+      throw new ForbiddenException('User is not a member');
     }
-    return this.ratingService.getRatingByMemberAndTrainer(req.user.member.id, trainerId);
+
+    return this.ratingService.getRatingByMemberAndTrainer(req.user.member.id,trainerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('member')
   @Post()
   createRating(
     @Param('trainerId', ParseIntPipe) trainerId: number,
@@ -48,7 +55,8 @@ export class RatingController {
     return this.ratingService.create(trainerId, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('member')
   @Put(':id')
   updateRating(
     @Param('id', ParseIntPipe) ratingId: number,
@@ -57,6 +65,8 @@ export class RatingController {
     return this.ratingService.update(ratingId, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('member')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   deleteRating(@Param('id', ParseIntPipe) ratingId: number): Promise<void> {

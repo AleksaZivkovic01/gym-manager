@@ -93,10 +93,10 @@ export class PendingUsersComponent implements OnInit, OnDestroy {
 
   getUserDetails(user: User): string {
     if (user.member) {
-      return `Član: ${user.member.name} (${user.member.level})`;
+      return `Member: ${user.member.name} (${user.member.level})`;
     }
     if (user.trainer) {
-      return `Trener: ${user.trainer.name} - ${user.trainer.specialty}`;
+      return `Trainer: ${user.trainer.name} - ${user.trainer.specialty}`;
     }
     return '-';
   }

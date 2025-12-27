@@ -41,9 +41,10 @@
       <label>
         Level
         <select formControlName="memberLevel">
+          <option value="" disabled selected>Select level</option>
           <option value="beginner">Beginner</option>
-          <option value="medium">Medium</option>
-          <option value="expert">Expert</option>
+          <option value="medium">Intermediate</option>
+          <option value="expert">Advanced</option>
         </select>
       </label>
       <div class="error" *ngIf="form.controls.memberLevel.invalid && form.controls.memberLevel.touched">
@@ -52,11 +53,16 @@
 
       <label>
         Gender
-        <input type="text" formControlName="memberGender" placeholder="npr. Male / Female" />
+        <select formControlName="memberGender">
+          <option value="" disabled selected>Select gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
       </label>
       <div class="error" *ngIf="form.controls.memberGender.invalid && form.controls.memberGender.touched">
         This field is required.
       </div>
+
 
       <label>
         Date of birth
@@ -97,11 +103,16 @@
 
       <label>
         Gender
-        <input type="text" formControlName="trainerGender" placeholder="e.g. Male / Female" />
+        <select formControlName="trainerGender">
+          <option value="" disabled selected>Select gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
       </label>
       <div class="error" *ngIf="form.controls.trainerGender.invalid && form.controls.trainerGender.touched">
         This field is required.
       </div>
+
 
       <label>
         Date of birth

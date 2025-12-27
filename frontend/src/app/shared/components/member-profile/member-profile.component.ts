@@ -107,7 +107,7 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error loading member data:', err);
-          this.errorMessage = 'Greška pri učitavanju podataka. Molimo osvežite stranicu.';
+          this.errorMessage = 'Error loading member data. Please refresh the page.';
           this.loading = false;
         },
       });
@@ -123,21 +123,21 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
     const formValue = this.profileForm.getRawValue();
     if (formValue.newPassword) {
       if (!formValue.oldPassword) {
-        this.errorMessage = 'Unesite staru lozinku da biste promenili lozinku.';
+        this.errorMessage = 'Enter your old password to set a new password.';
         this.profileForm.controls.oldPassword.markAsTouched();
         this.profileForm.controls.oldPassword.setErrors({ required: true });
         return;
       }
       if (formValue.newPassword.length < 6) {
-        this.errorMessage = 'Nova lozinka mora imati najmanje 6 karaktera.';
+        this.errorMessage = 'New password must be at least 6 characters long.';
         return;
       }
       if (formValue.newPassword === formValue.oldPassword) {
-        this.errorMessage = 'Nova lozinka mora biti različita od stare lozinke.';
+        this.errorMessage = 'New password must be different from the old password.';
         return;
       }
       if (formValue.newPassword !== formValue.confirmPassword) {
-        this.errorMessage = 'Nova lozinka i potvrda lozinke se ne poklapaju.';
+        this.errorMessage = 'New password and confirm password does not match.';
         return;
       }
     }

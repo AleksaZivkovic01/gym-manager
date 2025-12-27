@@ -6,6 +6,9 @@ import { CreateTrainingSessionDto, UpdateTrainingSessionDto, RegisterToSessionDt
 import { TrainingSession } from './training-session.entity';
 import { Member } from '../members/member.entity';
 import { User } from '../user/user.entity';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
@@ -23,6 +26,7 @@ export class TrainingSessionController {
     return this.sessionService.findByTrainer(trainerId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseGuards(AuthGuard('jwt'))
   @Get('my-sessions')
   async getMySessions(@Req() req: AuthenticatedRequest): Promise<TrainingSession[]> {
@@ -34,24 +38,28 @@ export class TrainingSessionController {
     return [];
   }
 
+
   @Get(':id')
   getOne(@Param('id', ParseIntPipe) id: number): Promise<TrainingSession> {
     return this.sessionService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Get(':id/members')
   getRegisteredMembers(@Param('id', ParseIntPipe) id: number): Promise<Member[]> {
     return this.sessionService.getRegisteredMembers(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Post()
   create(@Body() dto: CreateTrainingSessionDto): Promise<TrainingSession> {
     return this.sessionService.create(dto);
   }
 
-  // Create session by trainer (for authenticated trainer) - MUST be before @Post(':id/register')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('trainer')
   @Post('me')
   async createMySession(@Req() req: AuthenticatedRequest, @Body() dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
     if (req.user.role !== 'trainer') {
@@ -60,7 +68,8 @@ export class TrainingSessionController {
     return this.sessionService.createByTrainerForUser(req.user.id, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','member')
   @Post(':id/register')
   registerMember(
     @Param('id', ParseIntPipe) sessionId: number,
@@ -69,7 +78,8 @@ export class TrainingSessionController {
     return this.sessionService.registerMember(sessionId, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','member')
   @Delete(':id/register/:memberId')
   unregisterMember(
     @Param('id', ParseIntPipe) sessionId: number,
@@ -78,7 +88,8 @@ export class TrainingSessionController {
     return this.sessionService.unregisterMember(sessionId, memberId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -87,7 +98,8 @@ export class TrainingSessionController {
     return this.sessionService.update(id, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.sessionService.delete(id);

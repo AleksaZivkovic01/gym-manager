@@ -45,7 +45,7 @@ export class PackagesComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Check if user is logged in and is a member
+    
     this.authService.currentUser$
       .pipe(
         takeUntil(this.destroy$)
@@ -55,7 +55,6 @@ export class PackagesComponent implements OnInit, OnDestroy {
         if (user && user.role === 'member') {
           this.loadMemberData();
         } else {
-          // Reset member data if user is not a member or logged out
           this.currentMember = null;
         }
       });
@@ -89,31 +88,30 @@ export class PackagesComponent implements OnInit, OnDestroy {
 
   selectPackage(pkg: Package) {
     if (!this.currentUser || this.currentUser.role !== 'member') {
-      alert('Morate biti prijavljeni kao član da biste izabrali paket.');
+      alert('You must be logged in as a member to select a package.');
       this.router.navigate(['/login']);
       return;
     }
 
     if (!this.currentMember) {
-      alert('Niste registrovani kao član.');
+      alert('You are not registered as a member.');
       return;
     }
 
-    if (confirm(`Da li želite da izaberete paket "${pkg.name}"?`)) {
-      // Update member with selected package - send only the fields needed for update
+    if (confirm(`Do you want to select package "${pkg.name}"?`)) {
       const updateData = {
         packageId: pkg.id
       };
 
-      this.memberService.updateMember(this.currentMember.id, updateData as any)
+      this.memberService.updateMyMember(updateData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert(`Uspešno ste izabrali paket "${pkg.name}"! Vaše članstvo je sada aktivno.`);
+            alert(`Successfully selected package "${pkg.name}"! Your membership is now active.`);
             this.loadMemberData();
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri izboru paketa');
+            alert(err.error?.message || 'Error selecting package');
           }
         });
     }

@@ -1,9 +1,11 @@
 import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req, NotFoundException } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { MemberService } from './member.service';
 import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
 import { User } from '../user/user.entity';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
@@ -11,20 +13,21 @@ type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Get()
   getAll() {
     return this.memberService.findAll();
   }
 
-  // Get current user's member data - MUST be before @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMyMember(@Req() req: AuthenticatedRequest) {
     return this.memberService.findByUserId(req.user.id);
   }
 
-  // Update current user's member data - MUST be before @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
+  
+  @UseGuards(JwtAuthGuard)
   @Put('me')
   async updateMyMember(@Req() req: AuthenticatedRequest, @Body() dto: UpdateMemberDto) {
     const member = await this.memberService.findByUserId(req.user.id);
@@ -34,6 +37,8 @@ export class MemberController {
     return this.memberService.update(member.id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin','trainer')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     try {
@@ -55,11 +60,15 @@ export class MemberController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
   create(@Body() dto: CreateMemberDto) {
     return this.memberService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateMemberDto) {
     try {
@@ -77,6 +86,8 @@ export class MemberController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin') 
   @Delete(':id')
   async delete(@Param('id') id: string) {
     try {

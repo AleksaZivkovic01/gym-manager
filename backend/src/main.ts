@@ -8,7 +8,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: false, // Allow extra properties but strip them
+      forbidNonWhitelisted: false, 
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,

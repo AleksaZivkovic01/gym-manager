@@ -166,7 +166,7 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('sr-RS', {
+    return date.toLocaleDateString('EN', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -185,9 +185,9 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
 
   getLevelLabel(level: string): string {
     const labels: { [key: string]: string } = {
-      'beginner': 'Početnik',
-      'medium': 'Srednji',
-      'expert': 'Napredni'
+      'beginner': 'Beginner',
+      'medium': 'Intermediate',
+      'expert': 'Advanced'
     };
     return labels[level] || level;
   }

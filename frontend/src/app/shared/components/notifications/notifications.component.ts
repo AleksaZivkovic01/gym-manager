@@ -70,7 +70,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   deleteNotification(notification: Notification, event: Event) {
     event.stopPropagation(); // Spreči da se označi kao pročitano kada se klikne na delete
-    if (confirm('Da li želite da obrišete ovo obaveštenje?')) {
+    if (confirm('Do you want to delete this notification?')) {
       this.notificationService.delete(notification.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -81,14 +81,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             this.loadNotifications();
           },
           error: () => {
-            alert('Greška pri brisanju obaveštenja');
+            alert('Error deleting notification');
           }
         });
     }
   }
 
   deleteAll() {
-    if (confirm('Da li želite da obrišete sva obaveštenja?')) {
+    if (confirm('Do you want to delete all notifications?')) {
       this.notificationService.deleteAll()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -97,7 +97,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             this.loadNotifications();
           },
           error: () => {
-            alert('Greška pri brisanju obaveštenja');
+            alert('Error deleting notification');
           }
         });
     }

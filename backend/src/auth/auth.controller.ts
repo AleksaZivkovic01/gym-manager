@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Request } from 'express';
 
 import { AuthPayload, AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../user/user.entity';
+
 
 type AuthenticatedRequest = Request & { user: Omit<User, 'password'> };
 
@@ -33,7 +34,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: AuthenticatedRequest): Omit<User, 'password'> {
     return req.user;

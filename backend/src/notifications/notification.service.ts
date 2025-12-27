@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './notification.entity';
@@ -13,10 +13,19 @@ export class NotificationService {
     private memberRepository: Repository<Member>,
   ) {}
 
+  //dohvati member po userId 
+  private async getMemberByUserId(userId: number): Promise<Member> {
+    const member = await this.memberRepository.findOne({ where: { user: { id: userId } } });
+    if (!member) {
+      throw new ForbiddenException('User is not a member');
+    }
+    return member;
+  }
+
   async createNotification(memberId: number, message: string): Promise<Notification> {
     const member = await this.memberRepository.findOne({ where: { id: memberId } });
     if (!member) {
-      throw new Error(`Member ${memberId} not found`);
+      throw new NotFoundException(`Member ${memberId} not found`);
     }
 
     const notification = this.notificationRepository.create({
@@ -28,46 +37,59 @@ export class NotificationService {
     return this.notificationRepository.save(notification);
   }
 
-  async getNotificationsByMember(memberId: number): Promise<Notification[]> {
+  //  GET NOTIFICATIONS 
+  async getByUserId(userId: number): Promise<Notification[]> {
+    const member = await this.getMemberByUserId(userId);
     return this.notificationRepository.find({
-      where: { member: { id: memberId } },
+      where: { member: { id: member.id } },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async getUnreadCount(memberId: number): Promise<number> {
+  // UNREAD COUNT 
+  async getUnreadCount(userId: number): Promise<number> {
+    const member = await this.getMemberByUserId(userId);
     return this.notificationRepository.count({
-      where: { member: { id: memberId }, isRead: false },
+      where: { member: { id: member.id }, isRead: false },
     });
   }
 
-  async markAsRead(notificationId: number, memberId: number): Promise<void> {
-    await this.notificationRepository.update(
-      { id: notificationId, member: { id: memberId } },
+  // MARK AS READ 
+  async markAsRead(notificationId: number, userId: number): Promise<void> {
+    const member = await this.getMemberByUserId(userId);
+    const result = await this.notificationRepository.update(
+      { id: notificationId, member: { id: member.id } },
       { isRead: true },
     );
-  }
-
-  async markAllAsRead(memberId: number): Promise<void> {
-    await this.notificationRepository.update(
-      { member: { id: memberId }, isRead: false },
-      { isRead: true },
-    );
-  }
-
-  async delete(notificationId: number, memberId: number): Promise<void> {
-    const result = await this.notificationRepository.delete({
-      id: notificationId,
-      member: { id: memberId },
-    });
     if (result.affected === 0) {
-      throw new Error('Notification not found or does not belong to member');
+      throw new NotFoundException('Notification not found or does not belong to member');
     }
   }
 
-  async deleteAll(memberId: number): Promise<void> {
-    await this.notificationRepository.delete({
-      member: { id: memberId },
+  // MARK ALL AS READ 
+  async markAllAsRead(userId: number): Promise<void> {
+    const member = await this.getMemberByUserId(userId);
+    await this.notificationRepository.update(
+      { member: { id: member.id }, isRead: false },
+      { isRead: true },
+    );
+  }
+
+  // DELETE ONE 
+  async delete(notificationId: number, userId: number): Promise<void> {
+    const member = await this.getMemberByUserId(userId);
+    const result = await this.notificationRepository.delete({
+      id: notificationId,
+      member: { id: member.id },
     });
+    if (result.affected === 0) {
+      throw new NotFoundException('Notification not found or does not belong to member');
+    }
+  }
+
+  //  DELETE ALL
+  async deleteAll(userId: number): Promise<void> {
+    const member = await this.getMemberByUserId(userId);
+    await this.notificationRepository.delete({ member: { id: member.id } });
   }
 }
