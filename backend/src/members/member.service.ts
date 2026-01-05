@@ -64,7 +64,6 @@ export class MemberService {
     try {
       const updateData: any = {};
       
-      // Only include fields that are provided
       if (dto.name !== undefined) updateData.name = dto.name;
       if (dto.level !== undefined) updateData.level = dto.level;
       if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
@@ -157,4 +156,7 @@ export class MemberService {
       .where('user.id = :userId', { userId })
       .getOne();
   }
+
+ 
+
 }

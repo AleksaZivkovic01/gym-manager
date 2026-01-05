@@ -29,10 +29,8 @@ export class MemberListComponent implements OnInit,OnDestroy {
   ) {}
 
   ngOnInit() {
-    // učitaj članove iz store-a
     this.store.dispatch(loadMembers());
 
-    // subscribe na store selektor
     this.store.select(selectAllMembers)
       .pipe(takeUntil(this.destroy$))
       .subscribe(members => {

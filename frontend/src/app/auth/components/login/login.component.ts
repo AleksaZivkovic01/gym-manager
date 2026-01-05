@@ -30,12 +30,11 @@ export class LoginComponent implements OnInit {
   });
 
   ngOnInit() {
-    // Check for message in query params
+    
     this.route.queryParams.subscribe(params => {
       if (params['message']) {
         this.infoMessage = params['message'];
-        this.authError = ''; // Clear any existing error
-        // Clear query params after reading
+        this.authError = ''; 
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: {},
@@ -61,7 +60,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.authError = err?.error?.message ?? 'Prijava nije uspela. Pokušajte ponovo.';
+        this.authError = err?.error?.message ?? 'Login failed. Please try again.';
       },
     });
   }

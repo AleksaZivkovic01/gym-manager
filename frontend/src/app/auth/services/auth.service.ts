@@ -15,18 +15,16 @@ export class AuthService {
   private readonly store = inject(Store);
   private readonly apiUrl = 'http://localhost:3000/auth';
 
-  // Selectors as observables
+  
   readonly currentUser$ = this.store.select(selectCurrentUser);
   readonly isAuthenticated$ = this.store.select(selectIsAuthenticated);
 
   login(payload: LoginRequest): Observable<AuthResponse> {
-    // Dispatch action and return HTTP call for backward compatibility
     this.store.dispatch(login({ credentials: payload }));
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload);
   }
 
   register(payload: RegisterRequest): Observable<AuthResponse> {
-    // Dispatch action and return HTTP call for backward compatibility
     this.store.dispatch(register({ data: payload }));
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload);
   }
@@ -48,7 +46,6 @@ export class AuthService {
   }
 
   refreshCurrentUser(): void {
-    // Dispatch action to refresh current user from backend
     this.store.dispatch(refreshCurrentUser());
   }
 }

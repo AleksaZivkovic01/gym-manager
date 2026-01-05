@@ -12,7 +12,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
 
   const allowedRoles = route.data?.['roles'] as UserRole[] | undefined;
 
-  // If no specific roles are required, allow access.
+  
   if (!allowedRoles || allowedRoles.length === 0) {
     return true;
   }
@@ -24,7 +24,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
         return of(true);
       }
 
-      // Not authorized: redirect depending on auth state.
+      
       return store.select(selectIsAuthenticated).pipe(
         take(1),
         map((isAuthenticated) => {

@@ -80,7 +80,7 @@ export class AuthEffects {
     { dispatch: false }
   );
 
-  // Load user from storage on app init
+  
   loadUserFromStorage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loadUserFromStorage),
@@ -93,13 +93,13 @@ export class AuthEffects {
             const user = JSON.parse(userRaw);
             return AuthActions.loadUserFromStorageSuccess({ user, token });
           } catch {
-            // Clear invalid data but don't redirect
+            
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(USER_KEY);
             return AuthActions.logout();
           }
         }
-        // Return empty action to not redirect - router will handle navigation
+        
         return AuthActions.logout();
       })
     )
@@ -111,8 +111,7 @@ export class AuthEffects {
       ofType(AuthActions.refreshCurrentUser),
       switchMap(() =>
         this.http.get<User>(`${API_URL}/me`).pipe(
-          map((user) => {
-            // Update localStorage
+          map((user) => {            
             localStorage.setItem(USER_KEY, JSON.stringify(user));
             return AuthActions.refreshCurrentUserSuccess({ user });
           }),

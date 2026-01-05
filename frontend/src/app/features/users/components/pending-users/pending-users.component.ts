@@ -40,14 +40,14 @@ export class PendingUsersComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (err) => {
-          this.error = err.error?.message || 'Greška pri učitavanju korisnika';
+          this.error = err.error?.message || 'Error loading users';
           this.loading = false;
         },
       });
   }
 
   approveUser(user: User) {
-    if (!confirm(`Da li ste sigurni da želite da odobrite korisnika ${user.email}?`)) {
+    if (!confirm(`Are you sure you want to approve the user ${user.email}?`)) {
       return;
     }
 
@@ -59,13 +59,13 @@ export class PendingUsersComponent implements OnInit, OnDestroy {
           this.loadPendingUsers();
         },
         error: (err) => {
-          alert(err.error?.message || 'Greška pri odobravanju korisnika');
+          alert(err.error?.message || 'Error with approving user');
         },
       });
   }
 
   rejectUser(user: User) {
-    if (!confirm(`Da li ste sigurni da želite da odbijete korisnika ${user.email}?`)) {
+    if (!confirm(`Are you sure you want to reject the user? ${user.email}?`)) {
       return;
     }
 
@@ -77,15 +77,15 @@ export class PendingUsersComponent implements OnInit, OnDestroy {
           this.loadPendingUsers();
         },
         error: (err) => {
-          alert(err.error?.message || 'Greška pri odbijanju korisnika');
+          alert(err.error?.message || 'Error with rejecting user');
         },
       });
   }
 
   getRoleLabel(role: string): string {
     const labels: { [key: string]: string } = {
-      member: 'Član',
-      trainer: 'Trener',
+      member: 'Member',
+      trainer: 'Trainer',
       admin: 'Admin',
     };
     return labels[role] || role;

@@ -8,7 +8,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(Store);
   let token: string | null = null;
 
-  // Get token synchronously from store
+  
   store.select(selectAuthToken)
     .pipe(take(1))
     .subscribe(t => token = t)

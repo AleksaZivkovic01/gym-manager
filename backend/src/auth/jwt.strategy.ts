@@ -31,10 +31,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return null;
     }
 
-    // Proveri da li je korisnik odobren (admini su uvek odobreni)
-    // Ako je korisnik odbijen ili čeka odobrenje, ne dozvoli pristup
     if (user.role !== 'admin' && user.status !== 'approved') {
-      return null; // Vrati null da bi Passport odbacio zahtev
+      return null; 
     }
 
     const { password: _password, ...safeUser } = user;

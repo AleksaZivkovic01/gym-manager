@@ -44,7 +44,7 @@ export class PackageListComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (err) => {
-          this.error = err.error?.message || 'Greška pri učitavanju paketa';
+          this.error = err.error?.message || 'Error loading packages';
           this.loading = false;
         },
       });
@@ -59,7 +59,7 @@ export class PackageListComponent implements OnInit, OnDestroy {
   }
 
   deletePackage(id: number) {
-    if (!confirm('Da li ste sigurni da želite da obrišete ovaj paket?')) {
+    if (!confirm('Are you sure to delete this package?')) {
       return;
     }
 
@@ -71,7 +71,7 @@ export class PackageListComponent implements OnInit, OnDestroy {
           this.loadPackages();
         },
         error: (err) => {
-          alert(err.error?.message || 'Greška pri brisanju paketa');
+          alert(err.error?.message || 'Error deleting package');
         },
       });
   }
@@ -85,7 +85,7 @@ export class PackageListComponent implements OnInit, OnDestroy {
   }
 
   getSessionsLabel(sessions: number): string {
-    return sessions === 0 ? 'Neograničeno' : `${sessions} termina`;
+    return sessions === 0 ? 'Unlimited' : `${sessions} sessions`;
   }
 }
 

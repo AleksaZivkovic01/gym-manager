@@ -13,6 +13,7 @@ import { Trainer } from '../../../shared/models/trainer.model';
 import { Activity } from '../../../shared/models/activity.model';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 
+// pomocni interfejs za prikaz statistike
 interface MembersSummary {
   active: number;
   inactive: number;
@@ -53,14 +54,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Get current user
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
       });
-
-    // Load all data
     this.loadData();
   }
 
@@ -96,7 +94,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           this.pendingUsersCount = users.length;
         },
         error: () => {
-          // Ignore errors for pending users count
         }
       });
 
@@ -110,11 +107,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           this.loadRecentSessions(sessions);
         },
         error: () => {
-          // Continue even if sessions fail
         }
       });
 
-    // Load recent activities (new users and new sessions)
     this.loadRecentActivities();
   }
 
@@ -128,7 +123,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         next: ({ users, sessions }) => {
           const activities: Activity[] = [];
 
-          // Add new users (last 7 days)
+          // add new user registrations (poslednjih 7 dana)
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -149,7 +144,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }
           });
 
-          // Add new sessions (last 7 days)
+          // add new sessions (poslednjih 7 dana)
           sessions.forEach(session => {
             if (session.createdAt) {
               const createdAt = new Date(session.createdAt);
@@ -169,7 +164,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }
           });
 
-          // Sort by timestamp (newest first) and take first 8
+          // sort (poslednjih 8 aktivnosti)
           this.recentActivities = activities
             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
             .slice(0, 8);
@@ -237,7 +232,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('sr-RS', {
+    return date.toLocaleDateString('EN', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'

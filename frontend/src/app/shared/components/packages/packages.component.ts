@@ -79,7 +79,6 @@ export class PackagesComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          // Member not found or not logged in
           console.error('Error loading member data:', err);
           this.currentMember = null;
         }
@@ -126,7 +125,7 @@ export class PackagesComponent implements OnInit, OnDestroy {
   }
 
   getSessionsLabel(sessions: number): string {
-    return sessions === 0 ? 'Neograničeno' : `${sessions} termina`;
+    return sessions === 0 ? 'Unlimited' : `${sessions} sessions`;
   }
 
   hasPackage(pkgId: number): boolean {

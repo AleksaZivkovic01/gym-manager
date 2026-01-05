@@ -201,7 +201,7 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
   }
 
   getSessionsLabel(sessions: number): string {
-    return sessions === 0 ? 'Neograničeno' : `${sessions} termina`;
+    return sessions === 0 ? 'Unlimited' : `${sessions} `;
   }
 
   getDisplayName(): string {
@@ -219,16 +219,16 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(`Da li želite da otkažete termin "${session.type}" sa trenerom ${session.trainer?.name}?`)) {
+    if (confirm(`Do you want to cancel session "${session.type}" with trainer ${session.trainer?.name}?`)) {
       this.sessionService.unregisterFromSession(session.id, this.memberInfo.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert('Uspešno ste otkazali termin!');
+            alert('Successfully canceled session!');
             this.loadSessions(); // Reload to update the list
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri otkazivanju termina');
+            alert(err.error?.message || 'Error with canceling session');
           }
         });
     }

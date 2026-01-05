@@ -44,7 +44,7 @@ export class TrainingSessionService {
 
   private normalizeTime(time: string): string {
     if (!time) return time;
-    // Ukloni sekunde ako postoje (HH:MM:SS -> HH:MM)
+    // Ukloni sekunde ako postoje 
     const parts = time.split(':');
     if (parts.length === 3) {
       return `${parts[0]}:${parts[1]}`;
@@ -67,7 +67,7 @@ export class TrainingSessionService {
     return this.sessionRepository.save(session);
   }
 
-  // Create session by trainer (for authenticated trainer)
+  
   async createByTrainer(trainerId: number, dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
     const trainer = await this.trainerRepository.findOne({ where: { id: trainerId } });
     if (!trainer) throw new NotFoundException(`Trainer ${trainerId} not found`);
@@ -83,7 +83,7 @@ export class TrainingSessionService {
     return this.sessionRepository.save(session);
   }
 
-  // Create session by trainer using user ID
+  
   async createByTrainerForUser(userId: number, dto: CreateTrainingSessionByTrainerDto): Promise<TrainingSession> {
     const trainer = await this.trainerService.findByUserId(userId);
     if (!trainer) {
@@ -96,7 +96,6 @@ export class TrainingSessionService {
   async update(id: number, dto: UpdateTrainingSessionDto): Promise<TrainingSession> {
     const session = await this.findOne(id);
 
-    // Sačuvaj stare vrednosti za poređenje
     const oldDate = session.date;
     const oldTime = session.time;
     const oldType = session.type;
@@ -115,7 +114,6 @@ export class TrainingSessionService {
 
     const updatedSession = await this.sessionRepository.save(session);
 
-    // Kreiraj obaveštenja za sve prijavljene membere
     const registrations = await this.registrationRepository.find({
       where: { session: { id } },
       relations: ['member'],
@@ -129,22 +127,22 @@ export class TrainingSessionService {
       changes.push(`datum na ${newDate}`);
     }
     if (dto.time && dto.time !== oldTime) {
-      changes.push(`početak treninga na ${dto.time}`);
+      changes.push(`pocetak treninga na ${dto.time}`);
     }
     if (dto.type && dto.type !== oldType) {
       changes.push(`tip treninga na "${dto.type}"`);
     }
     if (dto.maxParticipants !== undefined && dto.maxParticipants !== oldMaxParticipants) {
-      changes.push(`maksimalan broj učesnika na ${dto.maxParticipants}`);
+      changes.push(`maksimalan broj ucesnika na ${dto.maxParticipants}`);
     }
 
     if (changes.length > 0 && registrations.length > 0) {
-      const message = `Trening "${session.type}" koji ste rezervisali je ažuriran. Promenjeno: ${changes.join(', ')}.`;
+      const message = `Trening "${session.type}" koji ste rezervisali je azuriran. Promenjeno: ${changes.join(', ')}.`;
       for (const registration of registrations) {
         try {
           await this.notificationService.createNotification(registration.member.id, message);
         } catch {
-          // ništa se ne dešava
+          // nista se ne dešava
         }
       }
     }
@@ -155,7 +153,7 @@ export class TrainingSessionService {
   async delete(id: number): Promise<void> {
     const session = await this.findOne(id);
 
-    // Kreiraj obaveštenja za sve prijavljene membere pre brisanja
+    // kreira obavestenja za sve registrovane clanove
     const registrations = await this.registrationRepository.find({
       where: { session: { id } },
       relations: ['member'],
@@ -167,7 +165,7 @@ export class TrainingSessionService {
         try {
           await this.notificationService.createNotification(registration.member.id, message);
         } catch {
-          // ništa se ne dešava 
+          // nista se ne dešava 
         }
       }
     }
@@ -176,16 +174,16 @@ export class TrainingSessionService {
     if (result.affected === 0) throw new NotFoundException(`Session ${id} not found`);
   }
 
-  // Register a member to a session
+  // prijava clana na trening
   async registerMember(sessionId: number, dto: RegisterToSessionDto): Promise<SessionRegistration> {
     const session = await this.findOne(sessionId);
     const member = await this.memberRepository.findOne({ where: { id: dto.memberId } });
     
     if (!member) throw new NotFoundException(`Member ${dto.memberId} not found`);
 
-    // Check if member is active (has a package)
+    
     if (!member.isActive) {
-      throw new BadRequestException('Ne možete rezervisati trening jer nemate aktivno članstvo. Molimo izaberite paket.');
+      throw new BadRequestException('You cannot reserve a training because you do not have an active membership. Please select a package');
     }
 
     // Check if member is already registered
@@ -194,16 +192,16 @@ export class TrainingSessionService {
     });
 
     if (existingRegistration) {
-      throw new BadRequestException('Član je već prijavljen na ovaj trening.');
+      throw new BadRequestException('Member is already registered for this session.');
     }
 
-    // Check if session is full
+    // provera da li ima mesta
     const currentRegistrations = await this.registrationRepository.count({
       where: { session: { id: sessionId } },
     });
 
     if (currentRegistrations >= session.maxParticipants) {
-      throw new BadRequestException('Trening je popunjen. Nema više mesta.');
+      throw new BadRequestException('Training session is full.');
     }
 
     const registration = this.registrationRepository.create({
@@ -214,9 +212,9 @@ export class TrainingSessionService {
     return this.registrationRepository.save(registration);
   }
 
-  // Get all registered members for a session
+  
   async getRegisteredMembers(sessionId: number): Promise<Member[]> {
-    // Verify session exists (will throw NotFoundException if not found)
+    
     await this.findOne(sessionId);
     const registrations = await this.registrationRepository.find({
       where: { session: { id: sessionId } },
@@ -226,20 +224,20 @@ export class TrainingSessionService {
     return registrations.map(reg => reg.member);
   }
 
-  // Unregister a member from a session
+  
   async unregisterMember(sessionId: number, memberId: number): Promise<void> {
     const registration = await this.registrationRepository.findOne({
       where: { session: { id: sessionId }, member: { id: memberId } },
     });
 
     if (!registration) {
-      throw new NotFoundException('Član nije prijavljen na ovaj trening.');
+      throw new NotFoundException('Member is not registered for this session.');
     }
 
     await this.registrationRepository.delete(registration.id);
   }
 
-  // Get sessions for a specific trainer
+  
   async findByTrainer(trainerId: number): Promise<TrainingSession[]> {
     return this.sessionRepository.find({
       where: { trainer: { id: trainerId } },
@@ -248,7 +246,7 @@ export class TrainingSessionService {
     });
   }
 
-  // Get sessions for a specific member
+  
   async findByMember(memberId: number): Promise<TrainingSession[]> {
     const registrations = await this.registrationRepository.find({
       where: { member: { id: memberId } },

@@ -26,8 +26,8 @@
         class="form-select"
         [class.error]="memberForm.get('level')?.invalid && memberForm.get('level')?.touched">
         <option value="beginner">Beginner</option>
-        <option value="medium">Medium</option>
-        <option value="expert">Expert</option>
+        <option value="medium">Intermediate</option>
+        <option value="expert">Advanced</option>
       </select>
       <span *ngIf="memberForm.get('level')?.invalid && memberForm.get('level')?.touched" class="error-message">
         Level is required

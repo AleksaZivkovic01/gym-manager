@@ -26,13 +26,13 @@ export class RegisterComponent {
     password: ['', [Validators.required, Validators.minLength(6)]],
     role: ['member' as 'member' | 'trainer'],
 
-    // Member-specific fields
+    // Member fields
     memberName: [''],
     memberLevel: ['beginner' as MemberRegisterData['level']],
     memberGender: [''],
     memberDateOfBirth: [''],
 
-    // Trainer-specific fields
+    // Trainer fields
     trainerName: [''],
     trainerSpecialty: [''],
     trainerExperienceYears: [0],
@@ -147,13 +147,12 @@ export class RegisterComponent {
     this.authService.register(payload).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        // Show success message and redirect to login
-        alert('Registracija je uspešna! Vaš nalog čeka odobrenje administratora. Bićete obavešteni kada administrator odobri vašu registraciju.');
+        alert('Registration is successful! Your account is pending administrator approval.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.authError = err?.error?.message ?? 'Registracija nije uspela. Pokušajte ponovo.';
+        this.authError = err?.error?.message ?? 'Registration failed. Please try again.';
       },
     });
   }

@@ -22,6 +22,7 @@ export class CreateMemberDto {
   @IsOptional()
   @IsInt()
   packageId?: number;
+
 }
 
 export class UpdateMemberDto {
@@ -48,4 +49,5 @@ export class UpdateMemberDto {
   @IsOptional()
   @IsInt()
   packageId?: number;
+
 }

@@ -34,7 +34,8 @@
   }
 }
 
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 3rem;
   color: #666;
@@ -67,6 +68,12 @@
         font-weight: 600;
         color: #333;
         border-bottom: 2px solid #dee2e6;
+
+        &.sessions-per-month {
+          width: 120px;      // šira kolona
+          white-space: nowrap; // tekst u jednom redu
+          text-align: center;
+        }
       }
     }
 
@@ -74,6 +81,7 @@
       tr {
         border-bottom: 1px solid #dee2e6;
         transition: background 0.2s;
+       
 
         &:hover {
           background: #f8f9fa;
@@ -87,6 +95,28 @@
       td {
         padding: 1rem;
         color: #555;
+        vertical-align: middle; // centriranje po vertikali
+
+        &.description {
+          max-width: 400px;       // ograničena širina description kolone
+          white-space: normal;    // dozvoljeno prelamanje teksta
+          word-wrap: break-word;
+          overflow: hidden;
+        }
+
+        &.sessions-per-month {
+          white-space: nowrap;
+          text-align: center;
+        }
+
+        &.actions {
+          display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            
+        }
 
         .active {
           color: #28a745;
@@ -96,11 +126,6 @@
         .inactive {
           color: #dc3545;
           font-weight: 600;
-        }
-
-        &.actions {
-          display: flex;
-          gap: 0.5rem;
         }
 
         &.no-data {
@@ -123,6 +148,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s;
+   
 }
 
 .btn-edit {
@@ -154,4 +180,3 @@
     gap: 1rem;
   }
 }
-
