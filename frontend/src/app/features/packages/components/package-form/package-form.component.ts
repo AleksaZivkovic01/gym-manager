@@ -99,7 +99,7 @@ export class PackageFormComponent implements OnInit {
         this.router.navigate(['/admin/packages']);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Greška pri čuvanju paketa';
+        this.error = err.error?.message || 'Error with saving package';
         this.loading = false;
       },
     });

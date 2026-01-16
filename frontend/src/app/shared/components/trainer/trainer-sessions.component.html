@@ -219,7 +219,7 @@
             type="button" 
             class="btn-edit"
             (click)="editSession(session)"
-            [disabled]="showSessionForm"
+            [disabled]="!isUpcoming(session)"
           >
             Edit
           </button>
@@ -227,7 +227,7 @@
             type="button" 
             class="btn-delete"
             (click)="deleteSession(session)"
-            [disabled]="showSessionForm"
+            [disabled]="!isUpcoming(session)"
           >
             Delete
           </button>

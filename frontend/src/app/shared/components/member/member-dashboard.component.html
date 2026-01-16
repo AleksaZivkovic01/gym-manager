@@ -74,7 +74,7 @@
             <button 
               (click)="unregisterFromSession(session)" 
               class="btn-cancel"
-              title="Otkazi termin">
+              title="Cancel training session">
               Cancel
             </button>
           </div>
@@ -95,13 +95,15 @@
       <div class="sessions-list" *ngIf="recentSessions.length > 0">
         <div class="session-item" *ngFor="let session of recentSessions">
           <div class="session-date">
-            <span class="date">{{ formatDate(session.date) }}</span>
-            <span class="time">{{ session.time }}</span>
+            <span class="date">📆{{ formatDate(session.date) }} </span>
+            <br/>
+            <span class="time">⏰{{ formatTime(session.time) }}</span>
           </div>
           <div class="session-details">
-            <span class="session-type">{{ session.type }}</span>
+            <span class="session-type">🏋️‍♂️<b>{{ session.type }}</b></span>
+            <br/>
             <span class="trainer-name" *ngIf="session.trainer">
-              Trainer: {{ session.trainer.name }}
+              Trainer: {{ session.trainer.name}} 
             </span>
           </div>
         </div>

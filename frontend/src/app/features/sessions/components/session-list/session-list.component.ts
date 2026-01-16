@@ -42,7 +42,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
         this.sessions = sessions;
       });
 
-    // auto refresh 
+    // auto refresh za past i upcoming
     interval(60000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
@@ -69,6 +69,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // da se prepozna promena el i renderuje samo taj el
   trackById(index: number, session: TrainingSession) {
     return session.id;
   }
@@ -124,7 +125,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   const search = this.searchTerm.toLowerCase().trim();
 
-  return this.sessions.filter(session => {
+  const filtered = this.sessions.filter(session => {
     const sessionDateStr = session.date.split('T')[0];
     const sessionTime = session.time.substring(0, 5);
 
@@ -136,7 +137,6 @@ export class SessionListComponent implements OnInit, OnDestroy {
       sessionDateStr < today ||
       (sessionDateStr === today && sessionTime <= currentTime);
 
-    // ⬇ FILTER PO DATUMU
     let dateMatch = false;
     switch (this.selectedFilter) {
       case 'upcoming':
@@ -150,15 +150,28 @@ export class SessionListComponent implements OnInit, OnDestroy {
         break;
     }
 
-    // ⬇ FILTER PO TRENERU
     const trainerMatch =
       !search ||
       session.trainer?.name?.toLowerCase().includes(search);
 
     return dateMatch && trainerMatch;
   });
+
+  // sortiranje sesija
+  return filtered.sort((a, b) => {
+    const dateA = new Date(`${a.date.split('T')[0]}T${a.time}`);
+    const dateB = new Date(`${b.date.split('T')[0]}T${b.time}`);
+
+    // upcoming 
+    if (this.selectedFilter === 'upcoming') {
+      return dateA.getTime() - dateB.getTime();
+    }
+    // past i all 
+    return dateB.getTime() - dateA.getTime();
+    
+  });
 }
 
 
-  
+
 }

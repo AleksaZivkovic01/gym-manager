@@ -27,7 +27,14 @@
       <tbody>
         <tr *ngFor="let m of filteredMembers; trackBy: trackById">
           <td>{{ m.name }}</td>
-          <td>{{ m.level }}</td>
+          <td>
+            {{
+              m.level === 'expert' ? 'Advanced' :
+              m.level === 'medium' ? 'Intermediate' :
+              m.level === 'beginner' ? 'Beginner' : ''
+            }}
+          </td>
+
           <td>
             <span *ngIf="m.package">{{ m.package.name }}</span>
             <span *ngIf="!m.package" class="no-package">No package</span>

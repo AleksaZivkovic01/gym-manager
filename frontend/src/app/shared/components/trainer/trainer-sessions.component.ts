@@ -22,7 +22,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   trainerInfo: Trainer | null = null;
   sessions: TrainingSession[] = [];
-  allSessions: TrainingSession[] = []; // Svi treninzi (bez filtera)
+  allSessions: TrainingSession[] = []; 
   loading = true;
   showSessionForm = false;
   isSubmittingSession = false;
@@ -32,7 +32,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
   showMembersForSession: { [sessionId: number]: boolean } = {};
   sessionMembers: { [sessionId: number]: Member[] } = {};
   loadingMembers: { [sessionId: number]: boolean } = {};
-  selectedFilter: 'upcoming' | 'past' | 'all' = 'upcoming'; // Default: predstojeći
+  selectedFilter: 'upcoming' | 'past' | 'all' = 'upcoming'; 
   private destroy$ = new Subject<void>();
   
   sessionForm: FormGroup<{
@@ -76,7 +76,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
     if (this.trainerInfo?.name) {
       return this.trainerInfo.name;
     }
-    return 'Trener';
+    return 'Trainer';
   }
 
   loadTrainerData() {
@@ -157,13 +157,14 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
   }
 
   formatTime(timeString: string): string {
-    return timeString.substring(0, 5); // da bi se prikazalo samo casovi i minuti bez sekundi,prva 5 karaktera
+    return timeString.substring(0, 5);
   }
 
   toggleSessionForm() {
     this.showSessionForm = !this.showSessionForm;
     if (!this.showSessionForm) {
       this.sessionForm.reset();
+      this.sessionForm.enable();
       this.sessionErrorMessage = '';
       this.sessionSuccessMessage = '';
       this.editingSessionId = null;
@@ -172,24 +173,28 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
 
   editSession(session: TrainingSession) {
     this.editingSessionId = session.id;
-    
-    // Format date for input (YYYY-MM-DD)
+
     const sessionDate = new Date(session.date);
     const formattedDate = sessionDate.toISOString().split('T')[0];
-    
-    // Populate form with session data
+
     this.sessionForm.patchValue({
       date: formattedDate,
       time: session.time,
       type: session.type,
       maxParticipants: session.maxParticipants
     });
+
+    if (this.isPastSession(session)) {
+      this.sessionForm.disable(); 
+    } else {
+      this.sessionForm.enable();
+    }
     
     this.showSessionForm = true;
     this.sessionErrorMessage = '';
     this.sessionSuccessMessage = '';
-    
-    // Scroll to form
+
+    // automatski skrol do forme
     setTimeout(() => {
       const formElement = document.querySelector('.add-session-form-container');
       if (formElement) {
@@ -217,18 +222,16 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
     };
 
     if (this.editingSessionId) {
-      // Update existing session
       this.sessionService.updateSession(this.editingSessionId, sessionData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (session) => {
             this.isSubmittingSession = false;
-            this.sessionSuccessMessage = 'Trening sesija je uspešno izmenjena!';
+            this.sessionSuccessMessage = 'Training session successfully updated!';
             this.sessionForm.reset();
             this.showSessionForm = false;
             this.editingSessionId = null;
-            
-            // Reload sessions after a short delay
+ 
             setTimeout(() => {
               this.loadSessions();
               this.sessionSuccessMessage = '';
@@ -236,21 +239,19 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.isSubmittingSession = false;
-            this.sessionErrorMessage = err.error?.message || 'Greška pri izmeni trening sesije. Molimo pokušajte ponovo.';
+            this.sessionErrorMessage = err.error?.message || 'Error with updating training session. Please try again.';
           }
         });
     } else {
-      // Create new session
       this.sessionService.createMySession(sessionData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (session) => {
             this.isSubmittingSession = false;
-            this.sessionSuccessMessage = 'Trening sesija je uspešno kreirana!';
+            this.sessionSuccessMessage = 'Training session successfully created!';
             this.sessionForm.reset();
             this.showSessionForm = false;
             
-            // Reload sessions after a short delay
             setTimeout(() => {
               this.loadSessions();
               this.sessionSuccessMessage = '';
@@ -258,7 +259,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.isSubmittingSession = false;
-            this.sessionErrorMessage = err.error?.message || 'Greška pri kreiranju trening sesije. Molimo pokušajte ponovo.';
+            this.sessionErrorMessage = err.error?.message || 'Error with creating training session. Please try again.'; 
           }
         });
     }
@@ -274,11 +275,17 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
     return sessionDate >= now;
   }
 
+  isPastSession(session: TrainingSession): boolean {
+    const sessionDate = new Date(session.date + 'T' + session.time);
+    return sessionDate < new Date();
+  }
+
+
   deleteSession(session: TrainingSession) {
     const registeredCount = this.getRegisteredCount(session);
     const message = registeredCount > 0
-      ? `Da li ste sigurni da želite da obrišete ovaj trening? ${registeredCount} član(ova) je prijavljeno na ovaj trening.`
-      : 'Da li ste sigurni da želite da obrišete ovaj trening?';
+      ? `Are you sure you want to delete this training? ${registeredCount} member(s) are registered for this training.`
+      : 'Are you sure you want to delete this training?';
 
     if (!confirm(message)) {
       return;
@@ -288,15 +295,14 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.sessionSuccessMessage = 'Trening sesija je uspešno obrisana!';
-          // Reload sessions after a short delay
+          this.sessionSuccessMessage = 'Training session was successfully deleted!';
           setTimeout(() => {
             this.loadSessions();
             this.sessionSuccessMessage = '';
           }, 2000);
         },
         error: (err) => {
-          this.sessionErrorMessage = err.error?.message || 'Greška pri brisanju trening sesije. Molimo pokušajte ponovo.';
+          this.sessionErrorMessage = err.error?.message || 'Error with deleting training session. Please try again.';
           setTimeout(() => {
             this.sessionErrorMessage = '';
           }, 3000);
@@ -308,7 +314,6 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
     const sessionId = session.id;
     this.showMembersForSession[sessionId] = !this.showMembersForSession[sessionId];
 
-    // Load members if not already loaded and showing
     if (this.showMembersForSession[sessionId] && !this.sessionMembers[sessionId]) {
       this.loadSessionMembers(sessionId);
     }

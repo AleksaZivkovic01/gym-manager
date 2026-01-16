@@ -3,7 +3,7 @@ import { Member } from "../members/member.entity";
 import { Trainer } from "../trainers/trainer.entity";
 
 export type UserRole = 'member' | 'trainer' | 'admin';
-export type UserStatus = 'pending' | 'approved' | 'rejected';
+export type UserStatus = 'pending' | 'approved' | 'rejected' | 'deleted';
 
 @Entity()
 export class User {
@@ -25,7 +25,7 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'deleted'],
     default: 'pending'
   })
   status: UserStatus;

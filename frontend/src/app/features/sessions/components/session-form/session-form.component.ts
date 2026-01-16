@@ -46,7 +46,6 @@ export class SessionFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Učitavanje trenera
     this.store.dispatch(loadTrainers());
 
     this.store.select(selectAllTrainers)
@@ -57,7 +56,7 @@ export class SessionFormComponent implements OnInit {
         }
       });
 
-    // Edit mod
+    
     this.sessionId = Number(this.route.snapshot.paramMap.get('id'));
     this.isEdit = !!this.sessionId;
 
@@ -67,12 +66,11 @@ export class SessionFormComponent implements OnInit {
       this.store.select(selectSessionById(this.sessionId!))
         .subscribe(s => {
           if (s) {
-            // Normalizuj vreme na format HH:MM (uklanja sekunde ako postoje) za HTML input type="time"
             let normalizedTime = s.time;
             if (normalizedTime && normalizedTime.includes(':')) {
               const parts = normalizedTime.split(':');
               if (parts.length === 3) {
-                normalizedTime = `${parts[0]}:${parts[1]}`; // Ukloni sekunde
+                normalizedTime = `${parts[0]}:${parts[1]}`; // da se uklone sekunde 
               }
             }
 

@@ -30,11 +30,9 @@ export class TrainingSessionController {
   @UseGuards(AuthGuard('jwt'))
   @Get('my-sessions')
   async getMySessions(@Req() req: AuthenticatedRequest): Promise<TrainingSession[]> {
-    // Assuming user has member relation
     if (req.user.role === 'member' && req.user.member?.id) {
       return this.sessionService.findByMember(req.user.member.id);
     }
-    // Return empty array if user is not a member or doesn't have member relation loaded
     return [];
   }
 

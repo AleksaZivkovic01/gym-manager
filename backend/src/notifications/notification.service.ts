@@ -13,7 +13,7 @@ export class NotificationService {
     private memberRepository: Repository<Member>,
   ) {}
 
-  //dohvati member po userId 
+  
   private async getMemberByUserId(userId: number): Promise<Member> {
     const member = await this.memberRepository.findOne({ where: { user: { id: userId } } });
     if (!member) {
@@ -37,7 +37,7 @@ export class NotificationService {
     return this.notificationRepository.save(notification);
   }
 
-  //  GET NOTIFICATIONS 
+ 
   async getByUserId(userId: number): Promise<Notification[]> {
     const member = await this.getMemberByUserId(userId);
     return this.notificationRepository.find({
@@ -46,7 +46,7 @@ export class NotificationService {
     });
   }
 
-  // UNREAD COUNT 
+  
   async getUnreadCount(userId: number): Promise<number> {
     const member = await this.getMemberByUserId(userId);
     return this.notificationRepository.count({
@@ -54,7 +54,7 @@ export class NotificationService {
     });
   }
 
-  // MARK AS READ 
+  
   async markAsRead(notificationId: number, userId: number): Promise<void> {
     const member = await this.getMemberByUserId(userId);
     const result = await this.notificationRepository.update(
@@ -66,7 +66,7 @@ export class NotificationService {
     }
   }
 
-  // MARK ALL AS READ 
+
   async markAllAsRead(userId: number): Promise<void> {
     const member = await this.getMemberByUserId(userId);
     await this.notificationRepository.update(
@@ -75,7 +75,7 @@ export class NotificationService {
     );
   }
 
-  // DELETE ONE 
+
   async delete(notificationId: number, userId: number): Promise<void> {
     const member = await this.getMemberByUserId(userId);
     const result = await this.notificationRepository.delete({
@@ -87,7 +87,7 @@ export class NotificationService {
     }
   }
 
-  //  DELETE ALL
+
   async deleteAll(userId: number): Promise<void> {
     const member = await this.getMemberByUserId(userId);
     await this.notificationRepository.delete({ member: { id: member.id } });

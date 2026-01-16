@@ -7,17 +7,14 @@
   <div class="profile-content" *ngIf="!loading">
     <div class="card profile-card">
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <!-- Success Message -->
         <div class="message success" *ngIf="successMessage">
           {{ successMessage }}
         </div>
 
-        <!-- Error Message -->
         <div class="message error" *ngIf="errorMessage">
           {{ errorMessage }}
         </div>
 
-        <!-- Name Field -->
         <div class="form-group">
           <label for="name">
             Name and Surname <span class="required">*</span>
@@ -37,7 +34,6 @@
           </div>
         </div>
 
-        <!-- Email Field -->
         <div class="form-group">
           <label for="email">
             Email <span class="required">*</span>
@@ -58,10 +54,8 @@
           </div>
         </div>
 
-        <!-- Password Change Section -->
         <div class="password-section">
-          <!-- Old Password Field -->
-          <div class="form-group">
+         <div class="form-group">
             <label for="oldPassword">Old Password</label>
             <input
               type="password"
@@ -77,7 +71,7 @@
             </div>
           </div>
 
-          <!-- New Password Field -->
+  
           <div class="form-group">
             <label for="newPassword">New Password</label>
             <input
@@ -95,7 +89,7 @@
             </div>
           </div>
 
-          <!-- Confirm Password Field -->
+          
           <div class="form-group">
             <label for="confirmPassword">Confirm New Password</label>
             <input
@@ -114,7 +108,7 @@
           </div>
         </div>
 
-        <!-- Level Field -->
+
         <div class="form-group">
           <label for="level">
             Level <span class="required">*</span>
@@ -136,7 +130,7 @@
           </div>
         </div>
 
-        <!-- Form Actions -->
+
         <div class="form-actions">
           <button
             type="button"

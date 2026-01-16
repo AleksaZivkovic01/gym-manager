@@ -32,10 +32,8 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   profileForm = this.fb.nonNullable.group({
-    // Member fields
     name: ['', [Validators.required]],
     level: ['beginner' as 'beginner' | 'medium' | 'expert', [Validators.required]],
-    // User fields
     email: ['', [Validators.required, Validators.email]],
     oldPassword: [''],
     newPassword: ['', [Validators.minLength(6)]],
@@ -44,7 +42,7 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
     validators: [this.passwordMatchValidator]
   });
 
-  // Custom validator for password match
+
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const newPassword = control.get('newPassword');
     const confirmPassword = control.get('confirmPassword');
@@ -70,7 +68,7 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    // Load current user
+
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -82,7 +80,7 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Load member data
+
     this.loadMemberData();
   }
 
@@ -119,7 +117,7 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validate password fields
+
     const formValue = this.profileForm.getRawValue();
     if (formValue.newPassword) {
       if (!formValue.oldPassword) {
@@ -146,22 +144,22 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Update member data
+  
     const memberUpdateData: Partial<Member> = {
       name: formValue.name,
       level: formValue.level,
     };
 
-    // Update user data (email and/or password)
+    
     const userUpdateData: { email?: string; oldPassword?: string; newPassword?: string } = {};
     
-    // Only include email if it's different and not empty
+    
     const trimmedEmail = formValue.email?.trim();
     if (trimmedEmail && trimmedEmail.length > 0 && trimmedEmail !== this.currentUser?.email) {
       userUpdateData.email = trimmedEmail;
     }
     
-    // Only include password fields if newPassword is provided
+    
     const trimmedNewPassword = formValue.newPassword?.trim();
     if (trimmedNewPassword && trimmedNewPassword.length >= 6) {
       const trimmedOldPassword = formValue.oldPassword?.trim();
@@ -171,18 +169,18 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
       userUpdateData.newPassword = trimmedNewPassword;
     }
 
-    // Update member first, then user
+    
     this.memberService.updateMyMember(memberUpdateData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (member) => {
           this.memberInfo = member;
           
-          // Check if password or email was changed
+          
           const passwordChanged = formValue.newPassword && formValue.newPassword.length > 0;
           const emailChanged = formValue.email && formValue.email !== this.currentUser?.email;
           
-          // If user data needs to be updated
+        
           if (Object.keys(userUpdateData).length > 0) {
             this.userService.updateMe(userUpdateData)
               .pipe(takeUntil(this.destroy$))
@@ -190,12 +188,12 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
                 next: (user) => {
                   this.isSubmitting = false;
                   
-                  // If password or email changed, logout user and redirect to login
+                  
                   this.successMessage = passwordChanged && emailChanged
-                    ? 'Email i lozinka su uspešno ažurirani! Preusmeravanje na prijavu...'
+                    ? 'Email and password have been successfully updated! Redirecting to login...'
                     : passwordChanged
-                    ? 'Lozinka je uspešno ažurirana! Preusmeravanje na prijavu...'
-                    : 'Email je uspešno ažuriran! Preusmeravanje na prijavu...';
+                    ? 'Password has been successfully updated! Redirecting to login...'
+                    : 'Email has been successfully updated! Redirecting to login...';
                   
                   // Logout and redirect to login
                   setTimeout(() => {
@@ -203,10 +201,10 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
                     this.router.navigate(['/login'], {
                       queryParams: { 
                         message: passwordChanged && emailChanged
-                          ? 'Email i lozinka su promenjeni. Molimo prijavite se sa novim podacima.'
+                          ? 'Email and password have been changed. Please log in with your new email and password.'
                           : passwordChanged
-                          ? 'Lozinka je promenjena. Molimo prijavite se sa novom lozinkom.'
-                          : 'Email je promenjen. Molimo prijavite se sa novim email-om.'
+                          ? 'Password has been changed. Please log in with your new password.'
+                          : 'Email has been changed. Please log in with your new email.'
                       }
                     });
                   }, 1000);
@@ -215,18 +213,14 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
                   console.error('Error updating user:', err);
                   this.isSubmitting = false;
                   this.errorMessage =
-                    err?.error?.message || 'Greška pri ažuriranju email-a ili lozinke. Molimo pokušajte ponovo.';
+                    err?.error?.message || 'Error with updating user data. Please try again.';
                 }
               });
           } else {
-            // Only member data changed, no need to logout
+           
             this.isSubmitting = false;
-            this.successMessage = 'Podaci su uspešno ažurirani!';
-            
-            // Refresh current user data to update header
+            this.successMessage = 'Data has been successfully updated!';           
             this.authService.refreshCurrentUser();
-            
-            // Navigate to dashboard after showing success message
             setTimeout(() => {
               this.router.navigate(['/member/dashboard']);
             }, 1500);
@@ -236,13 +230,12 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
           console.error('Error updating member:', err);
           this.isSubmitting = false;
           this.errorMessage =
-            err?.error?.message || 'Greška pri ažuriranju podataka. Molimo pokušajte ponovo.';
+            err?.error?.message || 'Error with updating member data. Please try again.';
         }
       });
   }
 
   cancel() {
-    // Navigate to member dashboard
     this.router.navigate(['/member/dashboard']);
   }
 }

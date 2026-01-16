@@ -121,28 +121,28 @@ export class TrainingSessionService {
 
     const changes: string[] = [];
     
-    // Proveri da li je stvarno promenjeno
+    // provera da li je stvarno promenjeno
     if (dto.date && new Date(dto.date).getTime() !== new Date(oldDate).getTime()) {
-      const newDate = new Date(dto.date).toLocaleDateString('sr-RS');
-      changes.push(`datum na ${newDate}`);
+      const newDate = new Date(dto.date).toLocaleDateString('en-EN');
+      changes.push(`date to ${newDate}`);
     }
     if (dto.time && dto.time !== oldTime) {
-      changes.push(`pocetak treninga na ${dto.time}`);
+      changes.push(`start time to ${dto.time}`);
     }
     if (dto.type && dto.type !== oldType) {
-      changes.push(`tip treninga na "${dto.type}"`);
+      changes.push(`training type to "${dto.type}"`);
     }
     if (dto.maxParticipants !== undefined && dto.maxParticipants !== oldMaxParticipants) {
-      changes.push(`maksimalan broj ucesnika na ${dto.maxParticipants}`);
+      changes.push(`maximum number of participants to ${dto.maxParticipants}`);
     }
 
     if (changes.length > 0 && registrations.length > 0) {
-      const message = `Trening "${session.type}" koji ste rezervisali je azuriran. Promenjeno: ${changes.join(', ')}.`;
+      const message = `Training "${session.type}" you booked has been updated. Changes: ${changes.join(', ')}.`;
       for (const registration of registrations) {
         try {
           await this.notificationService.createNotification(registration.member.id, message);
         } catch {
-          // nista se ne dešava
+          // 
         }
       }
     }
@@ -160,12 +160,12 @@ export class TrainingSessionService {
     });
 
     if (registrations.length > 0) {
-      const message = `Trening "${session.type}" koji ste rezervisali je otkazan.`;
+      const message = `The Training "${session.type}" you booked has been canceled.`;
       for (const registration of registrations) {
         try {
           await this.notificationService.createNotification(registration.member.id, message);
         } catch {
-          // nista se ne dešava 
+          //
         }
       }
     }
@@ -174,7 +174,7 @@ export class TrainingSessionService {
     if (result.affected === 0) throw new NotFoundException(`Session ${id} not found`);
   }
 
-  // prijava clana na trening
+ 
   async registerMember(sessionId: number, dto: RegisterToSessionDto): Promise<SessionRegistration> {
     const session = await this.findOne(sessionId);
     const member = await this.memberRepository.findOne({ where: { id: dto.memberId } });
@@ -186,7 +186,6 @@ export class TrainingSessionService {
       throw new BadRequestException('You cannot reserve a training because you do not have an active membership. Please select a package');
     }
 
-    // Check if member is already registered
     const existingRegistration = await this.registrationRepository.findOne({
       where: { session: { id: sessionId }, member: { id: dto.memberId } },
     });
@@ -195,7 +194,7 @@ export class TrainingSessionService {
       throw new BadRequestException('Member is already registered for this session.');
     }
 
-    // provera da li ima mesta
+    
     const currentRegistrations = await this.registrationRepository.count({
       where: { session: { id: sessionId } },
     });

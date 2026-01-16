@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from './member.entity';
 import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
 import { SessionRegistration } from '../sessions/session-registration.entity';
+import { User } from '../user/user.entity';
 
 
 @Injectable()
 export class MemberService {
   constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     @InjectRepository(Member)
     private memberRepository: Repository<Member>,
     @InjectRepository(SessionRegistration)
@@ -32,7 +35,6 @@ export class MemberService {
     } catch (error) {
       console.error(`Error finding member with ID ${id}:`, error);
       console.error('Error details:', error.message, error.stack);
-      // If it's a relation error, try without relations
       try {
         const memberWithoutRelations = await this.memberRepository.findOne({
           where: { id },
@@ -46,7 +48,6 @@ export class MemberService {
   }
 
   create(dto: CreateMemberDto): Promise<Member> {
-    // Member is active only if they have a package
     const isActive = dto.packageId !== undefined && dto.packageId !== null;
     
     const newMember = this.memberRepository.create({
@@ -72,11 +73,8 @@ export class MemberService {
         updateData.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
       }
       
-      // Handle packageId update - automatically set isActive based on package
       if (dto.packageId !== undefined) {
         updateData.packageId = dto.packageId || null;
-        // Member is active only if they have a package
-        // Only update isActive if it's not explicitly set in DTO
         if (dto.isActive === undefined) {
           updateData.isActive = dto.packageId !== null && dto.packageId !== undefined;
         }
@@ -84,7 +82,7 @@ export class MemberService {
 
       await this.memberRepository.update(id, updateData);
 
-      // Try to get updated member, but if findOne fails, try without relations
+     
       try {
         const updated = await this.findOne(id);
         if (!updated) {
@@ -92,7 +90,7 @@ export class MemberService {
         }
         return updated;
       } catch (findError) {
-        // If findOne fails (maybe due to relations), try to get member without relations
+     
         console.warn(`findOne failed for member ${id}, trying without relations:`, findError);
         const memberWithoutRelations = await this.memberRepository.findOne({
           where: { id },
@@ -111,42 +109,34 @@ export class MemberService {
 
   async delete(id: number): Promise<void> {
     try {
-      // First check if member exists
       const member = await this.memberRepository.findOne({
         where: { id },
-        relations: ['sessionRegistrations'],
+        relations: ['user', 'sessionRegistrations'],
       });
 
       if (!member) {
         throw new NotFoundException(`Member with ID ${id} not found`);
       }
 
-      // Delete all session registrations associated with this member first
-      if (member.sessionRegistrations && member.sessionRegistrations.length > 0) {
-        const registrationIds = member.sessionRegistrations.map(reg => reg.id);
+
+      if (member.sessionRegistrations?.length) {
+        const registrationIds = member.sessionRegistrations.map(r => r.id);
         await this.registrationRepository.delete(registrationIds);
-        console.log(`Deleted ${registrationIds.length} session registration(s) for member ${id}`);
       }
 
-      // Now delete the member
-      const result = await this.memberRepository.delete(id);
-      if (result.affected === 0) {
-        throw new NotFoundException(`Member with ID ${id} not found`);
-      }
+      await this.userRepository.delete(member.user.id);
+
     } catch (error) {
       console.error(`Error deleting member with ID ${id}:`, error);
+
       if (error instanceof NotFoundException) {
         throw error;
       }
-      // Check if it's a foreign key constraint error
-      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates foreign key')) {
-        throw new BadRequestException(`Cannot delete member with ID ${id} because it is referenced by other records (user). Please delete related user first.`);
-      }
+
       throw error;
     }
   }
 
-  // Find member by user ID
   async   findByUserId(userId: number): Promise<Member | null> {
     return this.memberRepository
       .createQueryBuilder('member')

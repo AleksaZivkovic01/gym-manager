@@ -19,8 +19,8 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
 })
 export class TrainersListComponent implements OnInit, OnDestroy {
   trainers: Trainer[] = [];
-  trainerRatings: Map<number, number> = new Map(); // trainerId -> averageRating
-  myRatings: Map<number, Rating> = new Map(); // trainerId -> Rating
+  trainerRatings: Map<number, number> = new Map(); // <trainerId, averageRating>
+  myRatings: Map<number, Rating> = new Map(); // <trainerId, myRating>
   currentUser: User | null = null;
   loading = true;
   error: string | null = null;
@@ -38,7 +38,6 @@ export class TrainersListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Get current user
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -67,7 +66,7 @@ export class TrainersListComponent implements OnInit, OnDestroy {
           this.loadRatings();
         },
         error: (err) => {
-          this.error = err.error?.message || 'Greška pri učitavanju trenera';
+          this.error = err.error?.message || 'Error with loading trainers.';
           this.loading = false;
         },
       });
@@ -79,13 +78,12 @@ export class TrainersListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Load average ratings for all trainers
+    // za svakog trenera pravi se jedan zahtev,niz observabla
     const ratingRequests = this.trainers.map(trainer =>
-      this.ratingService.getAverageRating(trainer.id).pipe(
-        takeUntil(this.destroy$)
-      )
+      this.ratingService.getAverageRating(trainer.id)
+                        .pipe(takeUntil(this.destroy$))
     );
-
+    // zato - forkJoin,ceka da se svi pozivi zavrse
     forkJoin(ratingRequests)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -95,7 +93,7 @@ export class TrainersListComponent implements OnInit, OnDestroy {
             this.trainers[index].averageRating = rating;
           });
           
-          // Load my ratings if user is a member
+          
           if (this.currentUser?.role === 'member') {
             this.loadMyRatings();
           } else {
@@ -185,14 +183,15 @@ export class TrainersListComponent implements OnInit, OnDestroy {
   }
 
   getStars(rating: number): string {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    let stars = '⭐'.repeat(fullStars);
-    if (hasHalfStar) {
-      stars += '½';
+    if (!rating || rating <= 0) {
+      return 'No ratings';
     }
-    return stars || 'Nema ocena';
+
+    const starsCount = Math.min(5, Math.round(rating));
+    return '⭐'.repeat(starsCount);
   }
+
+
 
   rateTrainer(trainerId: number) {
     const trainer = this.trainers.find(t => t.id === trainerId);
@@ -216,38 +215,36 @@ export class TrainersListComponent implements OnInit, OnDestroy {
     const existingRating = this.getMyRating(trainerId);
 
     if (existingRating) {
-      // Update existing rating
       this.ratingService.updateRating(trainerId, existingRating.id, {
         rating: data.rating,
-        comment: data.comment
+        
       })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (updatedRating) => {
             this.myRatings.set(trainerId, updatedRating);
-            this.loadRatings(); // Reload to update average
+            this.loadRatings(); 
             this.closeRatingModal();
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri ažuriranju ocene');
+            alert(err.error?.message || 'Error with updating rating');
           }
         });
     } else {
-      // Create new rating
       this.ratingService.createRating(trainerId, {
         rating: data.rating,
-        comment: data.comment,
+       
         memberId: this.currentUser.member.id
       })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (newRating) => {
             this.myRatings.set(trainerId, newRating);
-            this.loadRatings(); // Reload to update average
+            this.loadRatings(); 
             this.closeRatingModal();
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri dodavanju ocene');
+            alert(err.error?.message || 'Error with adding rating');
           }
         });
     }

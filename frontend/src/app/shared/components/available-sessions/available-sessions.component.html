@@ -4,7 +4,6 @@
     <p class="subtitle">View and register for available sessions</p>
   </div>
 
-  <!-- Filters -->
   <div class="filters">
     <div class="filter-group">
       <label>Filter by trainer:</label>
@@ -27,17 +26,17 @@
     </div>
   </div>
 
-  <!-- Loading -->
+  
   <div *ngIf="loading" class="loading">
     Loading sessions...
   </div>
 
-  <!-- Error -->
+ 
   <div *ngIf="error" class="error">
     {{ error }}
   </div>
 
-  <!-- Sessions List -->
+ 
   <div *ngIf="!loading && !error" class="sessions-grid">
     <div 
       *ngFor="let session of filteredSessions" 
@@ -78,7 +77,6 @@
       </div>
 
       <div class="session-actions">
-        <!-- Guest user actions -->
         <button 
           *ngIf="!currentUser"
           class="btn-register btn-guest"
@@ -86,7 +84,6 @@
           Register to book a session
         </button>
         
-        <!-- Member actions -->
         <button 
           *ngIf="currentUser && canRegister(session)"
           (click)="registerToSession(session)"
@@ -109,9 +106,9 @@
     </div>
   </div>
 
-  <!-- Empty State -->
+
   <div *ngIf="!loading && !error && filteredSessions.length === 0" class="empty">
-    <p>No available sessions to display.</p>
+    <p>No available sessions to show.</p>
   </div>
 </div>
 

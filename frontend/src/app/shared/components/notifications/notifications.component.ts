@@ -50,7 +50,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             notification.isRead = true;
-            this.notificationService.notifyRead(); // Obavesti header da osveži broj
+            this.notificationService.notifyRead(); 
             this.loadNotifications();
           }
         });
@@ -62,21 +62,21 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.notificationService.notifyRead(); // Obavesti header da osveži broj
+          this.notificationService.notifyRead(); 
           this.loadNotifications();
         }
       });
   }
 
   deleteNotification(notification: Notification, event: Event) {
-    event.stopPropagation(); // Spreči da se označi kao pročitano kada se klikne na delete
+    event.stopPropagation(); // sprecava da se izvrsi markAsRead
     if (confirm('Do you want to delete this notification?')) {
       this.notificationService.delete(notification.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
             if (!notification.isRead) {
-              this.notificationService.notifyRead(); // Obavesti header da osveži broj ako je bilo nepročitano
+              this.notificationService.notifyRead(); 
             }
             this.loadNotifications();
           },
@@ -93,7 +93,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.notificationService.notifyRead(); // Obavesti header da osveži broj
+            this.notificationService.notifyRead();
             this.loadNotifications();
           },
           error: () => {
@@ -105,7 +105,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('sr-RS', {
+    return date.toLocaleDateString('en-EN', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',

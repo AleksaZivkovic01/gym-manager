@@ -5,10 +5,13 @@ import { Trainer } from './trainer.entity';
 import { CreateTrainerDto, UpdateTrainerDto } from './dto/trainer.dto';
 import { RatingService } from '../ratings/rating.service';
 import { TrainingSession } from '../sessions/training-session.entity';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class TrainerService {
   constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     @InjectRepository(Trainer)
     private trainerRepository: Repository<Trainer>,
     @InjectRepository(TrainingSession)
@@ -18,9 +21,16 @@ export class TrainerService {
   ) {}
 
   async findAll(): Promise<Trainer[]> {
-    const trainers = await this.trainerRepository.find({ relations: ['sessions'] });
+    const trainers = await this.trainerRepository.find({
+        relations: ['sessions', 'user'],
+        where: {
+          user: {
+            status: 'approved',
+          },
+        },
+      });
+
     
-    // Calculate average rating for each trainer
     for (const trainer of trainers) {
       try {
         const averageRating = await this.ratingService.getAverageRating(trainer.id);
@@ -52,7 +62,6 @@ export class TrainerService {
       .getOne();
     
     if (trainer) {
-      // Calculate and add average rating
       try {
         const averageRating = await this.ratingService.getAverageRating(trainer.id);
         (trainer as any).averageRating = averageRating > 0 ? averageRating : null;
@@ -84,18 +93,18 @@ export class TrainerService {
   }
 
   async delete(id: number): Promise<void> {
-    // Check if trainer exists
-    const trainer = await this.trainerRepository.findOne({ where: { id } });
+  const trainer = await this.trainerRepository.findOne({
+    where: { id },
+    relations: ['user'],
+  });
+
     if (!trainer) {
       throw new NotFoundException(`Trainer ${id} not found`);
     }
 
-    // Delete all training sessions associated with this trainer
-    // This is necessary because TrainingSession has a foreign key to Trainer
     await this.sessionRepository.delete({ trainer: { id } });
-
-    // Delete the trainer
-    // Ratings will be automatically deleted due to CASCADE in Rating entity
-    await this.trainerRepository.delete(id);
+    // obrisi usera
+    await this.userRepository.delete(trainer.user.id);
   }
+
 }

@@ -55,7 +55,6 @@ export class AuthService {
             user,
           });
           await this.memberRepository.save(member);
-          // Reload user with member relation
           try {
             const reloadedUser = await this.userService.findOne(user.id);
             if (reloadedUser) user = reloadedUser;
@@ -79,7 +78,6 @@ export class AuthService {
             user,
           });
           await this.trainerRepository.save(trainer);
-          // Reload user with trainer relation
           try {
             const reloadedUser = await this.userService.findOne(user.id);
             if (reloadedUser) user = reloadedUser;
@@ -105,6 +103,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthPayload> {
     try {
       const user = await this.userService.findByEmail(loginDto.email);
+
       if (!user) {
         console.log(`Login attempt with non-existent email: ${loginDto.email}`);
         throw new UnauthorizedException('Invalid email or password');
@@ -116,23 +115,27 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password');
       }
 
-      
-      if (user.role !== 'admin') {
-        if (!user.status || user.status === 'pending') {
-          console.log(`Login attempt for pending user: ${loginDto.email}, status: ${user.status}`);
-          throw new UnauthorizedException('Your registration has not been approved yet. Please wait for approval from an administrator.');
-        } else if (user.status === 'rejected') {
-          console.log(`Login attempt for rejected user: ${loginDto.email}`);
-          throw new UnauthorizedException('Your registration has been rejected. Contact an administrator for more information.');
-        } else if (user.status !== 'approved') {
-          const statusValue: string = user.status || 'unknown';
-          console.log(`Login attempt for user with invalid status: ${loginDto.email}, status: ${statusValue}`);
-          throw new UnauthorizedException('Your account is not approved. Contact an administrator.');
-        }
-        // ako je odobren status, nastavi dalje
+      // provera statusa
+      switch (user.status) {
+        case 'deleted':
+          throw new UnauthorizedException('Account no longer exists');
+        case 'pending':
+          throw new UnauthorizedException(
+            'Your registration has not been approved yet. Please wait for approval from an administrator.'
+          );
+        case 'rejected':
+          throw new UnauthorizedException(
+            'Your registration has been rejected. Contact an administrator for more information.'
+          );
+        case 'approved':
+          break;
+        default:
+          throw new UnauthorizedException('Your account status is invalid. Contact admin.');
       }
+
       console.log(`Successful login for user: ${loginDto.email}, role: ${user.role}, status: ${user.status}`);
       return this.buildAuthPayload(user);
+
     } catch (error) {
       console.error('Error in login:', error);
       if (error instanceof UnauthorizedException) {
@@ -141,6 +144,7 @@ export class AuthService {
       throw new UnauthorizedException('Error during login. Please try again.');
     }
   }
+
 
   async validateUser(userId: number): Promise<User | null> {
     return this.userService.findOne(userId);

@@ -5,10 +5,11 @@ import { TrainerService } from './trainer.service';
 import { TrainerController } from './trainer.controller';
 import { RatingModule } from '../ratings/rating.module';
 import { TrainingSession } from '../sessions/training-session.entity';
+import { User } from '../user/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Trainer, TrainingSession]),
+    TypeOrmModule.forFeature([User,Trainer, TrainingSession]),
     forwardRef(() => RatingModule),
   ],
   providers: [TrainerService],

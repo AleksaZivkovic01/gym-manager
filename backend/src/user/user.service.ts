@@ -1,9 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -29,6 +29,8 @@ export class UserService {
       relations: ['member', 'trainer'],
     });
   }
+ 
+
 
   create(user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
@@ -43,8 +45,20 @@ export class UserService {
   }
 
   async delete(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // oslobadjanje emaila za ponovnu upotrebu
+    user.email = `deleted_${user.id}_${Date.now()}@deleted.local`;
+    user.status = 'deleted';
+
+    await this.userRepository.save(user);
   }
+
+
 
   findPending(): Promise<User[]> {
     return this.userRepository.find({

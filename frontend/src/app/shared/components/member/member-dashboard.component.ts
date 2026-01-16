@@ -32,7 +32,6 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Get current user
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -56,17 +55,14 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
   loadMemberData() {
     if (!this.currentUser) return;
     
-    // Get member data for current user
     this.memberService.getMyMember()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (member) => {
           this.memberInfo = member;
-          // Load sessions after member data is loaded
           this.loadSessions();
         },
         error: (err) => {
-          // If member not found, set to null
           this.memberInfo = null;
           this.allSessions = [];
           this.upcomingSessions = [];
@@ -86,7 +82,6 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     }
 
     this.loading = true;
-    // Load only sessions where this member is registered
     this.sessionService.getMySessions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -113,22 +108,21 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     }
 
     const now = new Date();
-    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
+    const today = now.toISOString().split('T')[0]; 
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
     
-    // Separate upcoming and recent sessions (ne ograničavamo broj, svi će biti vidljivi kroz scroll)
     this.upcomingSessions = this.allSessions
       .filter(session => {
-        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
-        const sessionTime = session.time.substring(0, 5); // HH:MM format
+        const sessionDateStr = session.date.split('T')[0]; 
+        const sessionTime = session.time.substring(0, 5);
         
-        // Proveri da li je termin u budućnosti (uzimajući u obzir i datum i vreme)
+
         if (sessionDateStr > today) {
-          return true; // Termin je u budućnosti
+          return true; 
         } else if (sessionDateStr === today) {
-          return sessionTime >= currentTime; // Termin je danas, proveri vreme
+          return sessionTime >= currentTime;
         }
-        return false; // Termin je u prošlosti
+        return false; 
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
@@ -136,30 +130,27 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
         if (dateA.getTime() !== dateB.getTime()) {
           return dateA.getTime() - dateB.getTime();
         }
-        // Ako su isti datum, sortiraj po vremenu
         return a.time.localeCompare(b.time);
       });
 
     this.recentSessions = this.allSessions
       .filter(session => {
-        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
-        const sessionTime = session.time.substring(0, 5); // HH:MM format
+        const sessionDateStr = session.date.split('T')[0]; 
+        const sessionTime = session.time.substring(0, 5); 
         
-        // Proveri da li je termin prošao (uzimajući u obzir i datum i vreme)
         if (sessionDateStr < today) {
-          return true; // Termin je u prošlosti
+          return true;
         } else if (sessionDateStr === today) {
-          return sessionTime < currentTime; // Termin je danas, proveri da li je vreme prošlo
+          return sessionTime < currentTime; 
         }
-        return false; // Termin je u budućnosti
+        return false; 
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
         if (dateA.getTime() !== dateB.getTime()) {
-          return dateB.getTime() - dateA.getTime(); // Najnoviji prvo
+          return dateB.getTime() - dateA.getTime(); 
         }
-        // Ako su isti datum, sortiraj po vremenu (najnoviji prvo)
         return b.time.localeCompare(a.time);
       });
   }
@@ -175,7 +166,6 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
 
   formatTime(timeString: string): string {
     if (!timeString) return '';
-    // If time is in format HH:mm:ss, extract only HH:mm
     if (timeString.includes(':')) {
       const parts = timeString.split(':');
       return `${parts[0]}:${parts[1]}`;
@@ -211,7 +201,7 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
     if (this.currentUser?.email) {
       return this.currentUser.email;
     }
-    return 'Korisnik';
+    return 'Member';
   }
 
   unregisterFromSession(session: TrainingSession) {
@@ -225,7 +215,7 @@ export class MemberDashboardComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             alert('Successfully canceled session!');
-            this.loadSessions(); // Reload to update the list
+            this.loadSessions(); 
           },
           error: (err) => {
             alert(err.error?.message || 'Error with canceling session');

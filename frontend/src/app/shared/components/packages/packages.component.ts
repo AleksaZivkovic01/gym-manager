@@ -32,7 +32,6 @@ export class PackagesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Load packages
     this.packageService.getPackages()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -47,9 +46,7 @@ export class PackagesComponent implements OnInit, OnDestroy {
 
     
     this.authService.currentUser$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
         if (user && user.role === 'member') {

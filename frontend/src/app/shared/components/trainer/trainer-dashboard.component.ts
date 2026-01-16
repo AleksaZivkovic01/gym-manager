@@ -35,7 +35,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Get current user
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -45,7 +44,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Load sessions
     this.loadSessions();
   }
 
@@ -62,7 +60,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (trainer) => {
           this.trainerInfo = trainer;
-          // Re-filter sessions when trainer data is loaded
           if (this.allSessions.length > 0) {
             this.filterSessions();
           }
@@ -81,7 +78,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (sessions) => {
           this.allSessions = sessions;
-          // Filter sessions if trainer info is already loaded
           if (this.trainerInfo) {
             this.filterSessions();
           }
@@ -102,7 +98,6 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Filter sessions for this trainer
     const trainerSessions = this.allSessions.filter(
       session => session.trainer?.id === this.trainerInfo?.id
     );
@@ -110,22 +105,20 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     this.totalSessions = trainerSessions.length;
 
     const now = new Date();
-    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
+    const today = now.toISOString().split('T')[0]; 
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
     
-    // Get upcoming sessions (uzimajući u obzir i datum i vreme)
     this.upcomingSessions = trainerSessions
       .filter(session => {
-        const sessionDateStr = session.date.split('T')[0]; // YYYY-MM-DD format
-        const sessionTime = session.time.substring(0, 5); // HH:MM format
-        
-        // Proveri da li je termin u budućnosti
+        const sessionDateStr = session.date.split('T')[0]; 
+        const sessionTime = session.time.substring(0, 5); 
+
         if (sessionDateStr > today) {
-          return true; // Termin je u budućnosti
+          return true; 
         } else if (sessionDateStr === today) {
-          return sessionTime > currentTime; // Termin je danas, proveri da li je vreme u budućnosti
+          return sessionTime > currentTime; 
         }
-        return false; // Termin je prošao
+        return false; 
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
@@ -133,16 +126,13 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
         if (dateA.getTime() !== dateB.getTime()) {
           return dateA.getTime() - dateB.getTime();
         }
-        // Ako su isti datum, sortiraj po vremenu
         return a.time.localeCompare(b.time);
       });
 
-    // Calculate total registrations
     this.totalRegistrations = trainerSessions.reduce((total, session) => {
       return total + (session.registrations?.length || 0);
     }, 0);
 
-    // Get unique members from registrations
     const memberMap = new Map<number, Member>();
     trainerSessions.forEach(session => {
       if (session.registrations && session.registrations.length > 0) {
@@ -172,7 +162,7 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     });
   }
   formatTime(timeString: string): string {
-    return timeString.substring(0, 5); // da bi se prikazalo samo casovi i minuti bez sekundi,prva 5 karaktera
+    return timeString.substring(0, 5); 
   }
 
   getLevelLabel(level: string): string {
@@ -191,7 +181,7 @@ export class TrainerDashboardComponent implements OnInit, OnDestroy {
     if (this.currentUser?.email) {
       return this.currentUser.email;
     }
-    return 'Trener';
+    return 'Trainer';
   }
 
   getRatingStars(rating?: number): string {

@@ -36,7 +36,6 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Get current user
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -57,17 +56,14 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Load fresh member data to get updated isActive status
     this.memberService.getMyMember()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (member) => {
           this.memberInfo = member;
-          // Load data after member info is loaded
           this.loadData();
         },
         error: (err) => {
-          // Fallback to user.member if getMyMember fails
           this.memberInfo = this.currentUser?.member || null;
           this.loadData();
         }
@@ -83,7 +79,6 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    // Load all sessions
     this.sessionService.getSessions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -91,7 +86,6 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
           this.allSessions = sessions;
           this.extractTrainers();
           
-          // Load my sessions if member is logged in
           if (this.memberInfo) {
             this.sessionService.getMySessions()
               .pipe(takeUntil(this.destroy$))
@@ -110,16 +104,17 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          this.error = err.error?.message || 'Greška pri učitavanju treninga';
+          this.error = err.error?.message || 'Error with loading sessions.';
           this.loading = false;
         }
       });
   }
 
   extractTrainers() {
-    const trainerMap = new Map<number, { id: number; name: string }>();
-    const typeSet = new Set<string>();
+    const trainerMap = new Map<number, { id: number; name: string }>(); // treneri za dropdown,nema duplikata
+    const typeSet = new Set<string>(); // tip treninga za dropdown
     
+    // bolje map i set od niza,jer map omogucava brzu proveru sa has i sprecavaju diplikate 
     this.allSessions.forEach(session => {
       if (session.trainer && !trainerMap.has(session.trainer.id)) {
         trainerMap.set(session.trainer.id, {
@@ -132,7 +127,7 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
       }
     });
     
-    this.trainers = Array.from(trainerMap.values());
+    this.trainers = Array.from(trainerMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     this.sessionTypes = Array.from(typeSet).sort();
   }
 
@@ -141,39 +136,36 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
     const today = now.toISOString().split('T')[0];
     const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
 
-    // Filtriraj samo buduće termine (dostupni za rezervaciju)
     let filtered = this.allSessions.filter(session => {
       const sessionDateStr = session.date.split('T')[0];
       const sessionTime = session.time.substring(0, 5);
       
-      // Proveri da li je termin u budućnosti
       if (sessionDateStr > today) {
         return true;
       } else if (sessionDateStr === today) {
         return sessionTime > currentTime;
       }
-      return false; // Termin je prošao, ne prikazuj ga
+      return false; 
     });
 
-    // Filter by trainer
+    
     if (this.filterTrainer) {
       const trainerId = parseInt(this.filterTrainer, 10);
       filtered = filtered.filter(s => s.trainer?.id === trainerId);
     }
 
-    // Filter by session type
+    
     if (this.filterSessionType) {
       filtered = filtered.filter(s => s.type === this.filterSessionType);
     }
 
-    // Sort by date
     filtered.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       if (dateA.getTime() !== dateB.getTime()) {
         return dateA.getTime() - dateB.getTime();
       }
-      // Ako su isti datum, sortiraj po vremenu
+      // sort po vremenu ako je isti datum 
       return a.time.localeCompare(b.time);
     });
 
@@ -186,7 +178,7 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
 
   canRegister(session: TrainingSession): boolean {
     if (!this.memberInfo) return false;
-    if (!this.memberInfo.isActive) return false; // Member must be active (have a package)
+    if (!this.memberInfo.isActive) return false;
     if (this.isRegistered(session.id)) return false;
 
     const registeredCount = session.registrations?.length || 0;
@@ -203,16 +195,16 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(`Da li želite da se prijavite na trening "${session.type}" sa trenerom ${session.trainer?.name}?`)) {
+    if (confirm(`Do you want to register for training"${session.type}" with trainer ${session.trainer?.name}?`)) {
       this.sessionService.registerToSession(session.id, this.memberInfo.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert('Uspešno ste se prijavili na trening!');
-            this.loadData(); // Reload to update status
+            alert('Successfully registered for the session!');
+            this.loadData(); 
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri prijavljivanju na trening');
+            alert(err.error?.message || 'Error registering for training');
           }
         });
     }
@@ -223,16 +215,16 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(`Da li želite da se odjavite sa treninga "${session.type}"?`)) {
+    if (confirm(`Do you want to unregister from training "${session.type}"?`)) {
       this.sessionService.unregisterFromSession(session.id, this.memberInfo.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert('Uspešno ste se odjavili sa treninga!');
-            this.loadData(); // Reload to update status
+            alert('Successfully unregistered from the session!');
+            this.loadData(); 
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri odjavljivanju sa treninga');
+            alert(err.error?.message || 'Error unregistering from training');
           }
         });
     }
@@ -240,7 +232,7 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('sr-RS', {
+    return date.toLocaleDateString('en-EN', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'

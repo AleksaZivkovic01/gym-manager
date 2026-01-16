@@ -70,7 +70,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   loadData() {
     this.loading = true;
     
-    // Load members
     this.memberService.getMembers()
       .pipe(takeUntil(this.destroy$))
       .subscribe(members => {
@@ -79,14 +78,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.calculateMembersSummary(members);
       });
 
-    // Load trainers
     this.trainerService.getTrainers()
       .pipe(takeUntil(this.destroy$))
       .subscribe(trainers => {
         this.totalTrainers = trainers.length;
       });
 
-    // Load pending users
     this.userService.getPendingUsers()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -97,7 +94,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Load sessions
     this.sessionService.getSessions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
