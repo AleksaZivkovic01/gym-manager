@@ -67,12 +67,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (user.trainer?.name) {
       return user.trainer.name;
     }
-    // Fallback to email if name is not available
     return user.email;
   }
 
   ngOnInit() {
-    // Check if we're on home page
+    // provera da li smo na home stranici
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
@@ -82,21 +81,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isHomePage = this.router.url === '/' || this.router.url === '';
       });
     
-    // Set initial state
+   
     this.isHomePage = this.router.url === '/' || this.router.url === '';
 
-    // Učitaj broj nepročitanih obaveštenja
+    // load unread notifications
     this.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         if (user?.role === 'member') {
           this.loadUnreadCount();
-          // Proveri svakih 30 sekundi
+          // svakih 30 sekundi
           interval(30000)
             .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.loadUnreadCount());
           
-          // Osveži kada se obaveštenje označi kao pročitano
+          
           this.notificationService.notificationRead
             .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.loadUnreadCount());

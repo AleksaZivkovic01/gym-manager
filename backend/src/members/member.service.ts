@@ -19,7 +19,14 @@ export class MemberService {
   ) {}
 
   findAll(): Promise<Member[]> {
-    return this.memberRepository.find({ relations: ['sessionRegistrations', 'package'] });
+    return this.memberRepository.find({ 
+      relations: ['sessionRegistrations', 'package', 'user'],
+      where: {
+        user: {
+          status: 'approved'
+        }
+      }
+    });
   }
 
   async findOne(id: number): Promise<Member | null> {
@@ -75,6 +82,7 @@ export class MemberService {
       
       if (dto.packageId !== undefined) {
         updateData.packageId = dto.packageId || null;
+        // isActive je true samo ako postoji packageId, inače false
         if (dto.isActive === undefined) {
           updateData.isActive = dto.packageId !== null && dto.packageId !== undefined;
         }

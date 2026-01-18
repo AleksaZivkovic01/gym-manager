@@ -97,10 +97,12 @@ export class MemberProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (member) => {
           this.memberInfo = member;
-          this.profileForm.patchValue({
-            name: member.name || '',
-            level: member.level || 'beginner',
-          });
+          if (member) {
+            this.profileForm.patchValue({
+              name: member.name || '',
+              level: member.level || 'beginner',
+            });
+          }
           this.loading = false;
         },
         error: (err) => {

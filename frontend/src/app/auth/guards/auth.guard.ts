@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = (route, state) => {
       if (isAuthenticated) {
         return true;
       }
-
+      // ako nije autentifikovan, redirect na login 
       router.navigate(['/login'], {
         queryParams: { redirect: state.url },
       });

@@ -10,7 +10,6 @@ export class TrainerEffects {
   private trainerService = inject(TrainerService);
   private actions$ = inject(Actions);
 
-  // LOAD ALL
   loadTrainers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.loadTrainers),
@@ -25,7 +24,6 @@ export class TrainerEffects {
     )
   );
 
-  // ADD
   addTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.addTrainer),
@@ -42,7 +40,6 @@ export class TrainerEffects {
     )
   );
 
-  // UPDATE
   updateTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.updateTrainer),
@@ -59,7 +56,6 @@ export class TrainerEffects {
     )
   );
 
-  // DELETE
   deleteTrainer$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrainerActions.deleteTrainer),

@@ -10,7 +10,6 @@ export class MemberEffects {
   private memberService = inject(MemberService);
   private actions$ = inject(Actions);
 
-  // LOAD ALL MEMBERS
   loadMembers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MemberActions.loadMembers),
@@ -25,7 +24,6 @@ export class MemberEffects {
     )
   );
 
-  // ADD MEMBER
   addMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MemberActions.addMember),
@@ -40,7 +38,6 @@ export class MemberEffects {
     )
   );
 
-  // UPDATE MEMBER
   updateMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MemberActions.updateMember),
@@ -57,7 +54,6 @@ export class MemberEffects {
     )
   );
 
-  // DELETE MEMBER
   deleteMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MemberActions.deleteMember),

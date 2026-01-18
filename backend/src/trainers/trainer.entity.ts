@@ -25,10 +25,11 @@ export class Trainer {
   @OneToMany(() => TrainingSession, (session) => session.trainer)
   sessions: TrainingSession[];
 
-  @OneToOne(() => User, (user) => user.trainer, {
-  onDelete: 'CASCADE', // kada se obrise user,brise se i trainer
+ @OneToOne(() => User, (user) => user.trainer, {
+  onDelete: 'CASCADE'
   })
   @JoinColumn()
   user: User;
+
 
 }

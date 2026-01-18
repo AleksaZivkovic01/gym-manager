@@ -1,10 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Actions, ofType } from '@ngrx/effects';
 
 import { AuthService } from '../../services/auth.service';
 import { MemberRegisterData, RegisterRequest, TrainerRegisterData } from '../../models/auth.model';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import * as AuthActions from '../../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-register',
@@ -13,10 +17,12 @@ import { MemberRegisterData, RegisterRequest, TrainerRegisterData } from '../../
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly actions$ = inject(Actions);
+  private readonly destroy$ = new Subject<void>();
 
   isSubmitting = false;
   authError = '';
@@ -42,6 +48,57 @@ export class RegisterComponent {
 
   constructor() {
     this.setupRoleValidators();
+  }
+
+  ngOnInit(): void {
+    this.setupAuthSubscriptions();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupAuthSubscriptions(): void {
+    this.authService.authLoading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(loading => {
+        this.isSubmitting = loading;
+      });
+
+    this.authService.authError$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(error => {
+        if (error) {
+          this.authError = error;
+        } else {
+          this.authError = '';
+        }
+      });
+
+    this.actions$
+      .pipe(
+        ofType(AuthActions.registerSuccess),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.isSubmitting = false;
+        alert('Registration is successful! Please wait for admin approval.');
+        this.router.navigate(['/login'], {
+          queryParams: { message: 'Registration successful! Please wait for admin approval.' }
+        });
+      });
+
+ 
+    this.actions$
+      .pipe(
+        ofType(AuthActions.registerFailure),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ error }) => {
+        this.isSubmitting = false;
+        this.authError = error;
+      });
   }
 
   private setupRoleValidators(): void {
@@ -133,27 +190,27 @@ export class RegisterComponent {
     return { ...base, trainer };
   }
 
-  submit(): void {
+  submit(event?: Event): void {
+    // Prevent default form submission and double submission
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
+    // Additional guard against double submission
+    if (this.isSubmitting) {
+      return;
+    }
+
     this.authError = '';
-
     const payload = this.buildPayload();
-
-    this.authService.register(payload).subscribe({
-      next: (response) => {
-        this.isSubmitting = false;
-        alert('Registration is successful! Your account is pending administrator approval.');
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        this.authError = err?.error?.message ?? 'Registration failed. Please try again.';
-      },
-    });
+    
+    // Dispatch the register action - the effect will handle the HTTP call
+    this.authService.register(payload);
   }
 }

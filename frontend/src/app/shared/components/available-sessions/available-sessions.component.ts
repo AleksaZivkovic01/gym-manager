@@ -239,6 +239,18 @@ export class AvailableSessionsComponent implements OnInit, OnDestroy {
     });
   }
 
+  formatTime(time: string): string {
+    if (!time) return '';
+    if (time.includes(':')) {
+      const parts = time.split(':');
+      if (parts.length >= 2) {
+        return `${parts[0]}:${parts[1]}`;
+      }
+    }
+    return time; 
+  }
+
+
   getStatusText(session: TrainingSession): string {
     if (this.isRegistered(session.id)) {
       return 'Enrolled';

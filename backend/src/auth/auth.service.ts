@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {  ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -21,84 +21,92 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
     @InjectRepository(Trainer)
     private readonly trainerRepository: Repository<Trainer>,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthPayload> {
-    try {
-      const existingUser = await this.userService.findByEmail(registerDto.email);
-      if (existingUser) {
-        throw new BadRequestException('A user with this email already exists. Please use another email or login.');
-      }
+ async register(registerDto: RegisterDto): Promise<AuthPayload> {
+  console.log('Register attempt for email:', registerDto.email);
 
-      const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-      const userRole = registerDto.role ?? 'member';
-      let user = await this.userService.create({
-        email: registerDto.email,
-        password: hashedPassword,
-        role: userRole,
-        // admin automatski odobren
-        status: userRole === 'admin' ? 'approved' : 'pending',
-      });
+  const existingUser = await this.userRepository.findOne({
+    where: { email: registerDto.email },
+  });
 
-      if (user.role === 'member' && registerDto.member) {
-        try {
-          const member = this.memberRepository.create({
-            name: registerDto.member.name,
-            level: registerDto.member.level,
-            isActive: false, 
-            gender: registerDto.member.gender,
-            dateOfBirth: registerDto.member.dateOfBirth ? new Date(registerDto.member.dateOfBirth) : undefined,
-            user,
-          });
-          await this.memberRepository.save(member);
-          try {
-            const reloadedUser = await this.userService.findOne(user.id);
-            if (reloadedUser) user = reloadedUser;
-          } catch (reloadError) {
-            console.warn('Failed to reload user with member relation:', reloadError);
-          }
-        } catch (memberError) {
-          console.error('Error creating member:', memberError);
-          throw new BadRequestException('Error with creating member. Please try again.');
-        }
-      }
-
-      if (user.role === 'trainer' && registerDto.trainer) {
-        try {
-          const trainer = this.trainerRepository.create({
-            name: registerDto.trainer.name,
-            specialty: registerDto.trainer.specialty,
-            experienceYears: registerDto.trainer.experienceYears,
-            gender: registerDto.trainer.gender,
-            dateOfBirth: registerDto.trainer.dateOfBirth ? new Date(registerDto.trainer.dateOfBirth) : undefined,
-            user,
-          });
-          await this.trainerRepository.save(trainer);
-          try {
-            const reloadedUser = await this.userService.findOne(user.id);
-            if (reloadedUser) user = reloadedUser;
-          } catch (reloadError) {
-            console.warn('Failed to reload user with trainer relation:', reloadError);
-          }
-        } catch (trainerError) {
-          console.error('Error creating trainer:', trainerError);
-          throw new BadRequestException('Error with creating trainer. Please try again.');
-        }
-      }
-
-      return this.buildAuthPayload(user);
-    } catch (error) {
-      console.error('Error in register:', error);
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      throw new BadRequestException(error.message || 'Registration error. Please try again.');
-    }
+  if (existingUser) {
+    console.log('Registration blocked: email already exists');
+    throw new ConflictException('A user with this email already exists.');
   }
+
+  const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+ 
+  const user = new User();
+  user.email = registerDto.email;
+  user.password = hashedPassword;
+  user.role = registerDto.role ?? 'member';
+  user.status = user.role === 'admin' ? 'approved' : 'pending';
+
+  if (user.role === 'member' && registerDto.member) {
+    const member = new Member();
+    member.name = registerDto.member.name;
+    member.level = registerDto.member.level;
+    member.gender = registerDto.member.gender;
+    member.dateOfBirth = registerDto.member.dateOfBirth ? new Date(registerDto.member.dateOfBirth) : undefined;
+    member.isActive = false;
+    member.user = user; 
+    user.member = member; 
+  }
+
+  if (user.role === 'trainer' && registerDto.trainer) {
+    const trainer = new Trainer();
+    trainer.name = registerDto.trainer.name;
+    trainer.specialty = registerDto.trainer.specialty;
+    trainer.experienceYears = registerDto.trainer.experienceYears;
+    trainer.gender = registerDto.trainer.gender;
+    trainer.dateOfBirth = registerDto.trainer.dateOfBirth ? new Date(registerDto.trainer.dateOfBirth) : undefined;
+    user.trainer = trainer;
+  }
+
+  try {
+    const savedUser = await this.userRepository.save(user);
+    console.log('Registration successful for email:', savedUser.email);
+    
+    // Učitaj user ponovo sa relations
+    const userWithRelations = await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      relations: ['member', 'trainer'],
+    });
+    
+    if (!userWithRelations) {
+      throw new Error('Failed to load user after registration');
+    }
+    
+    // ukloni circular reference da ne bi doslo do rekurzije 
+    if (userWithRelations.member && userWithRelations.member.user) {
+      delete (userWithRelations.member as any).user;
+    }
+    if (userWithRelations.trainer && userWithRelations.trainer.user) {
+      delete (userWithRelations.trainer as any).user;
+    }
+    
+    return this.buildAuthPayload(userWithRelations);
+  } catch (err: any) {
+    if (err.code === '23505') {
+      console.log('Duplicate key detected at save():', err.detail);
+      throw new ConflictException('A user with this email already exists.');
+    }
+    console.error('Unexpected error during registration:', err);
+    throw err; 
+  }
+}
+
+
+
+
+
 
   async login(loginDto: LoginDto): Promise<AuthPayload> {
     try {
@@ -157,10 +165,23 @@ export class AuthService {
       role: user.role,
     });
 
-    // uklanja se password iz user objekta i vraca user bez passworda
+    // uklanjam password iz user objekta i vracam usera bez passworda
     // rest operator
     const { password: _password, ...safeUser } = user;
     void _password;
+
+    // Ukloni circular reference - ukloni user property iz member/trainer objekata
+    if (safeUser.member && safeUser.member.user) {
+      const { user: _memberUser, ...memberWithoutUser } = safeUser.member;
+      void _memberUser;
+      safeUser.member = memberWithoutUser as typeof safeUser.member;
+    }
+
+    if (safeUser.trainer && safeUser.trainer.user) {
+      const { user: _trainerUser, ...trainerWithoutUser } = safeUser.trainer;
+      void _trainerUser;
+      safeUser.trainer = trainerWithoutUser as typeof safeUser.trainer;
+    }
 
     return {
       user: safeUser as Omit<User, 'password'>,

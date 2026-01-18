@@ -27,11 +27,11 @@ import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
 
 export const routes: Routes = [
-  // public pages (bez layouta)
+  // public pages 
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
 
-  // sve ostale stranice idu unutar CoreLayout
+
   {
     path: '',
     component: CoreLayoutComponent,
@@ -43,7 +43,7 @@ export const routes: Routes = [
       { path: 'guest/trainers', component: TrainersListComponent },
       { path: 'guest/available-sessions', component: AvailableSessionsComponent },
 
-      // member zone
+      // member 
       {
         path: 'member/dashboard',
         component: MemberDashboardComponent,
@@ -81,7 +81,7 @@ export const routes: Routes = [
         data: { roles: ['member'] },
       },
 
-      // trainer zone
+      // trainer 
       {
         path: 'trainer/dashboard',
         component: TrainerDashboardComponent,
@@ -101,7 +101,7 @@ export const routes: Routes = [
         data: { roles: ['trainer'] },
       },
 
-      // admin zone
+      // admin 
       {
         path: 'admin/dashboard',
         component: AdminDashboardComponent,
@@ -115,7 +115,7 @@ export const routes: Routes = [
         data: { roles: ['admin'] },
       },
 
-      // admin CRUD
+      // admin crud pages
       {
         path: 'members',
         component: MemberListComponent,

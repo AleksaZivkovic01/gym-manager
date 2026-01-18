@@ -33,11 +33,13 @@ export class Member {
   @OneToMany(() => SessionRegistration, (registration) => registration.member)
   sessionRegistrations: SessionRegistration[];
 
-  @OneToOne(() => User, (user) => user.member, {
-  onDelete: 'CASCADE', // kada se obrise user,brise se i member
-  })
-  @JoinColumn()
-  user: User;
+@OneToOne(() => User, (user) => user.member, {
+  onDelete: 'CASCADE'
+})
+@JoinColumn()
+user: User;
+
+
 
 
 }

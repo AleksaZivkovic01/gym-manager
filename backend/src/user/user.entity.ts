@@ -30,11 +30,12 @@ export class User {
   })
   status: UserStatus;
 
-  @OneToOne(() => Member, member => member.user, { nullable: true })
+   @OneToOne(() => Member, member => member.user, { nullable: true, cascade: true })
   member?: Member;
 
-  @OneToOne(() => Trainer, trainer => trainer.user, { nullable: true })
+  @OneToOne(() => Trainer, trainer => trainer.user, { nullable: true, cascade: true })
   trainer?: Trainer;
+
 
   @CreateDateColumn()
   createdAt: Date;

@@ -4,12 +4,15 @@ import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
+import { Member } from '../members/member.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Member)
+    private memberRepository: Repository<Member>,
   ) {}
 
   findAll(): Promise<User[]> {
@@ -69,7 +72,18 @@ export class UserService {
   }
   
   async approve(id: number): Promise<User> {
-    return this.update(id, { status: 'approved' });
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.userRepository.update(id, { status: 'approved' });
+
+    const updatedUser = await this.findOne(id);
+    if (!updatedUser) {
+      throw new NotFoundException('User not found after update');
+    }
+    return updatedUser;
   }
   
   async reject(id: number): Promise<User> {

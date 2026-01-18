@@ -12,7 +12,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
 
   const allowedRoles = route.data?.['roles'] as UserRole[] | undefined;
 
-  
+  // ako ruta nema role
   if (!allowedRoles || allowedRoles.length === 0) {
     return true;
   }
@@ -31,7 +31,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
           if (isAuthenticated) {
             router.navigate(['/']);
           } else {
-            router.navigate(['/login'], { queryParams: { redirect: state.url } });
+            router.navigate(['/login'], { queryParams: { redirect: state.url } }); 
           }
           return false;
         })

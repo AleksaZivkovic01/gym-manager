@@ -58,7 +58,7 @@
         </div>
         <div class="info-row">
           <span class="label">Time:</span>
-          <span class="value">{{ session.time }}</span>
+          <span class="value">{{ formatTime(session.time) }}</span>
         </div>
         <div class="info-row" *ngIf="session.trainer">
           <span class="label">Trainer:</span>

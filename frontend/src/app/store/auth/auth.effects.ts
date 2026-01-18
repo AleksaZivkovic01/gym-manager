@@ -18,14 +18,12 @@ export class AuthEffects {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // Login effect
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
       switchMap(({ credentials }) =>
         this.http.post<AuthResponse>(`${API_URL}/login`, credentials).pipe(
           map((response) => {
-            // Save to localStorage
             localStorage.setItem(TOKEN_KEY, response.accessToken);
             localStorage.setItem(USER_KEY, JSON.stringify(response.user));
             return AuthActions.loginSuccess({ response });
@@ -38,14 +36,12 @@ export class AuthEffects {
     )
   );
 
-  // Register effect
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
       switchMap(({ data }) =>
         this.http.post<AuthResponse>(`${API_URL}/register`, data).pipe(
           map((response) => {
-            // Save to localStorage
             localStorage.setItem(TOKEN_KEY, response.accessToken);
             localStorage.setItem(USER_KEY, JSON.stringify(response.user));
             return AuthActions.registerSuccess({ response });
@@ -58,7 +54,6 @@ export class AuthEffects {
     )
   );
 
-  // Logout effect
   logout$ = createEffect(
     () =>
       this.actions$.pipe(

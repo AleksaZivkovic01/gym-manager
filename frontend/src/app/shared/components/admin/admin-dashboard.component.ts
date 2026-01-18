@@ -11,7 +11,7 @@ import { TrainingSession } from '../../../shared/models/training-session.model';
 import { Member } from '../../../shared/models/member.model';
 import { Trainer } from '../../../shared/models/trainer.model';
 import { Activity } from '../../../shared/models/activity.model';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { Subject, takeUntil, forkJoin, combineLatest } from 'rxjs';
 
 // pomocni interfejs za prikaz statistike
 interface MembersSummary {
@@ -70,43 +70,37 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   loadData() {
     this.loading = true;
     
-    this.memberService.getMembers()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(members => {
-        this.totalMembers = members.length;
-        this.activeMembers = members.filter(m => m.isActive).length;
-        this.calculateMembersSummary(members);
-      });
-
-    this.trainerService.getTrainers()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(trainers => {
-        this.totalTrainers = trainers.length;
-      });
-
-    this.userService.getPendingUsers()
+    combineLatest({
+      members: this.memberService.getMembers(),
+      trainers: this.trainerService.getTrainers(),
+      pendingUsers: this.userService.getPendingUsers(),
+      sessions: this.sessionService.getSessions()
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (users) => {
-          this.pendingUsersCount = users.length;
-        },
-        error: () => {
-        }
-      });
+        next: ({ members, trainers, pendingUsers, sessions }) => {
+          // podaci o memberima
+          this.totalMembers = members.length;
+          this.activeMembers = members.filter(m => m.isActive).length;
+          this.calculateMembersSummary(members);
 
-    this.sessionService.getSessions()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (sessions) => {
+          // podaci o trenerima
+          this.totalTrainers = trainers.length;
+
+          // podaci o pending users
+          this.pendingUsersCount = pendingUsers.length;
+
+          // podaci o sesijama
           this.totalSessions = sessions.length;
           this.calculateUpcomingSessions(sessions);
           this.loadRecentSessions(sessions);
+
+          this.loadRecentActivities();
         },
         error: () => {
+          this.loading = false;
         }
       });
-
-    this.loadRecentActivities();
   }
 
   loadRecentActivities() {
@@ -119,7 +113,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         next: ({ users, sessions }) => {
           const activities: Activity[] = [];
 
-          // add new user registrations (poslednjih 7 dana)
+          // dodaj nove korisnike (poslednjih 7 dana)
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -140,7 +134,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }
           });
 
-          // add new sessions (poslednjih 7 dana)
+          // dodaj nove sesije (poslednjih 7 dana)
           sessions.forEach(session => {
             if (session.createdAt) {
               const createdAt = new Date(session.createdAt);

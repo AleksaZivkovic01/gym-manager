@@ -56,7 +56,7 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  // Load from storage
+
   on(AuthActions.loadUserFromStorageSuccess, (state, { user, token }) => ({
     ...state,
     user,
@@ -64,13 +64,13 @@ export const authReducer = createReducer(
     isAuthenticated: true
   })),
 
-  // Clear error
+
   on(AuthActions.clearAuthError, (state) => ({
     ...state,
     error: null
   })),
 
-  // Refresh current user
+
   on(AuthActions.refreshCurrentUserSuccess, (state, { user }) => ({
     ...state,
     user

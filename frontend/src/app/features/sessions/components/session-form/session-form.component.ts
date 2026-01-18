@@ -96,11 +96,8 @@ export class SessionFormComponent implements OnInit {
       return;
     }
 
-    // Izbor trainer objekta
     const trainer = this.trainers.find(t => t.id === +this.selectedTrainerId)!;
 
-    // Priprema objekta za store i backend
-    // Backend će normalizovati vreme (ukloniti sekunde ako postoje)
     const sessionToStore: Partial<TrainingSession> = {
       ...this.session,
       trainer
@@ -113,7 +110,7 @@ export class SessionFormComponent implements OnInit {
             this.router.navigate(['/sessions']);
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri ažuriranju sesije');
+            alert(err.error?.message || 'Error wih updating session');
           }
         });
     } else {
@@ -123,7 +120,7 @@ export class SessionFormComponent implements OnInit {
             this.router.navigate(['/sessions']);
           },
           error: (err) => {
-            alert(err.error?.message || 'Greška pri dodavanju sesije');
+            alert(err.error?.message || 'Error while adding session');
           }
         });
     }

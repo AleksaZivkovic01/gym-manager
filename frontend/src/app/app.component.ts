@@ -15,7 +15,6 @@ export class AppComponent implements OnInit {
   title = 'frontend';
 
   ngOnInit() {
-    // Load user from localStorage on app initialization
     this.store.dispatch(loadUserFromStorage());
   }
 }
