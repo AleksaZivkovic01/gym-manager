@@ -84,7 +84,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
    
     this.isHomePage = this.router.url === '/' || this.router.url === '';
 
-    // load unread notifications
     this.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {

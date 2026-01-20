@@ -15,7 +15,7 @@ export class Package {
   price: number;
 
   @Column({ default: 0 })
-  sessionsPerMonth: number; // 0 = unlimited
+  sessionsPerMonth: number; 
 
   @Column({ default: true })
   isActive: boolean;

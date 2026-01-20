@@ -105,4 +105,49 @@ export class MemberController {
       throw error;
     }
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('pending/packages')
+  getPendingPackageRequests() {
+    return this.memberService.findPendingPackageRequests();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Put(':id/approve-package')
+  async approvePackage(@Param('id') id: string) {
+    try {
+      const memberId = parseInt(id, 10);
+      if (isNaN(memberId)) {
+        throw new NotFoundException('Invalid member ID');
+      }
+      return await this.memberService.approvePackage(memberId);
+    } catch (error) {
+      console.error(`Error approving package for member ID ${id}:`, error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Put(':id/reject-package')
+  async rejectPackage(@Param('id') id: string) {
+    try {
+      const memberId = parseInt(id, 10);
+      if (isNaN(memberId)) {
+        throw new NotFoundException('Invalid member ID');
+      }
+      return await this.memberService.rejectPackage(memberId);
+    } catch (error) {
+      console.error(`Error rejecting package for member ID ${id}:`, error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
+  }
 }

@@ -23,6 +23,18 @@ export class CreateMemberDto {
   @IsInt()
   packageId?: number;
 
+  @IsOptional()
+  @IsIn(['pending_package', 'active', 'expired'])
+  packageStatus?: 'pending_package' | 'active' | 'expired';
+
+  @IsOptional()
+  @IsDateString()
+  membershipStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  membershipEndDate?: string;
+
 }
 
 export class UpdateMemberDto {
@@ -49,5 +61,17 @@ export class UpdateMemberDto {
   @IsOptional()
   @IsInt()
   packageId?: number;
+
+  @IsOptional()
+  @IsIn(['pending_package', 'active', 'expired'])
+  packageStatus?: 'pending_package' | 'active' | 'expired';
+
+  @IsOptional()
+  @IsDateString()
+  membershipStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  membershipEndDate?: string;
 
 }

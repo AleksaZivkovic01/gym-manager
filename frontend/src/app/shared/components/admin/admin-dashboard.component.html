@@ -123,6 +123,11 @@
           <span>Pending users</span>
           <span class="pending-badge" *ngIf="pendingUsersCount > 0">{{ pendingUsersCount }}</span>
         </a>
+        <a routerLink="/admin/pending-packages" class="action-btn pending-action">
+          <span class="action-icon">📦</span>
+          <span>Pending packages</span>
+          <span class="pending-badge" *ngIf="pendingPackagesCount > 0">{{ pendingPackagesCount }}</span>
+        </a>
       </div>
     </div>
 

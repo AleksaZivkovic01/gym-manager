@@ -180,10 +180,10 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Time:</span>
-            <span class="detail-value">{{ formatTime(session.time) }}h</span>
+            <span class="detail-value">{{ formatTime(session.time) }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Registered:</span>
+            <span class="detail-label">Participants:</span>
             <span class="detail-value">
               {{ getRegisteredCount(session) }}/{{ session.maxParticipants }}
               <button 

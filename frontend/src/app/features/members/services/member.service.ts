@@ -38,4 +38,16 @@ export class MemberService {
   deleteMember(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getPendingPackageRequests(): Observable<Member[]> {
+    return this.http.get<Member[]>(`${this.apiUrl}/pending/packages`);
+  }
+
+  approvePackage(memberId: number): Observable<Member> {
+    return this.http.put<Member>(`${this.apiUrl}/${memberId}/approve-package`, {});
+  }
+
+  rejectPackage(memberId: number): Observable<Member> {
+    return this.http.put<Member>(`${this.apiUrl}/${memberId}/reject-package`, {});
+  }
 }

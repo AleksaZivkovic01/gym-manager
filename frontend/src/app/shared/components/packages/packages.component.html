@@ -28,8 +28,14 @@
           class="btn-select">
           Select package
         </button>
-        <span *ngIf="currentMember && hasPackage(pkg.id)" class="selected-badge">
+        <span *ngIf="currentMember && hasPackage(pkg.id) && getPackageStatus(pkg.id) === 'active'" class="selected-badge">
           ✓ Your current package
+        </span>
+        <span *ngIf="currentMember && hasPackage(pkg.id) && getPackageStatus(pkg.id) === 'pending'" class="pending-badge">
+          ⏳ Pending approval
+        </span>
+        <span *ngIf="currentMember && hasPackage(pkg.id) && getPackageStatus(pkg.id) === 'expired'" class="expired-badge">
+          ⚠️ Expired
         </span>
         <span *ngIf="!currentMember" class="loading-member">
           Loading data...

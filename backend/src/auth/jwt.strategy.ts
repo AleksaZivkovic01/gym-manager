@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { password: _password, ...safeUser } = user;
     void _password;
 
-    // Ukloni circular reference - ukloni user property iz member/trainer objekata
+    // uklanjanje circular reference - uklanjanje user property iz member/trainer objekata
     if (safeUser.member && safeUser.member.user) {
       const { user: _memberUser, ...memberWithoutUser } = safeUser.member;
       void _memberUser;

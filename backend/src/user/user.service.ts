@@ -87,7 +87,22 @@ export class UserService {
   }
   
   async reject(id: number): Promise<User> {
-    return this.update(id, { status: 'rejected' });
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // oslobadjanje emaila za ponovnu upotrebu
+    user.email = `rejected_${user.id}_${Date.now()}@rejected.local`;
+    user.status = 'rejected';
+
+    await this.userRepository.save(user);
+
+    const updatedUser = await this.findOne(id);
+    if (!updatedUser) {
+      throw new NotFoundException('User not found after update');
+    }
+    return updatedUser;
   }
 
   

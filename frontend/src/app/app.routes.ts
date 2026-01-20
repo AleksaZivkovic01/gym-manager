@@ -9,6 +9,7 @@ import { MemberDashboardComponent } from './shared/components/member/member-dash
 import { TrainerDashboardComponent } from './shared/components/trainer/trainer-dashboard.component';
 import { AdminDashboardComponent } from './shared/components/admin/admin-dashboard.component';
 import { PendingUsersComponent } from './features/users/components/pending-users/pending-users.component';
+import { PendingPackagesComponent } from './features/members/components/pending-packages/pending-packages.component';
 import { MemberListComponent } from './features/members/components/member-list/member-list.component';
 import { MemberFormComponent } from './features/members/components/member-form/member-form.component';
 import { TrainerListComponent } from './features/trainers/components/trainer-list/trainer-list.component';
@@ -111,6 +112,12 @@ export const routes: Routes = [
       {
         path: 'admin/pending-users',
         component: PendingUsersComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['admin'] },
+      },
+      {
+        path: 'admin/pending-packages',
+        component: PendingPackagesComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['admin'] },
       },

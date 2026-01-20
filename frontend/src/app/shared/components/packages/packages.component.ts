@@ -103,7 +103,7 @@ export class PackagesComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            alert(`Successfully selected package "${pkg.name}"! Your membership is now active.`);
+            alert(`Package "${pkg.name}" selected successfully! Your request is pending admin approval.`);
             this.loadMemberData();
           },
           error: (err) => {
@@ -127,6 +127,23 @@ export class PackagesComponent implements OnInit, OnDestroy {
 
   hasPackage(pkgId: number): boolean {
     return this.currentMember?.packageId === pkgId;
+  }
+
+  getPackageStatus(pkgId: number): string {
+    if (!this.currentMember || this.currentMember.packageId !== pkgId) {
+      return '';
+    }
+    
+    if (this.currentMember.packageStatus === 'pending_package') {
+      return 'pending';
+    }
+    if (this.currentMember.packageStatus === 'active') {
+      return 'active';
+    }
+    if (this.currentMember.packageStatus === 'expired') {
+      return 'expired';
+    }
+    return '';
   }
 }
 

@@ -1,0 +1,54 @@
+<section class="pending-packages">
+  <div class="header">
+    <h1>Pending Package Requests</h1>
+    <button (click)="loadPendingPackages()" class="refresh-btn">Refresh</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Loading package requests...</p>
+  </div>
+
+  <div class="error" *ngIf="error && !loading">
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="no-packages" *ngIf="!loading && !error && pendingMembers.length === 0">
+    <p>No pending package requests.</p>
+  </div>
+
+  <div class="packages-list" *ngIf="!loading && !error && pendingMembers.length > 0">
+    <div class="package-card" *ngFor="let member of pendingMembers">
+      <div class="package-info">
+        <div class="package-header">
+          <h3>{{ member.name }}</h3>
+          <span class="level-badge" [class.beginner]="member.level === 'beginner'" [class.medium]="member.level === 'medium'" [class.expert]="member.level === 'expert'">
+            {{ member.level }}
+          </span>
+        </div>
+        <p class="member-details">
+          <strong>Email:</strong> {{ member.user?.email }}
+        </p>
+        <div class="requested-package">
+          <strong>Requested Package:</strong>
+          <div class="package-details">
+            <span class="package-name">{{ member.package?.name || 'N/A' }}</span>
+            <span class="package-price">{{ member.package?.price }}€ / month</span>
+            <span class="package-sessions">{{ member.package?.sessionsPerMonth }} sessions/month</span>
+          </div>
+        </div>
+        <p class="status-info">
+          <strong>Status:</strong> 
+          <span class="status-pending">Waiting for approval</span>
+        </p>
+      </div>
+      <div class="package-actions">
+        <button class="btn-approve" (click)="approvePackage(member)">
+          ✓ Approve
+        </button>
+        <button class="btn-reject" (click)="rejectPackage(member)">
+          ✗ Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -146,6 +146,16 @@
       font-weight: 500;
       font-size: 0.95rem;
       
+      &.pending {
+        color: #ff9800;
+        font-weight: 600;
+      }
+
+      &.expired {
+        color: #f44336;
+        font-weight: 600;
+      }
+
       &.active {
         color: #28a745;
         font-weight: 700;
@@ -160,6 +170,24 @@
         font-weight: 700;
         padding: 0.25rem 0.75rem;
         background: rgba(220, 53, 69, 0.1);
+        border-radius: 12px;
+        display: inline-block;
+      }
+
+      &.pending {
+        color: #ff9800;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        background: rgba(255, 152, 0, 0.1);
+        border-radius: 12px;
+        display: inline-block;
+      }
+
+      &.expired {
+        color: #f44336;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        background: rgba(244, 67, 54, 0.1);
         border-radius: 12px;
         display: inline-block;
       }

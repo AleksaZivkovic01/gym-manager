@@ -30,14 +30,28 @@ export class Member {
   @Column({ nullable: true })
   packageId?: number;
 
+  @Column({ 
+    type: 'enum', 
+    enum: ['pending_package', 'active', 'expired'],
+    nullable: true,
+    default: null
+  })
+  packageStatus?: 'pending_package' | 'active' | 'expired';
+
+  @Column({ type: 'date', nullable: true })
+  membershipStartDate?: Date;
+
+  @Column({ type: 'date', nullable: true })
+  membershipEndDate?: Date;
+
   @OneToMany(() => SessionRegistration, (registration) => registration.member)
   sessionRegistrations: SessionRegistration[];
 
-@OneToOne(() => User, (user) => user.member, {
-  onDelete: 'CASCADE'
-})
-@JoinColumn()
-user: User;
+  @OneToOne(() => User, (user) => user.member, {
+    onDelete: 'CASCADE'
+  })
+  @JoinColumn()
+  user: User;
 
 
 

@@ -3,7 +3,7 @@ export interface Package {
   name: string;
   description?: string;
   price: number;
-  sessionsPerMonth: number; // 0 = unlimited
+  sessionsPerMonth: number; 
   isActive: boolean;
 }
 

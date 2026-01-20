@@ -15,13 +15,16 @@
       <div class="membership-info" *ngIf="memberInfo">
         <div class="info-row">
           <span class="label">Status:</span>
-          <span class="value" [class.active]="memberInfo.isActive" [class.inactive]="!memberInfo.isActive">
-            {{ memberInfo.isActive ? 'Active' : 'Inactive' }}
+          <span class="value" 
+            [class.active]="memberInfo.isActive && memberInfo.packageStatus === 'active'" 
+            [class.inactive]="!memberInfo.isActive || memberInfo.packageStatus !== 'active'"
+            [class.pending]="memberInfo.packageStatus === 'pending_package'"
+            [class.expired]="memberInfo.packageStatus === 'expired'">
+            <span *ngIf="memberInfo.packageStatus === 'pending_package'">⏳ Pending Approval</span>
+            <span *ngIf="memberInfo.packageStatus === 'active'">✓ Active</span>
+            <span *ngIf="memberInfo.packageStatus === 'expired'">⚠️ Expired</span>
+            <span *ngIf="!memberInfo.packageStatus">Inactive</span>
           </span>
-        </div>
-        <div class="info-row">
-          <span class="label">Training level:</span>
-          <span class="value">{{ getLevelLabel(memberInfo.level) }}</span>
         </div>
         <div class="info-row" *ngIf="memberInfo.name">
           <span class="label">Member:</span>
@@ -31,13 +34,22 @@
           <span class="label">Membership package:</span>
           <span class="value package-name">{{ memberInfo.package.name }}</span>
         </div>
+        <div class="info-row" *ngIf="memberInfo.membershipStartDate">
+          <span class="label">Membership Start:</span>
+          <span class="value">{{ formatDate(memberInfo.membershipStartDate) }}</span>
+        </div>
+        <div class="info-row" *ngIf="memberInfo.membershipEndDate">
+          <span class="label">Expires on:</span>
+          <span class="value">{{ formatDate(memberInfo.membershipEndDate) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Training level:</span>
+          <span class="value">{{ getLevelLabel(memberInfo.level) }}</span>
+        </div>
+       
         <div class="info-row" *ngIf="memberInfo.package">
           <span class="label">Price:</span>
           <span class="value">{{ formatPrice(memberInfo.package.price) }}</span>
-        </div>
-        <div class="info-row" *ngIf="memberInfo.package">
-          <span class="label">Sessions per month:</span>
-          <span class="value">{{ getSessionsLabel(memberInfo.package.sessionsPerMonth) }}</span>
         </div>
         <div class="info-row" *ngIf="!memberInfo.package">
           <span class="label">Membership package:</span>

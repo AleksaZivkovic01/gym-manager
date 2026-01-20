@@ -65,4 +65,26 @@ export class SessionService {
   deleteSession(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  checkSessionAvailability(sessionId: number): Promise<{ available: boolean; spotsLeft: number }> {
+    const token = localStorage.getItem('gym_manager_token');
+    
+    return fetch(`${this.apiUrl}/${sessionId}/availability`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json() as Promise<{ available: boolean; spotsLeft: number }>;
+      })
+      .catch((error) => {
+        console.error('Error checking session availability:', error);
+        throw error;
+      });
+  }
 }

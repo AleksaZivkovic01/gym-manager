@@ -40,7 +40,6 @@ export class MemberFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Load packages
     this.packageService.getPackages()
       .pipe(takeUntil(this.destroy$))
       .subscribe(packages => {

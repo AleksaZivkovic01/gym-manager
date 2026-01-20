@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Member } from './member.entity';
 import { CreateMemberDto, UpdateMemberDto } from './dto/member.dto';
 import { SessionRegistration } from '../sessions/session-registration.entity';
@@ -82,14 +82,24 @@ export class MemberService {
       
       if (dto.packageId !== undefined) {
         updateData.packageId = dto.packageId || null;
-        // isActive je true samo ako postoji packageId, inače false
-        if (dto.isActive === undefined) {
-          updateData.isActive = dto.packageId !== null && dto.packageId !== undefined;
+        
+        if (dto.packageId !== null && dto.packageId !== undefined) {
+          updateData.packageStatus = 'pending_package';
+          updateData.isActive = false; 
+        } else {
+          updateData.packageStatus = undefined;
+          updateData.isActive = false;
+          updateData.membershipStartDate = undefined;
+          updateData.membershipEndDate = undefined;
+        }
+        
+        // admin moze da izvrsi active ili inactive membership
+        if (dto.isActive !== undefined) {
+          updateData.isActive = dto.isActive;
         }
       }
 
       await this.memberRepository.update(id, updateData);
-
      
       try {
         const updated = await this.findOne(id);
@@ -98,7 +108,6 @@ export class MemberService {
         }
         return updated;
       } catch (findError) {
-     
         console.warn(`findOne failed for member ${id}, trying without relations:`, findError);
         const memberWithoutRelations = await this.memberRepository.findOne({
           where: { id },
@@ -106,6 +115,7 @@ export class MemberService {
         if (!memberWithoutRelations) {
           throw new NotFoundException(`Member with ID ${id} not found`);
         }
+        // ako pukne findOne, vracam member bez relacija
         return memberWithoutRelations;
       }
     } catch (error) {
@@ -136,16 +146,11 @@ export class MemberService {
 
     } catch (error) {
       console.error(`Error deleting member with ID ${id}:`, error);
-
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
       throw error;
     }
   }
 
-  async   findByUserId(userId: number): Promise<Member | null> {
+  async findByUserId(userId: number): Promise<Member | null> {
     return this.memberRepository
       .createQueryBuilder('member')
       .leftJoinAndSelect('member.sessionRegistrations', 'sessionRegistrations')
@@ -155,6 +160,94 @@ export class MemberService {
       .getOne();
   }
 
- 
+  async findPendingPackageRequests(): Promise<Member[]> {
+    return this.memberRepository.find({
+      where: {
+        packageStatus: 'pending_package'
+      },
+      relations: ['user', 'package'],
+      order: {
+        id: 'DESC'
+      }
+    });
+  }
+
+  async approvePackage(memberId: number): Promise<Member> {
+    const member = await this.findOne(memberId);
+    if (!member) {
+      throw new NotFoundException(`Member with ID ${memberId} not found`);
+    }
+
+    if (member.packageStatus !== 'pending_package') {
+      throw new NotFoundException(`Member ${memberId} does not have a pending package request`);
+    }
+
+    if (!member.packageId) {
+      throw new NotFoundException(`Member ${memberId} does not have a package selected`);
+    }
+
+    const now = new Date();
+    const endDate = new Date(now);
+    endDate.setDate(endDate.getDate() + 30); 
+
+    await this.memberRepository.update(memberId, {
+      packageStatus: 'active',
+      isActive: true,
+      membershipStartDate: now,
+      membershipEndDate: endDate
+    });
+
+    const updated = await this.findOne(memberId);
+    if (!updated) {
+      throw new NotFoundException(`Member with ID ${memberId} not found after update`);
+    }
+    return updated;
+  }
+
+  async rejectPackage(memberId: number): Promise<Member> {
+    const member = await this.findOne(memberId);
+    if (!member) {
+      throw new NotFoundException(`Member with ID ${memberId} not found`);
+    }
+
+    if (member.packageStatus !== 'pending_package') {
+      throw new NotFoundException(`Member ${memberId} does not have a pending package request`);
+    }
+
+    await this.memberRepository.update(memberId, {
+      packageStatus: undefined,
+      packageId: undefined,
+      isActive: false,
+      membershipStartDate: undefined,
+      membershipEndDate: undefined
+    });
+
+    const updated = await this.findOne(memberId);
+    if (!updated) {
+      throw new NotFoundException(`Member with ID ${memberId} not found after update`);
+    }
+    return updated;
+  }
+
+  async expireMemberships(): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const result = await this.memberRepository.update(
+      {
+        packageStatus: 'active',
+        membershipEndDate: LessThan(today)
+      },
+      {
+        packageStatus: 'expired',
+        isActive: false,
+        packageId: undefined,
+        membershipStartDate: undefined,
+        membershipEndDate: undefined
+      }
+    );
+
+    return result.affected || 0;
+  }
 
 }

@@ -28,13 +28,12 @@ export class RatingService {
       throw new NotFoundException(`Member with ID ${dto.memberId} not found`);
     }
 
-    // Check if member already rated this trainer
     const existingRating = await this.ratingRepository.findOne({
       where: { trainer: { id: trainerId }, member: { id: dto.memberId } },
     });
 
     if (existingRating) {
-      throw new BadRequestException('Već ste ocenili ovog trenera. Možete ažurirati postojeću ocenu.');
+      throw new BadRequestException('You have already rated this trainer.');
     }
 
     const rating = this.ratingRepository.create({
@@ -90,7 +89,7 @@ export class RatingService {
     }
 
     const sum = ratings.reduce((acc, r) => acc + r.rating, 0);
-    return Math.round((sum / ratings.length) * 10) / 10; // Round to 1 decimal place
+    return Math.round((sum / ratings.length) * 10) / 10; 
   }
 
   async getRatingByMemberAndTrainer(memberId: number, trainerId: number): Promise<Rating | null> {

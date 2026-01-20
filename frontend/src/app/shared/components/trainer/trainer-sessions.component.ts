@@ -92,7 +92,7 @@ export class TrainerSessionsComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Error loading trainer data:', err);
           this.trainerInfo = null;
-          this.loading = false;
+          this.loading = false; 
         }
       });
   }

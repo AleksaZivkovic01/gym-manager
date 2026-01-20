@@ -39,6 +39,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   totalSessions = 0;
   upcomingSessionsCount = 0;
   pendingUsersCount = 0;
+  pendingPackagesCount = 0;
   recentSessions: TrainingSession[] = [];
   recentActivities: Activity[] = [];
   membersSummary: MembersSummary | null = null;
@@ -89,6 +90,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
           // podaci o pending users
           this.pendingUsersCount = pendingUsers.length;
+
+          // podaci o pending packages
+          const pendingPackages = members.filter(m => m.packageStatus === 'pending_package');
+          this.pendingPackagesCount = pendingPackages.length;
 
           // podaci o sesijama
           this.totalSessions = sessions.length;

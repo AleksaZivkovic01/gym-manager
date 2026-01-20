@@ -16,7 +16,7 @@ export class TrainerService {
     private trainerRepository: Repository<Trainer>,
     @InjectRepository(TrainingSession)
     private sessionRepository: Repository<TrainingSession>,
-    @Inject(forwardRef(() => RatingService))
+    @Inject(forwardRef(() => RatingService)) // resava circular dependency
     private ratingService: RatingService,
   ) {}
 
